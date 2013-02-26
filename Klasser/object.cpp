@@ -5,8 +5,17 @@
 
 using namespace std;
 
-Object::Object(int _x, int _y, float _dx, float _dy, int _width, int _height, int _id)
-:x(_x), y(_y), dx(_dx), dy(_dy), width(_width), height(_height), id(_id)  {}
+Object::Object(int x, int y, float dx, float dy, int width, int height, int id)
+: x(x), y(y), dx(dx), dy(dy), width(width), height(height), id(id)  {}
+
+std::ostream & operator<< (std::ostream & o, Object & object)
+{
+	o << "ID: " << object.id << "\n";
+	o << "Position: (" << object.x << ", " << object.y << ")" << "\n";
+	o << "Dimenson: (" << object.width << ", " << object.height << ")" << "\n";
+	o << "Velocity: (" << object.dx << ", " << object.dy << ")" << "\n";
+	return o;
+}
 
 void Object::info()
 {

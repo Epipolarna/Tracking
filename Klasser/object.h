@@ -1,5 +1,7 @@
 // object.h, Contains class definition of object
 
+#include <iostream>
+
 #ifndef OBJECT_H
 #define OBJECT_H
 
@@ -11,7 +13,8 @@ public:
 
 	int id, x, y, width, height;
 	float dx, dy;
-
+		
+	friend std::ostream & operator<< (std::ostream & o, Object & obj);
 	void info();
 };
 #endif

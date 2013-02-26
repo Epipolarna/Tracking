@@ -6,10 +6,10 @@
 class Object
 {
 public:
-	Object() {x = 0, y = 0, dx = 0, dy = 0, height = 0, width = 0, id = 0;}
-	Object(int x, int y, float dx, float dy, int height = 0, int width = 0, int id = 0);
+	Object() {x = 0, y = 0, dx = 0, dy = 0, width = 0, height = 0, id = 0;}
+	Object(int x, int y, float dx, float dy, int width = 0, int height = 0, int id = 0);
 
-	int id, x, y, height, width;
+	int id, x, y, width, height;
 	float dx, dy;
 
 	void info();

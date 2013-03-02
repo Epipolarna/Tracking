@@ -1,19 +1,33 @@
 #include "FrameList.h"
 
-int FrameList::foo(){
-	return 10;
+
+FrameList::FrameList(int framesToKeep){
+	maxFrames = framesToKeep;
 }
 
 void FrameList::appendFrame(IplImage *frameImage){
 
 	Mat m = Mat(frameImage);
-	Frame f = Frame(m);
-	
-	framesList.push_back(f);
 
+
+	if(getNumFrames() >= maxFrames){
+		oldFrames.pop_front();
+	}
+	oldFrames.push_back(Frame(m.clone()));
 }
 
+int FrameList::getMaxFrames(){
+	return maxFrames;
+}
 
 int FrameList::getNumFrames(){
-	return framesList.size();
+	return oldFrames.size();
+}
+
+Frame FrameList::getLast(){
+	return oldFrames.back();
+}
+
+vector<Frame> FrameList::toVector(){
+	return vector<Frame>(oldFrames.begin(),oldFrames.begin());
 }

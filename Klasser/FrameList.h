@@ -2,6 +2,7 @@
 #define __FRAMELIST__
 
 #include <opencv2/core/core.hpp>
+#include <list>
 #include <vector>
 
 #include "Frame.h"
@@ -11,11 +12,18 @@ using namespace std;
 
 class FrameList{
 public:
-	vector<Frame> framesList;
-	int foo();
+	list<Frame> oldFrames;
+	
+	//public methods
+	FrameList(int maxFrames);
 	void appendFrame(IplImage *frameImage);
 	int getNumFrames();
+	int getMaxFrames();
+	Frame getLast();
+	vector<Frame> toVector();
 
+private:
+	int maxFrames;
 };
 
 #endif

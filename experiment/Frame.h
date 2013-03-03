@@ -12,8 +12,6 @@ public:
 	Mat *probabilityMap;
 
 	Frame(Mat img);
-	
-	
 };
 
 #endif

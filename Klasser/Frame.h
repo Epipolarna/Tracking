@@ -3,6 +3,7 @@
 
 #include <opencv2/core/core.hpp>
 #include <vector>
+#include "object.h"
 
 #include "ProbabilityMap.h"
 
@@ -10,10 +11,13 @@ using namespace cv;
 
 class Frame{
 public:
+	Frame(Mat img);
+
+public:
 	Mat image;
 	ProbabilityMap *p;
-
-	Frame(Mat img);
+	
+	std::list<Object> objects;
 };
 
 #endif

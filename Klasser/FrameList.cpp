@@ -29,5 +29,5 @@ Frame FrameList::getLast(){
 }
 
 vector<Frame> FrameList::toVector(){
-	return vector<Frame>(oldFrames.begin(),oldFrames.begin());
+	return vector<Frame>(oldFrames.begin(),oldFrames.end());
 }

@@ -1,12 +1,29 @@
 // object.ccp
 
+//include "stdafx.h"
+
 #include "object.h"
 #include <iostream>
 
 using namespace std;
 
 Object::Object(int x, int y, float dx, float dy, int width, int height, int id)
-: x(x), y(y), dx(dx), dy(dy), width(width), height(height), id(id)  {}
+: x(x), y(y), dx(dx), dy(dy), width(width), height(height), id(id)  
+{
+	boundingBox.x = x-width/2;
+	boundingBox.y = y-height/2;
+	boundingBox.x = width;
+	boundingBox.x = height;
+}
+
+Object::Object(cv::Rect boundingBox, float dx, float dy, int id)
+: boundingBox(boundingBox), dx(dx), dy(dy), id(id) 
+{
+	x = boundingBox.x + boundingBox.width/2;
+	y = boundingBox.y + boundingBox.height/2;
+	width = boundingBox.width;
+	height = boundingBox.height;
+}
 
 std::ostream & operator<< (std::ostream & o, Object & object)
 {

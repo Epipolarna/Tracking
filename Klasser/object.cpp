@@ -1,6 +1,6 @@
 // object.ccp
 
-//include "stdafx.h"
+//#include "stdafx.h"
 
 #include "object.h"
 #include <iostream>
@@ -12,8 +12,8 @@ Object::Object(int x, int y, float dx, float dy, int width, int height, int id)
 {
 	boundingBox.x = x-width/2;
 	boundingBox.y = y-height/2;
-	boundingBox.x = width;
-	boundingBox.x = height;
+	boundingBox.width = width;
+	boundingBox.height = height;
 }
 
 Object::Object(cv::Rect boundingBox, float dx, float dy, int id)

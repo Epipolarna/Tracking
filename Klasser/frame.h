@@ -23,9 +23,14 @@ class frame
 public:
 	frame(Mat rawFrame, Mat probMap);
 	
-	//Draws, in the rawFrame matrix, the bounding boxes and velocity vectors of the objects in object list.
+	//Draws the bounding boxes and velocity vectors of the objects in object list.
 	void drawObjects(cv::Scalar color);
+	
+	//Finds objects in a binary image and puts them in the list.
 	void getObjects();
+	//Same as above but also performs a cleanup using the distance transform. (slow but hopefully better)
+	void getObjectsDistMap(double minDist);
+	
 
 	//Image Processing of probabilitymap.
 	void threshMap(int threshval);

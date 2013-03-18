@@ -4,8 +4,8 @@
 *
 */
 
-//#include "stdafx.h"
-#include "frame.h"
+#include "stdafx.h"
+//#include "frame.h"
 
 using namespace cv;
 using namespace std;
@@ -27,15 +27,41 @@ void frame::drawObjects(Scalar color)
 void frame::getObjects()
 {
 	vector<vector<Point>> contours;
-	findContours( probMap, contours, CV_RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
-	Rect objRect;
+	findContours( probMap.clone(), contours, CV_RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 	
-	for(int i = 0; i < contours.size(); i++)
-	{	
-		objRect = boundingRect(contours[i]);		
-		objects.push_front(Object(objRect));	
+	for(unsigned int i = 0; i < contours.size(); i++)
+	{		
+		objects.push_front(Object(boundingRect(contours[i])));	
 	}
 }
+
+void frame::getObjectsDistMap(double minDist)
+{
+	vector<vector<Point>> contours;
+	findContours( probMap, contours, CV_RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+
+	Rect objRect;
+	double dist = 0;
+	for(unsigned int i = 0; i < contours.size(); i++)
+	{	
+		objRect = boundingRect(contours[i]);
+		vector<Point> contour = contours[i];
+		
+		//Measure distance to the contour of all pixels within the bounding box.
+		for( int j = objRect.x; j < objRect.x + objRect.width; j++)
+			{ for( int k = objRect.y; k < objRect.y + objRect.height; k++) 
+				{ 
+					dist = max(dist, pointPolygonTest(contour, Point(j, k), true)); // Calculate distance
+				} 
+			}
+		if (dist > minDist) //Create object only if distance is great enough.
+		{		
+			objects.push_front(Object(objRect));	
+		}
+		dist = 0;
+	}
+}
+
 
 void frame::threshMap(int threshval)
 {

@@ -15,8 +15,11 @@ const std::string path = "C:\\Users\\TiXiR\\Documents\\skola\\TSBB15 - Computer 
 int main()
 {
 	std::list<Frame> frames;
-	Identification::generate_testdata(frames);
-	
+	std::list<Frame> testFrames;
+	Identification::generate_testdata(testFrames);
+	Identification::Identifier identifier;
+
+
 	cvNamedWindow("Identify::Test", 1 ); 
 
 	string text = "Funny text inside the box";
@@ -24,14 +27,20 @@ int main()
 	double fontScale = 0.5;
 	int thickness = 1;
 
+	int tests = testFrames.size();
 	int n = 0;
-	for(std::list<Frame>::iterator f = frames.begin(); f != frames.end(); f++)
+	while(!testFrames.empty())
 	{
 		n++;
-		text = "[Frame "+std::to_string(n)+"("+std::to_string(frames.size())+")]";
-		f->drawObjects(cv::Scalar(250, 0, 0, 255));
-		putText(f->rawFrame, text, Point(5, 15), fontFace, fontScale, Scalar::all(255), thickness, 8);
-		imshow("Identify::Test",f->rawFrame);
+		frames.push_front(testFrames.front());
+		testFrames.pop_front();
+
+		identifier.identify(frames);
+
+		text = "[Frame "+std::to_string(n)+"("+std::to_string(tests)+")]";
+		frames.front().drawObjects(cv::Scalar(250, 0, 0, 255));
+		putText(frames.front().rawFrame, text, Point(5, 15), fontFace, fontScale, Scalar::all(255), thickness, 8);
+		frames.front().showImageRaw("Identify::Test");
 		waitKey(0);
 	}
 	

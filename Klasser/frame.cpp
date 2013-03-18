@@ -15,7 +15,7 @@ Frame::Frame(cv::Mat _rawFrame, cv::Mat _probMap)
 
 void Frame::drawObjects(Scalar color)
 {
-	for (std::list<Object>::iterator it = objects.begin(); it != objects.end(); ++it)
+	for (std::vector<Object>::iterator it = objects.begin(); it != objects.end(); ++it)
 	{
 		rectangle(rawFrame, Point(it->boundingBox.x, it->boundingBox.y), 
 							Point(it->boundingBox.x + it->width, it->boundingBox.y + it->height), 
@@ -37,7 +37,7 @@ void Frame::getObjects()
 	
 	for(unsigned int i = 0; i < contours.size(); i++)
 	{		
-		objects.push_front(Object(boundingRect(contours[i])));	
+		objects.push_back(Object(boundingRect(contours[i])));	
 	}
 }
 
@@ -62,7 +62,7 @@ void Frame::getObjectsDistMap(double minDist)
 			}
 		if (dist > minDist) //Create object only if distance is great enough.
 		{		
-			objects.push_front(Object(objRect));	
+			objects.push_back(Object(objRect));	
 		}
 		dist = 0;
 	}
@@ -112,7 +112,7 @@ void Frame::dilateBinMap(int iterations)
 
 void Frame::showObjects()
 {
-	for (std::list<Object>::iterator it = objects.begin(); it != objects.end(); ++it)
+	for (std::vector<Object>::iterator it = objects.begin(); it != objects.end(); ++it)
 	{
 		it->info();
 	}

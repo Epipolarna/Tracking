@@ -41,7 +41,7 @@ public:
 	//Data
 	Mat rawFrame;		//Should be 3-channel color
 	Mat probMap;		//Should be single channel grayscale
-	std::list<Object> objects;
+	std::vector<Object> objects;
 	
 	//For debugging/showoff
 	void showObjects();

@@ -4,16 +4,16 @@
 *
 */
 
-#include "stdafx.h"
-//#include "frame.h"
+//#include "stdafx.h"
+#include "frame.h"
 
 using namespace cv;
 using namespace std;
 
-frame::frame(cv::Mat _rawFrame, cv::Mat _probMap)
-	:rawFrame(_rawFrame), probMap(_probMap) {}
+Frame::Frame(cv::Mat _rawFrame, cv::Mat _probMap)
+	: rawFrame(_rawFrame), probMap(_probMap) {}
 
-void frame::drawObjects(Scalar color)
+void Frame::drawObjects(Scalar color)
 {
 	for (std::list<Object>::iterator it = objects.begin(); it != objects.end(); ++it)
 	{
@@ -24,7 +24,7 @@ void frame::drawObjects(Scalar color)
 	}
 }
 
-void frame::getObjects()
+void Frame::getObjects()
 {
 	vector<vector<Point>> contours;
 	findContours( probMap.clone(), contours, CV_RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
@@ -35,7 +35,7 @@ void frame::getObjects()
 	}
 }
 
-void frame::getObjectsDistMap(double minDist)
+void Frame::getObjectsDistMap(double minDist)
 {
 	vector<vector<Point>> contours;
 	findContours( probMap, contours, CV_RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
@@ -63,13 +63,13 @@ void frame::getObjectsDistMap(double minDist)
 }
 
 
-void frame::threshMap(int threshval)
+void Frame::threshMap(int threshval)
 {
 	int maxVal = 255;
 	threshold(probMap, probMap, threshval, maxVal, THRESH_BINARY);
 }
 
-void frame::openingBinMap(int iterations)
+void Frame::openingBinMap(int iterations)
 {
 	cv::Mat kernel;
 	kernel = getStructuringElement( MORPH_CROSS, Size(3, 3));
@@ -77,7 +77,7 @@ void frame::openingBinMap(int iterations)
 	erode(probMap, probMap, kernel, cv::Point(-1,-1), iterations);
 }
 
-void frame::closingBinMap(int iterations)
+void Frame::closingBinMap(int iterations)
 {
 	cv::Mat kernel;
 	kernel = getStructuringElement( MORPH_CROSS, Size(3, 3));
@@ -88,14 +88,14 @@ void frame::closingBinMap(int iterations)
 
 /////////////////////////////////////////////// Private Functions //////////////////////////////////////////////////////
 
-void frame::erodeBinMap(int iterations)
+void Frame::erodeBinMap(int iterations)
 {
 	cv::Mat kernel;
 	kernel = getStructuringElement( MORPH_CROSS, Size(3, 3));
 	erode(probMap, probMap, kernel, cv::Point(-1,-1), iterations);
 }
 
-void frame::dilateBinMap(int iterations)
+void Frame::dilateBinMap(int iterations)
 {
 	cv::Mat kernel;
 	kernel = getStructuringElement( MORPH_CROSS, Size(3, 3));
@@ -104,7 +104,7 @@ void frame::dilateBinMap(int iterations)
 
 /////////////////////////////////////////////// Showimage //////////////////////////////////////////////////////
 
-void frame::showObjects()
+void Frame::showObjects()
 {
 	for (std::list<Object>::iterator it = objects.begin(); it != objects.end(); ++it)
 	{
@@ -112,13 +112,13 @@ void frame::showObjects()
 	}
 }
 
-void frame::showImageRaw(string windowID)
+void Frame::showImageRaw(string windowID)
 {
 	namedWindow( windowID, CV_WINDOW_AUTOSIZE );		// Create a window for display.
     imshow( windowID, rawFrame );						// Show our image inside it.
 }
 
-void frame::showImageProbMap(string windowID)
+void Frame::showImageProbMap(string windowID)
 {
 	namedWindow( windowID, CV_WINDOW_AUTOSIZE );		// Create a window for display.
     imshow( windowID, probMap );						// Show our image inside it.

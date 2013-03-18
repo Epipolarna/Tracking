@@ -17,11 +17,12 @@
 //using namespace std;
 using namespace cv;
 
-class frame
+class Frame
 {
 
 public:
-	frame(Mat rawFrame, Mat probMap);
+	Frame() {}	//Default constructor, used by Tiger for testing..
+	Frame(Mat rawFrame, Mat probMap);
 	
 	//Draws the bounding boxes and velocity vectors of the objects in object list.
 	void drawObjects(cv::Scalar color);

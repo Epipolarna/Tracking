@@ -1,6 +1,5 @@
 #include "FrameList.h"
 
-
 FrameList::FrameList(int framesToKeep){
 	maxFrames = framesToKeep;
 }
@@ -8,12 +7,13 @@ FrameList::FrameList(int framesToKeep){
 void FrameList::appendFrame(IplImage *frameImage){
 
 	Mat m = Mat(frameImage);
+	Frame f = Frame(m.clone());
 
 
 	if(getNumFrames() >= maxFrames){
 		oldFrames.pop_front();
 	}
-	oldFrames.push_back(Frame(m.clone()));
+	oldFrames.push_back(f);
 }
 
 int FrameList::getMaxFrames(){

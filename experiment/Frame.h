@@ -2,14 +2,16 @@
 #define __FRAME__
 
 #include <opencv2/core/core.hpp>
-#include <vector>
+#include "ProbabilityMap.h"
+
+class ProbabilityMap;
 
 using namespace cv;
 
 class Frame{
 public:
 	Mat image;
-	Mat *probabilityMap;
+	ProbabilityMap *pData;
 
 	Frame(Mat img);
 };

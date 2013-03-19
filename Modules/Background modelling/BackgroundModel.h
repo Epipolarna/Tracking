@@ -9,6 +9,7 @@ namespace BackgroundModelling
 	{
 	public:
 		void update(std::list<Frame> & frames);
+
 	};
 	// Additional function-/datastructuredeclarations here
 }

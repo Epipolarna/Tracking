@@ -78,8 +78,8 @@ void FrameList::display(std::string windowID)
 
 	std::string text = "[Frame "+std::to_string(getCurrentFrameNumber())+"("+std::to_string(getFrameAmount())+")]";
 	getFrames().front().drawObjects(cv::Scalar(250, 0, 0, 255));
-	putText(getFrames().front().rawFrame, text, Point(5, 15), fontFace, fontScale, Scalar::all(0), thickness, 8);
-	imshow( windowID.c_str(), getFrames().front().rawFrame );
+	putText(getFrames().front().image, text, Point(5, 15), fontFace, fontScale, Scalar::all(0), thickness, 8);
+	imshow( windowID.c_str(), getFrames().front().image );
 }
 
 void FrameList::displayBackground(std::string windowID)

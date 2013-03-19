@@ -25,7 +25,7 @@ ProbabilityMap::ProbabilityMap(Frame *prevFrame, Frame *currFrame){
 					for(int k=0; k < numGauss; k++){
 						distributions[row*image.rows+col+k].mean[c] = image.at<Vec3b>(row,col)[c];
 						distributions[row*image.rows+col+k].sigma[c] = initSigma;
-						distributions[row*image.rows+col+k].mean[c] = 1/numGauss;
+						distributions[row*image.rows+col+k].w[c] = 1/float(numGauss);
 					}
 				}
 			}
@@ -87,7 +87,7 @@ void ProbabilityMap::updateDistributions(Mat image){
 				float w = distributions[row*image.rows+col+k].w;
 				distributions[row*image.rows+col+k].w = w/wSum;
 				float wSig = distributions[row*image.rows+col+k].w / sigmaSize(distributions[row*image.rows+col+k]);
-				if(biggestW[row*image.rows+col+k] < wSig || k == 0){
+				if(biggestW[row*image.rows+col+k] < wSig){
 					biggestW[row*image.rows+col+k] = wSig;
 				}
 			}
@@ -96,7 +96,7 @@ void ProbabilityMap::updateDistributions(Mat image){
 }
 
 void ProbabilityMap::setB(int rows, int cols){
-	Mat p(rows,cols,CV_32FC1);
+	Mat p(rows,cols,CV_32FC2);
 
 	for(int row=0; row < rows; row++){
 		for(int col=0; col < cols; col++){

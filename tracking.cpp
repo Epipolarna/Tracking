@@ -13,7 +13,7 @@ int main()
 	BackgroundModel backgroundModel;
 	ForegroundProcessor foregroundProcessor;
 	Identification::Identifier identifier;
-	KalmanFilter kalmanFilter;
+	Prediction::KalmanFilter kalmanFilter;
 	
 	// Load frame source
 	frameList.open("data/camera1.mov");

@@ -50,6 +50,6 @@ namespace Identification
 
 	void generate_testdata(std::list<Frame> & frameList, std::string test = "simple1");
 	float randf();
-};
+}
 
 #endif

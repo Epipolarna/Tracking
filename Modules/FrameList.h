@@ -1,5 +1,5 @@
-#ifndef __FRAMELIST__
-#define __FRAMELIST__
+#ifndef __FRAMELIST_H_
+#define __FRAMELIST_H_
 
 #include <opencv2/core/core.hpp>
 #include <list>

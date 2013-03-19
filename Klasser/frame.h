@@ -8,7 +8,7 @@
 #ifndef FRAME_H
 #define FRAME_H
 
-#include "object.h"
+#include "../Modules/Object.h"
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>

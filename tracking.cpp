@@ -16,7 +16,7 @@ int main()
 	Prediction::KalmanFilter kalmanFilter;
 	
 	// Load frame source
-	frameList.open("data/camera1.mov");
+	frameList.open("camera1.mov");
 	
 	// Create windows
 	namedWindow("Background",CV_WINDOW_AUTOSIZE);

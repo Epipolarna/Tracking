@@ -42,12 +42,11 @@ void FrameList::queryNextFrame()
 
 void FrameList::appendFrame(IplImage *frameImage)
 {
-
-	if(getFrameAmount() >= maxFrames)
+	if(getCurrentFrameNumber() >= maxFrames)
 	{
-		oldFrames.pop_front();
+		oldFrames.pop_back();
 	}
-	oldFrames.push_back(Frame(Mat(frameImage), Mat(frameImage)));
+	oldFrames.push_front(Frame(Mat(frameImage), Mat(frameImage)));
 }
 
 int FrameList::getFrameAmount()
@@ -70,17 +69,23 @@ vector<Frame> FrameList::toVector()
 	return vector<Frame>(oldFrames.begin(),oldFrames.end());
 }
 
-void display(std::string windowID)
+void FrameList::display(std::string windowID)
+{
+	int fontFace = CV_FONT_HERSHEY_COMPLEX;
+	double fontScale = 0.5;
+	int thickness = 1;
+
+	std::string text = "[Frame "+std::to_string(getCurrentFrameNumber())+"("+std::to_string(getFrameAmount())+")]";
+	putText(getFrames().front().rawFrame, text, Point(5, 15), fontFace, fontScale, Scalar::all(0), thickness, 8);
+	getFrames().front().showImageRaw(windowID.c_str());
+}
+
+void FrameList::displayBackground(std::string windowID)
 {
 	//<TODO>
 }
 
-void displayBackground(std::string windowID)
-{
-	//<TODO>
-}
-
-void displayForeground(std::string windowID)
+void FrameList::displayForeground(std::string windowID)
 {
 	//<TODO>
 }

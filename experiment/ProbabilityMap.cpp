@@ -7,6 +7,7 @@ ProbabilityMap::ProbabilityMap(Frame *prevFrame, Frame *currFrame){
 	lambda = 2.5; //this should probably be tweaked to be lower
 	initSigma = 3;
 	int numPixels = currFrame->image.rows * currFrame->image.cols;
+	biggestW = new float[numPixels];
 	Mat image = currFrame->image;
 	
 	if(prevFrame == NULL){
@@ -33,7 +34,6 @@ ProbabilityMap::ProbabilityMap(Frame *prevFrame, Frame *currFrame){
 		this->distributions = prevFrame->pData->distributions;
 		updateDistributions(image);
 	}
-
 	setB(image.rows,image.cols);
 }
 
@@ -86,14 +86,24 @@ void ProbabilityMap::updateDistributions(Mat image){
 			for(int k=0; k < numGauss; k++){
 				float w = distributions[row*image.rows+col+k].w;
 				distributions[row*image.rows+col+k].w = w/wSum;
+				float wSig = distributions[row*image.rows+col+k].w / sigmaSize(distributions[row*image.rows+col+k]);
+				if(biggestW[row*image.rows+col+k] < wSig){
+					biggestW[row*image.rows+col+k] = wSig;
+				}
 			}
 		}
-
 	}
 }
 
-Mat ProbabilityMap::setB(int rows, int cols){
-	Mat p = Mat(rows,cols,CV32F);
+void ProbabilityMap::setB(int rows, int cols){
+	Mat p(rows,cols,CV_32FC2);
+
+	for(int row=0; row < rows; row++){
+		for(int col=0; col < cols; col++){
+			p.at<float>(row,col) = biggestW[row*rows+col];
+		}
+	}
+	pImage = p;
 }
 
 float ProbabilityMap::sumW(int row, int col,int maxRow){

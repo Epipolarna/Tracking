@@ -21,9 +21,10 @@ struct gauss3D{
 class ProbabilityMap{
 public:
 	Mat pImage;
+	float *biggestW;
 
 	ProbabilityMap(Frame *prevFrame, Frame *currFrame);
-	Mat setB(int rows, int cols);
+	void setB(int rows, int cols);
 private:
 	int numGauss; //how many distributions will be used
 	float lambda; //treshold for belonging to a distribution

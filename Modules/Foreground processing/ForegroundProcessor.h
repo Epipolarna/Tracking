@@ -1,7 +1,7 @@
 #ifndef _FOREGROUND_PROCESSOR_H_
 #define _FOREGROUND_PROCESSOR_H_
 
-#include "../frame.h"
+#include "../Frame.h"
 
 namespace ForegroundProcessing
 {

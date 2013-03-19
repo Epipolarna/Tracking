@@ -1,7 +1,7 @@
 #ifndef _BACKGROUND_MODEL_H_
 #define _BACKGROUND_MODEL_H_
 
-#include "../frame.h"
+#include "../Frame.h"
 
 namespace BackgroundModelling
 {

@@ -4,6 +4,9 @@
 #include "Modules/Object identification/Identification.h"
 #include "Modules/Prediction/KalmanFilter.h"
 
+
+#include <time.h>
+
 int main()
 {
 	// Frame container
@@ -23,9 +26,14 @@ int main()
 	namedWindow("Foreground",CV_WINDOW_AUTOSIZE);
 	namedWindow("Tracking",CV_WINDOW_AUTOSIZE);
 	
+	//
+	int time;
+
 	// Track objects through all frames
 	while(!frameList.isSourceEmpty())
 	{
+		time = clock();
+
 		// Do the nessecary processing
 		backgroundModel.update(frameList.getFrames());
 		foregroundProcessor.segmentForeground(frameList.getLatestFrame());
@@ -36,9 +44,11 @@ int main()
 		frameList.display("Tracking");
 		frameList.displayBackground("Background");
 		frameList.displayForeground("Foreground");
-		
+
 		// Optional pause between each frame
-		// waitKey(0);
+		//waitKey(0);
+		// Else let it try running in real time
+		waitKey(1000/double(frameList.getFrameRate())-1000*double(clock()-time)/CLOCKS_PER_SEC);
 		
 		// Read next frame from source
 		frameList.queryNextFrame();

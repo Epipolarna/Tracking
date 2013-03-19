@@ -77,7 +77,7 @@ void FrameList::display(std::string windowID)
 
 	std::string text = "[Frame "+std::to_string(getCurrentFrameNumber())+"("+std::to_string(getFrameAmount())+")]";
 	putText(getFrames().front().rawFrame, text, Point(5, 15), fontFace, fontScale, Scalar::all(0), thickness, 8);
-	getFrames().front().showImageRaw(windowID.c_str());
+	imshow( windowID.c_str(), getFrames().front().rawFrame );
 }
 
 void FrameList::displayBackground(std::string windowID)

@@ -1,5 +1,5 @@
 #include "Frame.h"
 
 Frame::Frame(Mat img){
-	image = img;		
+	image = img;
 }

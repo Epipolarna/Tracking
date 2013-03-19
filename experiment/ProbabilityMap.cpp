@@ -87,7 +87,7 @@ void ProbabilityMap::updateDistributions(Mat image){
 				float w = distributions[row*image.rows+col+k].w;
 				distributions[row*image.rows+col+k].w = w/wSum;
 				float wSig = distributions[row*image.rows+col+k].w / sigmaSize(distributions[row*image.rows+col+k]);
-				if(biggestW[row*image.rows+col+k] < wSig){
+				if(biggestW[row*image.rows+col+k] < wSig || k == 0){
 					biggestW[row*image.rows+col+k] = wSig;
 				}
 			}
@@ -96,7 +96,7 @@ void ProbabilityMap::updateDistributions(Mat image){
 }
 
 void ProbabilityMap::setB(int rows, int cols){
-	Mat p(rows,cols,CV_32FC2);
+	Mat p(rows,cols,CV_32FC1);
 
 	for(int row=0; row < rows; row++){
 		for(int col=0; col < cols; col++){

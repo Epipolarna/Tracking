@@ -113,7 +113,9 @@ namespace Identification
 			float var = 10;	// Variance
 			for(int i = 0; i < cTEST_FRAME_WIDTH; i+=stepLength)
 			{
-				NEW_FRAME(); INSERT_OBJECT(i, 200+var*randf(), stepLength+var*randf(), var*randf()); INSERT_OBJECT(i, 100+10*randf(), stepLength+var*randf(), var*randf());
+				NEW_FRAME();
+				INSERT_OBJECT(i, 200+var*randf(), stepLength+var*randf(), var*randf());
+				INSERT_OBJECT(i, 100+10*randf(), stepLength+var*randf(), var*randf());
 			}
 		}
 		else if(test == "complex1")

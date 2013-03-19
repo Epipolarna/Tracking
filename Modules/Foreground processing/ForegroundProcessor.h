@@ -1,10 +1,16 @@
 #ifndef _FOREGROUND_PROCESSOR_H_
 #define _FOREGROUND_PROCESSOR_H_
 
-class ForegroundProcessor
+#include "../frame.h"
+
+namespace ForegroundProcessing
 {
-public:
-	void segmentForeground(Frame & frame);
-};
+	class ForegroundProcessor
+	{
+	public:
+		void segmentForeground(Frame & frame);
+	};
+	// Additional function-/datastructuredeclarations here
+}
 
 #endif

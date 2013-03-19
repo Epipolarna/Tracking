@@ -10,8 +10,8 @@ int main()
 	FrameList frameList(100);	// Keep a history of up to 100 frames (might be used by some modules)
 	
 	// Modules
-	BackgroundModel backgroundModel;
-	ForegroundProcessor foregroundProcessor;
+	BackgroundModelling::BackgroundModel backgroundModel;
+	ForegroundProcessing::ForegroundProcessor foregroundProcessor;
 	Identification::Identifier identifier;
 	Prediction::KalmanFilter kalmanFilter;
 	

@@ -22,7 +22,10 @@ namespace Identification
 		int uniqueIDPool;
 		int newID() {return uniqueIDPool++;}
 	};
+	
 
+	//////////  Internal structures  ///////////
+	////////////////////////////////////////////
 
 	class ProbabilityContainer
 	{

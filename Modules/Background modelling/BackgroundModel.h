@@ -1,10 +1,16 @@
 #ifndef _BACKGROUND_MODEL_H_
 #define _BACKGROUND_MODEL_H_
 
-class BackgroundModel
+#include "../frame.h"
+
+namespace BackgroundModelling
 {
-public:
-	void update(std::list<Frame> & frames);
-};
+	class BackgroundModel
+	{
+	public:
+		void update(std::list<Frame> & frames);
+	};
+	// Additional function-/datastructuredeclarations here
+}
 
 #endif

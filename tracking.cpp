@@ -4,12 +4,20 @@
 #include "Modules/Object identification/Identification.h"
 #include "Modules/Prediction/KalmanFilter.h"
 
-#include <time.h>
+#include "Modules/Profiler.h"
+
+#define PROFILER_INIT() ProfilerClock c;
+#define PROFILER_RESET() c.reset();
+#define PROFILE(string) frameList.setTime(string, c.getTime()); c.lap();
+#define PROFILE_TOTALTIME() frameList.setTime("Total Time", c.getTotalTime());
 
 int main()
 {
+	// Profiler init
+	PROFILER_INIT();
+
 	// Frame container
-	FrameList frameList(100);	// Keep a history of up to 100 frames (might be used by some modules)
+	FrameList frameList(10000);	// Keep a history of up to 100 frames (might be used by some modules)
 	
 	// Modules
 	BackgroundModelling::BackgroundModel backgroundModel;
@@ -24,51 +32,41 @@ int main()
 	frameList.open("camera1.mov");
 	
 	// Create windows
+	namedWindow("Info",CV_WINDOW_AUTOSIZE);
 	namedWindow("Background",CV_WINDOW_AUTOSIZE);
 	namedWindow("Foreground",CV_WINDOW_AUTOSIZE);
 	namedWindow("Tracking",CV_WINDOW_AUTOSIZE);
 	
-	//
-	int time, totalTime;
-
 	// Track objects through all frames
 	while(!frameList.isSourceEmpty())
 	{
-		std::cout << "------------\nProfiling:\n";
-		totalTime = time = clock();
+		// Reset profiler
+		PROFILER_RESET();
+
 		// Do the nessecary processing
-		backgroundModel.update(frameList.getFrames());
-		std::cout << "update:       " << (double(clock()-time)/CLOCKS_PER_SEC) << "\n"; time = clock();
-		foregroundProcessor.segmentForeground(frameList.getLatestFrame());
-		std::cout << "segmentation: " << (double(clock()-time)/CLOCKS_PER_SEC) << "\n"; time = clock();
-		identifier.identify(frameList.getFrames());
-		std::cout << "identify:     " << (double(clock()-time)/CLOCKS_PER_SEC) << "\n"; time = clock();
-		kalmanFilter.predict(frameList.getLatestFrame());
-		std::cout << "predict:      " << (double(clock()-time)/CLOCKS_PER_SEC) << "\n"; time = clock();
+		backgroundModel.update(frameList.getFrames());						PROFILE("BackgroundModel");
+		foregroundProcessor.segmentForeground(frameList.getLatestFrame());	PROFILE("ForegroundSeg.");
+		identifier.identify(frameList.getFrames());							PROFILE("Identification");	
+		kalmanFilter.predict(frameList.getLatestFrame());					PROFILE("Kalman Prediction");		
+
 		
 		// Display result
 		frameList.display("Tracking");
 		frameList.displayBackground("Background");
-		frameList.displayForeground("Foreground");
-		std::cout << "display:      " << (double(clock()-time)/CLOCKS_PER_SEC) << "\n"; time = clock();
-
-		
+		frameList.displayForeground("Foreground");							PROFILE("Display");
+				
+		// Give the GUI time to render
 		waitKey(1);
 
 		// Optional pause between each frame
 		//waitKey(0);
-		// Else let it try running in real time
-		/*
-		if(double(clock()-time)/CLOCKS_PER_SEC > 1000/double(frameList.getFrameRate()))
-			waitKey(1);
-		else
-			waitKey(1000/double(frameList.getFrameRate())-double(clock()-time)/CLOCKS_PER_SEC);
-		*/
+						
+		// Display info
+		frameList.displayInfo("Info");
 
 		// Read next frame from source
-		frameList.queryNextFrame();
+		frameList.queryNextFrame();											PROFILE_TOTALTIME();
 
-		std::cout << "totalTime:    " << (double(clock()-totalTime)/CLOCKS_PER_SEC) << "\n";
 	}
 	
 	waitKey(0);

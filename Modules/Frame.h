@@ -13,8 +13,8 @@
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
 #include <string>
+#include <map>
 
-//using namespace std;
 using namespace cv;
 
 class Frame
@@ -31,6 +31,7 @@ public:
 	Mat image;		    //Should be 3-channel color
 	Mat probMap;		//Should be single channel grayscale
 	std::vector<Object> objects;
+	std::map<std::string, double> profileData;	// Time in seconds
 	
 	//For debugging/showoff
 	void showObjects();

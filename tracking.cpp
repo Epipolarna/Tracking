@@ -26,6 +26,7 @@ int main()
 	// Track objects through all frames
 	while(!frameList.isSourceEmpty())
 	{
+		// Do the nessecary processing
 		backgroundModel.update(frameList.getFrames());
 		foregroundProcessor.segmentForeground(frameList.getLatestFrame());
 		identifier.identify(frameList.getFrames());

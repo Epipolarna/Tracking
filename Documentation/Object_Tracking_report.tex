@@ -1,0 +1,252 @@
+\documentclass[10pt, a4paper, twoside]{article}
+
+
+% Set up the standard margins for the document
+% 42.2 left & 15.5 right is same as Forsling, Neymark
+% 21.3 top  & 20 bottom is same as Olofsson
+\usepackage[left=42.2mm, right=15.5mm, top=21.3mm, bottom=20mm]{geometry}
+
+% Input file character encoding (kinda useless if we don't
+% use åäö and stuff, but it doesn't hurt to have it)
+\usepackage[utf8]{inputenc}
+
+% No indentation in new paragraph
+\usepackage{parskip}
+
+% To include graphics
+\usepackage{graphicx}
+
+% More mathematical symbols and fonts
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+
+% Clickable internal links
+\usepackage{hyperref}
+\usepackage[all]{hypcap} % without this the link takes you to the caption, not the top of the image
+\hypersetup{ % Settings for links in documnet
+	setpagesize = false, % Don't allow hyperref to change page size. Tips från Micke Olofsson
+	colorlinks = true,   % No boxes around links
+	linkcolor = black,citecolor = black,filecolor = black,urlcolor = black, % don't color links
+}
+
+% To include to first page pdf file
+\usepackage{pdfpages}
+
+% Add section number to equation and figure number (ex: 5.11 instead of simply 11)
+\numberwithin{equation}{section}
+\numberwithin{figure}{section}
+
+% Show program code listings in document
+\usepackage{listings}
+
+%
+% Header stuff
+%
+\usepackage{fancyhdr}
+\setlength{\headheight}{15pt}
+
+\fancyhf{}
+\fancyhead[LE, RO]{\thepage}
+\fancyhead[RE]{TSBB15 2013: Project Report}
+\fancyhead[LO]{Object Tracking in Image Sequences}
+
+\fancypagestyle{plain}{ %
+\fancyhf{} % remove everything
+\renewcommand{\headrulewidth}{0pt} % remove lines as well
+\renewcommand{\footrulewidth}{0pt}}
+%
+% End header stuff
+%
+
+
+
+
+
+
+
+
+
+
+
+\begin{document}
+
+% First page
+\includepdf{Cover/cover.pdf}
+
+
+% Project identity page
+\newpage
+\pagestyle{fancy}
+\pagenumbering{roman}
+\setcounter{page}{2} % sets the current page number to 2 
+
+\input{text_files/identity.tex}
+
+
+% table of contents
+\newpage
+\tableofcontents
+\listoffigures
+\listoftables
+
+% list of figures
+%\newpage
+%\listoffigures
+
+
+% Document history page
+\newpage
+\vspace*{5\baselineskip}
+
+\begin{center}
+\textbf{\LARGE Document history}
+
+{ \footnotesize 
+\begin{tabular}{|p{1cm}|p{2.0cm}|p{5cm}|p{1.5cm}|p{1.5cm}|}
+	\hline
+	\textbf{Version} & \textbf{Date} & \textbf{Changes} & \textbf{Sign} & \textbf{Reviewed} \\
+	
+	\hline
+	0.1 & 2013--03--19 & Initial draft & MS & \\
+	
+	\hline
+	 &  &  &  &  \\
+	
+	\hline
+\end{tabular}
+}
+\end{center}
+
+
+% Blank page
+%\newpage
+%\thispagestyle{empty}
+%\mbox{}
+
+
+
+%
+% Content start
+%
+\newpage
+\pagenumbering{arabic}
+
+\newpage
+\section{Introduction}
+\input{text_files/introduction.tex}
+
+\section{System description}
+\input{text_files/system_description.tex}
+
+\newpage
+\subsection{Data structures}
+\input{text_files/data_structures.tex}
+
+\newpage
+\subsection{Background modeling}
+\input{text_files/background_modeling.tex}
+
+\newpage
+\subsection{Foreground segmentation}
+\input{text_files/foreground_segmentation.tex}
+
+\newpage
+\subsection{Object identification}
+\input{text_files/object_identification.tex}
+
+\newpage
+\subsection{Kalman prediction}
+\input{text_files/kalman_prediction.tex}
+
+\newpage
+\section{System Evaluation}
+\input{text_files/system_evaluation.tex}
+
+
+
+%
+% Bibliography
+%
+
+% Force a blank page so the bibliography starts on a new page.
+% Comment out if not necessary
+%\newpage
+%\thispagestyle{fancy}
+%\mbox{}
+
+\newpage
+\input{text_files/bibliography.tex}
+
+
+
+
+
+%
+% Appendix start
+%
+\newpage
+\appendix
+\addcontentsline{toc}{section}{Appendices} % Add an entry for this in the table of contents
+
+% Define background color for the code
+\definecolor{sexy-gray}{gray}{0.95}
+
+% Set properties for source code listings
+\lstset{
+	language=c++, 						% Language
+	frame=single,						% Frame around code
+	basicstyle=\small,				% Font size
+	numbers=left,						% numbering
+	backgroundcolor=\color{sexy-gray},	% background color
+	morekeywords={electrical, analog},  % Additional keywords
+}
+
+
+\section{Source code for data structures}
+\subsection{Frame class}
+\label{sec:Frame_code}
+\lstinputlisting{code_files/frame.h}
+\newpage
+\lstinputlisting{code_files/frame.cpp}
+
+
+\newpage
+\section{Source code for Background modelling}
+\label{sec:BGMod_code}
+\lstinputlisting{code_files/frame.h}
+
+\newpage
+\section{Source code for Foreground segmentation}
+\label{sec:ForeGroundSeg_code}
+\lstinputlisting{code_files/frame.cpp}
+
+\newpage
+\section{Source code for Object identification}
+\label{sec:ObjectID_code}
+\lstinputlisting{code_files/object.h}
+
+\newpage
+\section{Source code for Kalman prediction}
+\label{sec:Kalman_code}
+\lstinputlisting{code_files/object.cpp}
+
+\newpage
+\section{Source code for Main program}
+\label{sec:Main_code}
+\lstinputlisting{code_files/object.cpp}
+
+% Set properties for Matlab code listings
+\lstset{
+	language=matlab, 					% Language
+	frame=single,						% Frame around code
+	basicstyle=\small,				% Font size
+	numbers=left,						% numbering
+	backgroundcolor=\color{sexy-gray},	% background color
+	morekeywords={textscan,ones},		% Additional keywords
+}
+
+%\lstinputlisting{code_files/Sigma_Delta_PSD_SNR_and_ENOB_calculations_INNAN_PILL.m}
+
+
+\end{document}

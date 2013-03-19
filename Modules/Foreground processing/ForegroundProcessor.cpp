@@ -1,11 +1,114 @@
+// ForecroundProcessor.cpp
+
 #include "ForegroundProcessor.h"
+//#include "stdafx.h"
 
 namespace ForegroundProcessing
 {
-	void ForegroundProcessor::segmentForeground(Frame & frame)
-	{
 
+	////////////////// Foreground Segmentation //////////////////////
+	void ForegroundProcessor::segmentForegroundFast(Frame & frame, int threshval, int iterations)
+	{
+		threshMap(frame.probMap, threshval); //Threshold at threshval
+	
+		// Erode followed by 3 iterations of dilate (3x3 kernel)
+		openingBinMap(frame.probMap, iterations); 
+	
+		getObjects(frame);
+		return;
 	}
 
-	// Additional function-/methodimplementations here
-};
+	void ForegroundProcessor::segmentForegroundSlow(Frame & frame, int threshval, double minDist)
+	{
+		threshMap(frame.probMap, threshval); //Threshold at threshval
+	
+		getObjectsDistMap(frame, minDist);
+	
+		return;
+	}
+
+	////////////////// Private Functions //////////////////////
+	///////////////////////////////////////////////////////////
+	
+	////////////////// Object Detection ///////////////////////
+	void ForegroundProcessor::getObjects(Frame & frame)
+	{
+		vector<vector<Point>> contours;
+		findContours( frame.probMap.clone(), contours, CV_RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+	
+		for(unsigned int i = 0; i < contours.size(); i++)
+		{		
+			//Create an object for every countour using the boundingRect command
+			frame.objects.push_front(Object(boundingRect(contours[i])));	
+		}
+	}
+
+	void ForegroundProcessor::getObjectsDistMap(Frame & frame, double minDist)
+	{
+		vector<vector<Point>> contours;
+		findContours( frame.probMap.clone(), contours, CV_RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+
+		Rect objRect;
+		double dist = 0;
+		double minSize = 20;
+		for(unsigned int i = 0; i < contours.size(); i++)
+		{	
+			objRect = boundingRect(contours[i]);
+			vector<Point> contour = contours[i];
+		
+			//Measure distance to the contour of all pixels within the bounding box.
+			for( int j = objRect.x; j < objRect.x + objRect.width; j++)
+				{ for( int k = objRect.y; k < objRect.y + objRect.height; k++) 
+					{ 
+						if (pointPolygonTest(contour, Point(j, k), false) == 1) //If object is inside the contour
+						{
+							dist = max(dist, pointPolygonTest(contour, Point(j, k), true)); // Calculate distance
+						} 
+					}		
+				}
+			if (dist > minDist) //Create object only if distance is great enough.
+			{		
+				frame.objects.push_front(Object(objRect));	
+			}
+			dist = 0;
+		}
+	}
+
+	////////////////// Image Processing //////////////////////
+	void ForegroundProcessor::threshMap(Mat probMap, int threshval)
+	{
+		int maxVal = 255;
+		threshold(probMap, probMap, threshval, maxVal, THRESH_BINARY);
+	}
+
+	void ForegroundProcessor::openingBinMap(Mat probMap, int iterations)
+	{
+		cv::Mat kernel;
+		kernel = getStructuringElement( MORPH_RECT, Size(3, 3));
+		dilate(probMap, probMap, kernel, cv::Point(-1,-1), iterations);
+		erode(probMap, probMap, kernel, cv::Point(-1,-1), iterations);
+	}
+
+	void ForegroundProcessor::closingBinMap(Mat probMap, int iterations)
+	{
+		cv::Mat kernel;
+		kernel = getStructuringElement( MORPH_RECT, Size(3, 3));
+		dilate(probMap, probMap, kernel, cv::Point(-1,-1), iterations);
+		erode(probMap, probMap, kernel, cv::Point(-1,-1), iterations);
+	}
+
+	void ForegroundProcessor::erodeBinMap(Mat probMap, int iterations)
+	{
+		cv::Mat kernel;
+		kernel = getStructuringElement( MORPH_RECT, Size(3, 3));
+		erode(probMap, probMap, kernel, cv::Point(-1,-1), iterations);
+	}
+
+	void ForegroundProcessor::dilateBinMap(Mat probMap, int iterations)
+	{
+		cv::Mat kernel;
+		kernel = getStructuringElement( MORPH_RECT, Size(3, 3));
+		dilate(probMap, probMap, kernel, cv::Point(-1,-1), iterations);
+	}
+
+}

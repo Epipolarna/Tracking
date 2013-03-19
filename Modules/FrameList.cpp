@@ -3,6 +3,7 @@
 FrameList::FrameList(int framesToKeep)
 {
 	maxFrames = framesToKeep;
+	probMap = imread("starsCorner.tif", CV_8UC1);
 }
 
 void FrameList::open(std::string path)
@@ -46,7 +47,7 @@ void FrameList::appendFrame(IplImage *frameImage)
 	{
 		oldFrames.pop_back();
 	}
-	oldFrames.push_front(Frame(Mat(frameImage), Mat(frameImage)));
+	oldFrames.push_front(Frame(Mat(frameImage), probMap));
 }
 
 int FrameList::getFrameAmount()
@@ -76,6 +77,7 @@ void FrameList::display(std::string windowID)
 	int thickness = 1;
 
 	std::string text = "[Frame "+std::to_string(getCurrentFrameNumber())+"("+std::to_string(getFrameAmount())+")]";
+	getFrames().front().drawObjects(cv::Scalar(250, 0, 0, 255));
 	putText(getFrames().front().rawFrame, text, Point(5, 15), fontFace, fontScale, Scalar::all(0), thickness, 8);
 	imshow( windowID.c_str(), getFrames().front().rawFrame );
 }

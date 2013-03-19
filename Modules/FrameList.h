@@ -39,6 +39,9 @@ private:
 	int currentFrameNumber;
 	
 	void FrameList::appendFrame(IplImage *frameImage);
+
+	//Debug
+	Mat probMap;
 };
 
 #endif

@@ -46,7 +46,7 @@ namespace Identification
 			mostProbable[i].sort();
 		}
 
-		std::cout << "\nFind most probable previous object:\n";
+		//std::cout << "\nFind most probable previous object:\n";
 		int matchingPrevious;
 		float min;
 		std::list<int>::iterator bestMatch;
@@ -66,7 +66,7 @@ namespace Identification
 			matchingPrevious = mostProbable[*bestMatch].front().index;
 			current->objects[*bestMatch].id = last->objects[matchingPrevious].id;
 
-			std::cout << "\tObject " << mostProbable[*bestMatch].front().probableId << " found with minError " << mostProbable[*bestMatch].front().error << "\n";
+			//std::cout << "\tObject " << mostProbable[*bestMatch].front().probableId << " found with minError " << mostProbable[*bestMatch].front().error << "\n";
 
 			for(std::list<int>::iterator i = undecidedObjects.begin(); i != undecidedObjects.end(); i++)
 			{

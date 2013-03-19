@@ -7,6 +7,19 @@ namespace ForegroundProcessing
 {
 
 	////////////////// Foreground Segmentation //////////////////////
+	void ForegroundProcessor::segmentForeground(Frame & frame)
+	{
+		switch(algorithm)
+		{
+		case 0:
+			segmentForegroundFast(frame, threshval, iterations);
+			break;
+		case 1:
+			segmentForegroundSlow(frame, threshval, minDist);
+			break;
+		}
+	}
+
 	void ForegroundProcessor::segmentForegroundFast(Frame & frame, int threshval, int iterations)
 	{
 		threshMap(frame.probMap, threshval); //Threshold at threshval
@@ -27,6 +40,16 @@ namespace ForegroundProcessing
 		return;
 	}
 
+
+	
+	void ForegroundProcessor::init(Algorithm algorithm, int threshval, double iterationsORmindist)
+	{
+		this->algorithm = algorithm;
+		this->threshval = threshval;
+		this->iterations = int(iterationsORmindist);
+		this->minDist = iterationsORmindist;
+	}
+
 	////////////////// Private Functions //////////////////////
 	///////////////////////////////////////////////////////////
 	
@@ -39,7 +62,7 @@ namespace ForegroundProcessing
 		for(unsigned int i = 0; i < contours.size(); i++)
 		{		
 			//Create an object for every countour using the boundingRect command
-			frame.objects.push_front(Object(boundingRect(contours[i])));	
+			frame.objects.push_back(Object(boundingRect(contours[i])));	
 		}
 	}
 
@@ -68,7 +91,7 @@ namespace ForegroundProcessing
 				}
 			if (dist > minDist) //Create object only if distance is great enough.
 			{		
-				frame.objects.push_front(Object(objRect));	
+				frame.objects.push_back(Object(objRect));	
 			}
 			dist = 0;
 		}

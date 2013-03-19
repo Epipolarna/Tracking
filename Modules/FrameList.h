@@ -4,7 +4,6 @@
 #include <opencv2/core/core.hpp>
 #include <list>
 #include <vector>
-
 #include "Frame.h"
 
 using namespace cv;

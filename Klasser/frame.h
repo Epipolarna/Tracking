@@ -26,6 +26,7 @@ public:
 	
 	//Draws the bounding boxes and velocity vectors of the objects in object list.
 	void drawObjects(cv::Scalar color);
+	void drawObjects(std::vector<Object> & objects, Scalar color);
 	
 	//Finds objects in a binary image and puts them in the list.
 	void getObjects();

@@ -30,6 +30,23 @@ void Frame::drawObjects(Scalar color)
 	}
 }
 
+void Frame::drawObjects(std::vector<Object> & objects, Scalar color)
+{
+	for (std::vector<Object>::iterator it = objects.begin(); it != objects.end(); ++it)
+	{
+		rectangle(rawFrame, Point(it->boundingBox.x, it->boundingBox.y), 
+							Point(it->boundingBox.x + it->width, it->boundingBox.y + it->height), 
+							color, 1, 8);
+		line(rawFrame, Point(it->x, it->y), Point(it->x + (int)(it->dx), it->y + (int)(it->dy)), color, 2 ,8);
+
+		std::string objectText = "("+std::to_string(it->x)+","+std::to_string(it->y)+") id:"+std::to_string(it->id);
+		int fontFace = CV_FONT_HERSHEY_COMPLEX;
+		double fontScale = 0.3;
+		int thickness = 0.3;
+		putText(rawFrame, objectText, Point(it->boundingBox.x-it->width, it->boundingBox.y-10), fontFace, fontScale, Scalar::all(255), thickness, 8);
+	}
+}
+
 void Frame::getObjects()
 {
 	vector<vector<Point>> contours;

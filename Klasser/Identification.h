@@ -29,9 +29,9 @@ namespace Identification
 	public:
 		int index;
 		int probableId;
-		float probability;
-		ProbabilityContainer(int index, int probableId, float probability) : index(index),probableId(probableId),probability(probability) {}
-		bool operator<(const ProbabilityContainer & pc) { return probability < pc.probability; }
+		float error;
+		ProbabilityContainer(int index, int probableId, float probability) : index(index),probableId(probableId),error(error) {}
+		bool operator<(const ProbabilityContainer & pc) { return error < pc.error; }
 	};
 
 	struct Condition
@@ -45,8 +45,8 @@ namespace Identification
 	////////// TEST GENERATION ///////////
 	//////////////////////////////////////
 
-	void generate_testdata(std::list<Frame> & frameList);
-
+	void generate_testdata(std::list<Frame> & frameList, std::string test = "simple1");
+	float randf();
 };
 
 #endif

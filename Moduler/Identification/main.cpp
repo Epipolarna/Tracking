@@ -38,6 +38,8 @@ int main()
 		identifier.identify(frames);
 
 		text = "[Frame "+std::to_string(n)+"("+std::to_string(tests)+")]";
+		if(frames.size() > 1)
+			frames.front().drawObjects((++frames.begin())->objects, cv::Scalar(250, 250, 0, 255));
 		frames.front().drawObjects(cv::Scalar(250, 0, 0, 255));
 		putText(frames.front().rawFrame, text, Point(5, 15), fontFace, fontScale, Scalar::all(255), thickness, 8);
 		frames.front().showImageRaw("Identify::Test");

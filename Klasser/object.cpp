@@ -14,6 +14,8 @@ Object::Object(int x, int y, float dx, float dy, int width, int height, int id)
 	boundingBox.y = y-height/2;
 	boundingBox.width = width;
 	boundingBox.height = height;
+
+	kal = new Kalman(x,y);
 }
 
 Object::Object(cv::Rect boundingBox, float dx, float dy, int id)
@@ -23,6 +25,8 @@ Object::Object(cv::Rect boundingBox, float dx, float dy, int id)
 	y = boundingBox.y + boundingBox.height/2;
 	width = boundingBox.width;
 	height = boundingBox.height;
+
+	kal = new Kalman(x,y);
 }
 
 std::ostream & operator<< (std::ostream & o, Object & object)
@@ -40,4 +44,19 @@ void Object::info()
 	cout << "Position: (" << x << ", " << y << ")" << endl;
 	cout << "Dimenson: (" << width << ", " << height << ")" << endl;
 	cout << "Velocity: (" << dx << ", " << dy << ")" << endl;
+}
+
+void Object::kalmanInfo()
+{
+	cout << "Kalman properties: " << endl;
+	cout << "A: " << endl;
+	cout << kal->A << endl;
+	cout << "C: " << endl;
+	cout << kal->C << endl;
+	cout << "Q: " << endl;
+	cout << kal->Q << endl;
+	cout << "P: " << endl;
+	cout << kal->P << endl;
+	cout << "R: " << endl;
+	cout << kal->R << endl;
 }

@@ -7,7 +7,7 @@ FrameList::FrameList(int framesToKeep)
 
 void FrameList::open(std::string path)
 {
-	source = cvCaptureFromFile(path);
+	source = cvCaptureFromFile(path.c_str());
 	frameAmount = cvGetCaptureProperty(source,CV_CAP_PROP_FRAME_COUNT);
 	frameRate = cvGetCaptureProperty(source,CV_CAP_PROP_FPS);
 	currentFrameNumber = 0;
@@ -28,7 +28,7 @@ list<Frame> & FrameList::getFrames()
 
 bool FrameList::isSourceEmpty()
 {
-	return currentFrame >= frameAmount;
+	return getCurrentFrameNumber() >= frameAmount;
 }
 
 void FrameList::queryNextFrame()
@@ -37,7 +37,7 @@ void FrameList::queryNextFrame()
 		return;
 
 	appendFrame(cvQueryFrame(source));
-	currentFrame++;
+	currentFrameNumber++;
 }
 
 void FrameList::appendFrame(IplImage *frameImage)

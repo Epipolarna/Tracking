@@ -1,14 +1,10 @@
 /* 
 *	frame.h
-*
-*
 */
-
-
 #ifndef FRAME_H
 #define FRAME_H
 
-#include "object.h"
+#include "Object.h"
 #include "BackgroundModelling/ProbabilityMap.h"
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -41,8 +37,6 @@ public:
 	void showObjects();
 	void showImageRaw(std::string windowID);
 	void showImageProbMap(std::string windowID);
-	
-
 };
 
 

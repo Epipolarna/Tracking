@@ -1,7 +1,5 @@
 /* 
 *	frame.cpp
-*
-*
 */
 
 #include "Frame.h"
@@ -9,8 +7,7 @@
 using namespace cv;
 using namespace std;
 
-Frame::Frame(cv::Mat image, cv::Mat probMap)
-	: image(image), probMap(probMap) {}
+Frame::Frame(cv::Mat image,cv::Mat probMap) : image(image),probMap(probMap)  {}
 
 void Frame::drawObjects(Scalar color)
 {

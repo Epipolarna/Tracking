@@ -1,7 +1,7 @@
 #ifndef _FOREGROUND_PROCESSOR_H_
 #define _FOREGROUND_PROCESSOR_H_
 
-#include "../frame.h"
+#include "../Frame.h"
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>

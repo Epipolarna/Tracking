@@ -2,7 +2,7 @@
 
 //#include "stdafx.h"
 
-#include "object.h"
+#include "Object.h"
 #include <iostream>
 
 using namespace std;

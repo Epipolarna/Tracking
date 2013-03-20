@@ -2,7 +2,7 @@
 #include "Modules/Background modelling/BackgroundModel.h"
 #include "Modules/Foreground processing/ForegroundProcessor.h"
 #include "Modules/Object identification/Identification.h"
-#include "Modules/Prediction/KalmanFilter.h"
+#include "Modules/Prediction/Kalman.h"
 
 #include "Modules/Profiler.h"
 
@@ -23,7 +23,7 @@ int main()
 	BackgroundModelling::BackgroundModel backgroundModel;
 	ForegroundProcessing::ForegroundProcessor foregroundProcessor;
 	Identification::Identifier identifier;
-	Prediction::KalmanFilter kalmanFilter;
+	//Prediction::KalmanFilter kalmanFilter;
 
 	// Init
 	foregroundProcessor.init(ForegroundProcessing::FAST, 50, 3);
@@ -47,7 +47,7 @@ int main()
 		backgroundModel.update(frameList.getFrames());						PROFILE("BackgroundModel");
 		foregroundProcessor.segmentForeground(frameList.getLatestFrame());	PROFILE("ForegroundSeg.");
 		identifier.identify(frameList.getFrames());							PROFILE("Identification");	
-		kalmanFilter.predict(frameList.getLatestFrame());					PROFILE("Kalman Prediction");		
+		//kalmanFilter.predict(frameList.getLatestFrame());					PROFILE("Kalman Prediction");		
 
 		
 		// Display result

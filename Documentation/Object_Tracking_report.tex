@@ -196,14 +196,14 @@
 \lstset{
 	language=C++, 									% Language
 	frame=single,									% Frame around code
-	tabsize = 3,							% Better Tabbing
-	basicstyle=\ttfamily\footnotesize,						% Font size
+	tabsize = 3,									% Better Tabbing
+	basicstyle=\ttfamily\footnotesize,				% Font size and style
+	commentstyle=\ttfamily\color{green!40!black},	% Comment color and style
 	numbers=left,									% numbering
 	backgroundcolor=\color{sexy-gray},				% background color
 	keywordstyle=\color{blue},						% Keyword color
 	stringstyle=\color{orange},						% String color
 	showstringspaces=false,							% Don't show string spaces
-	commentstyle=\itshape\color{green!40!black},	% Comment color
 	morekeywords={electrical, analog},  			% Additional keywords 
 }
 
@@ -229,11 +229,14 @@
 
 
 \newpage
-\section{Source code for Background modelling}
+\section{Source code for Background modeling}
 \label{sec:BGMod_code}
+\subsection{Background Model}
 \lstinputlisting{../Modules/BackgroundModelling/BackgroundModel.h}
-\newpage
+%\newpage
 \lstinputlisting{../Modules/BackgroundModelling/BackgroundModel.cpp}
+\newpage
+\subsection{Probability Map}
 \label{sec:ProbMap_code}
 \lstinputlisting{../Modules/BackgroundModelling/ProbabilityMap.h}
 \newpage

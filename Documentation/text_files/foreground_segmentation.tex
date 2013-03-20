@@ -1,20 +1,31 @@
-I can segment foreground! I can segment foreground! I can segment foreground! I can segment foreground! I can segment foreground! I can segment foreground! I can segment foreground! I can segment foreground! I can segment foreground! I can segment foreground! I can segment foreground! I can segment foreground! I can segment foreground! I can segment foreground! I can segment foreground! 
+The Foreground segmentation is performed by the foreground processor module. The purpose of the foreground processor is to, 
+from the probability map, decide which regions are interesting and create an object for each interesting region, and add 
+these to the object vector of the frame. \\
+\newline
+The foreground processing is done by the foreground processor and there are two different algorithms implemented at the 
+moment, one for real-time processing and the other for off-line processing. Which one of these that is to be used is 
+specified by the algorithm enumerator during the initiation of the foreground processor object. \\
+\newline
+The foreground processor is initiated by picking one algorithm and setting appropriate parameter values using the 
+\emph{init} command. After being initiated, the foreground processor is called using the \emph{segmentForeground} 
+command, which takes the current frame as an input. For more info, see appendix \ref{sec:ForeGroundSeg_code}.
 
 \subsubsection{Morphological cleanup}
-I clean stuff and noise removal pretty cool guy
-I clean stuff and noise removal pretty cool guy
-I clean stuff and noise removal pretty cool guy
-I clean stuff and noise removal pretty cool guy
-See code in appendix \ref{sec:ForeGroundSeg_code}. %referens till kod, ger klickbar länk.
+The first step in the foreground segmentation process is to threshold the probability map at some appropriate value 
+and create a binary image where everything but the foreground objects are set to zero. By performing some simple 
+morphological erode/dilate iterations at least some of the noise is removed, after which, in case the fast algorithm 
+is selected, the object detection algorithm is used. If off-line processing is chosen a distance transform of each 
+detected region is a calculated, and objects that are not "thick" enough are assumed to be garbage, and is ignored.
 
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=\linewidth]{images/acatisfinetoo}
-	\caption{\textit{Some nice figure perhaps.}}
-	\label{fig:foreground_segmentation_fig} %Skapar referens till figuren
-\end{figure}
+%\begin{figure}[htb]
+%	\centering
+%	\includegraphics[width=\linewidth]{images/acatisfinetoo}
+%	\caption{\textit{Some nice figure perhaps.}}
+%	\label{fig:foreground_segmentation_fig} %Skapar referens till figuren
+%\end{figure}
 
 \subsubsection{Object detection}
-How do i find object. How do i find object. How do i find object. How do i find object.
-How do i find object. How do i find object. How do i find object. How do i find object. 
-How do i find object. How do i find object. How do i find object. How do i find object. 
+To detect the regions the OpenCV command \emph{findContours} is used. This will extract all contours in the image. 
+For each detected contour a bounding rectangle of the type \emph{cv::Rect} is created and, from this rectangle an 
+\emph{object} is created. All of the detected objects are then put into the Frame's object vector, 
+and the foreground processing is complete.

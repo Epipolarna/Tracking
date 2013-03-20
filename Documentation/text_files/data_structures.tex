@@ -7,17 +7,20 @@ In order to keep a good structure on the program and a logical separation of fun
 	\label{fig:UML_fig} %Skapar referens till figuren
 \end{figure}
 
-\subsubsection{Frame, framelist}
-DErpa derpa derpa derpa. DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.
-DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.
-DErpa derpa derpa derpa. As we can see in figure \ref{fig:UML_fig}. %Figurreferens
-
-\subsubsection{Object}
-DErpa derpa derpa derpa. DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.
-DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.
-DErpa derpa derpa derpa. See code in appendix B \ref{sec:Frame_code}.
-
 \subsubsection{ProbabilityMap}
 DErpa derpa derpa derpa. DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.
 DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.DErpa derpa derpa derpa.
-DErpa derpa derpa derpa.
+DErpa derpa derpa derpa. See code in appendix \ref{sec:ProbMap_code}. \cite{CVBook} % reference to bilbliography
+
+\subsubsection{Object}
+The \emph{Object} class represents a moving object in the scene. The information stored about the objects is ID, position, velocity, and bounding box. This information is what is processed in the object identification and prediction models. 
+
+\subsubsection{Frame}
+The \emph{Frame} class contains the current image as well as the probability map. Both if these are stored as \emph{cv::Mat}. The image is used for creation of the probability map as well as drawing the bounding boxes. From the probability map The foreground processing module finds and creates Objects that are stored in a vector. To draw the objects and their bounding boxes in the image, the function \emph{DrawObject} is called with the appropriate color. \ref{fig:UML_fig}. %Figurreferens
+
+\subsubsection{Framelist}
+HURdurr derp. not too sure about this stuff, someone please help.
+
+
+
+

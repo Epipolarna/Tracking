@@ -4,7 +4,7 @@
 *
 */
 
-#include "frame.h"
+#include "Frame.h"
 
 using namespace cv;
 using namespace std;

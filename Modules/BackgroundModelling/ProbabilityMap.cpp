@@ -1,10 +1,8 @@
 #include "ProbabilityMap.h"
 
-ProbabilityMap::ProbabilityMap(Frame *prevFrame, Frame *currFrame){	
+ProbabilityMap::ProbabilityMap(Frame *prevFrame, Frame *currFrame)
+	: lambda(2.5), initSigma(3), alpha(0.1){	
 	
-	numGauss = 3;
-	lambda = 2.5; //this should probably be tweaked to be lower
-	initSigma = 3;
 	int numPixels = currFrame->image.rows * currFrame->image.cols;
 	biggestW = new float[numPixels];
 	Mat image = currFrame->image;
@@ -29,7 +27,7 @@ ProbabilityMap::ProbabilityMap(Frame *prevFrame, Frame *currFrame){
 			}
 		}
 	}else{
-		this->distributions = prevFrame->pData->distributions;
+		distributions = prevFrame->bgModel->distributions;
 		updateDistributions(image);
 	}
 	setB(image.rows,image.cols);

@@ -18,6 +18,8 @@
 
 using namespace cv;
 
+class ProbabilityMap;
+
 class Frame
 {
 public:
@@ -33,8 +35,8 @@ public:
 	Mat probMap;		//Should be single channel grayscale
 	std::vector<Object> objects;
 	std::map<std::string, double> profileData;	// Time in seconds
-	ProbabilityMap *bgModel;
-	
+	ProbabilityMap * bgModel;
+
 	//For debugging/showoff
 	void showObjects();
 	void showImageRaw(std::string windowID);

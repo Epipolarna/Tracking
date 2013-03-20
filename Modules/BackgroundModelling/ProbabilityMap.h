@@ -26,10 +26,10 @@ public:
 	ProbabilityMap(Frame *prevFrame, Frame *currFrame);
 	void setB(int rows, int cols);
 private:
-	int numGauss; //how many distributions will be used
-	float lambda; //treshold for belonging to a distribution
-	float initSigma; //inital sigma for new distribution
-	float alpha;
+	static const int numGauss = 3; //how many distributions will be used
+	const float lambda; //treshold for belonging to a distribution
+	const float initSigma; //inital sigma for new distribution
+	const float alpha;
 	
 	gauss3D *distributions;
 	void updateDistributions(Mat image);

@@ -3,6 +3,8 @@
 
 #include "../Frame.h"
 #include "ProbabilityMap.h"
+#include <iostream>
+using namespace std;
 
 namespace BackgroundModelling
 {

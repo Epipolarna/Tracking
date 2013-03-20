@@ -90,7 +90,7 @@ void FrameList::display(std::string windowID)
 
 void FrameList::displayBackground(std::string windowID)
 {
-	//<TODO>
+	imshow( windowID.c_str(), getLatestFrame().probMap );
 }
 
 void FrameList::displayForeground(std::string windowID)

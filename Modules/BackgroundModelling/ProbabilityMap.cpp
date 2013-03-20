@@ -92,7 +92,7 @@ void ProbabilityMap::updateDistributions(Mat image){
 }
 
 void ProbabilityMap::setB(int rows, int cols){
-	Mat p(rows,cols,CV_32FC2);
+	Mat p(rows,cols,CV_32FC1);
 
 	for(int row=0; row < rows; row++){
 		for(int col=0; col < cols; col++){

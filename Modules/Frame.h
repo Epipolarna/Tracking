@@ -9,6 +9,7 @@
 #define FRAME_H
 
 #include "object.h"
+#include "BackgroundModelling/ProbabilityMap.h"
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
@@ -32,6 +33,7 @@ public:
 	Mat probMap;		//Should be single channel grayscale
 	std::vector<Object> objects;
 	std::map<std::string, double> profileData;	// Time in seconds
+	ProbabilityMap *bgModel;
 	
 	//For debugging/showoff
 	void showObjects();

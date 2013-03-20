@@ -13,7 +13,7 @@ using namespace std;
 class FrameList
 {
 public:
-	FrameList::FrameList(int framesToKeep);
+	FrameList(int framesToKeep);
 
 	void open(std::string path);
 	Frame & getLatestFrame();
@@ -44,7 +44,7 @@ private:
 	int maxFrames;
 	int currentFrameNumber;
 	
-	void FrameList::appendFrame(IplImage *frameImage);
+	void appendFrame(IplImage *frameImage);
 
 	//Debug
 	Mat probMap;

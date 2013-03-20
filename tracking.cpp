@@ -10,6 +10,7 @@
 #define PROFILER_RESET() c.reset();
 #define PROFILE(string) frameList.setTime(string, c.getTime()); c.lap();
 #define PROFILE_TOTALTIME() frameList.setTime("Total Time", c.getTotalTime());
+#define PROFILE_TOTALFPS() frameList.setTime("Total FPS", c.getTotalFPS());
 
 int main()
 {
@@ -23,7 +24,7 @@ int main()
 	BackgroundModelling::BackgroundModel backgroundModel;
 	ForegroundProcessing::ForegroundProcessor foregroundProcessor;
 	Identification::Identifier identifier;
-	//Prediction::KalmanFilter kalmanFilter;
+	Prediction::Kalman kalmanFilter;
 
 	// Init
 	foregroundProcessor.init(ForegroundProcessing::FAST, 50, 3);
@@ -47,7 +48,7 @@ int main()
 		backgroundModel.update(frameList.getFrames());						PROFILE("BackgroundModel");
 		foregroundProcessor.segmentForeground(frameList.getLatestFrame());	PROFILE("ForegroundSeg.");
 		identifier.identify(frameList.getFrames());							PROFILE("Identification");	
-		//kalmanFilter.predict(frameList.getLatestFrame());					PROFILE("Kalman Prediction");		
+		kalmanFilter.predict(frameList.getLatestFrame());					PROFILE("Kalman Prediction");		
 
 		
 		// Display result
@@ -64,6 +65,8 @@ int main()
 		// Read next frame from source
 		frameList.queryNextFrame();											PROFILE("QueryNextFrame");										
 																			PROFILE_TOTALTIME();
+																			PROFILE("Total FPS");
+																			PROFILE_TOTALFPS();
 				
 		// Display info
 		frameList.displayInfo("Info");

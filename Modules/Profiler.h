@@ -15,6 +15,7 @@ public:
 
 	double getTime() { return double(clock()-lapTime)/CLOCKS_PER_SEC; }
 	double getTotalTime() { return double(clock()-totalTime)/CLOCKS_PER_SEC; }
+	double getTotalFPS() { return 1 / (double(clock()-totalTime)/CLOCKS_PER_SEC); }
 };
 
 #endif

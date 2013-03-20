@@ -196,48 +196,74 @@
 \lstset{
 	language=C++, 									% Language
 	frame=single,									% Frame around code
-	basicstyle=\footnotesize,						% Font size
+	tabsize = 3,							% Better Tabbing
+	basicstyle=\ttfamily\footnotesize,						% Font size
 	numbers=left,									% numbering
 	backgroundcolor=\color{sexy-gray},				% background color
 	keywordstyle=\color{blue},						% Keyword color
 	stringstyle=\color{orange},						% String color
+	showstringspaces=false,							% Don't show string spaces
 	commentstyle=\itshape\color{green!40!black},	% Comment color
-	morekeywords={electrical, analog},  			% Additional keywords
+	morekeywords={electrical, analog},  			% Additional keywords 
 }
 
 
 \section{Source code for data structures}
 \subsection{Frame class}
 \label{sec:Frame_code}
-\lstinputlisting{code_files/frame.h}
+\lstinputlisting{../Modules/Frame.h}
 \newpage
-\lstinputlisting{code_files/frame.cpp}
+\lstinputlisting{../Modules/Frame.cpp}
+
+\subsection{FrameList class}
+\label{sec:FrameList_code}
+\lstinputlisting{../Modules/FrameList.h}
+\newpage
+\lstinputlisting{../Modules/FrameList.cpp}
+
+\subsection{Object class}
+\label{sec:Object_code}
+\lstinputlisting{../Modules/Object.h}
+\newpage
+\lstinputlisting{../Modules/Object.cpp}
 
 
 \newpage
 \section{Source code for Background modelling}
 \label{sec:BGMod_code}
-\lstinputlisting{code_files/frame.h}
+\lstinputlisting{../Modules/BackgroundModelling/BackgroundModel.h}
+\newpage
+\lstinputlisting{../Modules/BackgroundModelling/BackgroundModel.cpp}
+\label{sec:ProbMap_code}
+\lstinputlisting{../Modules/BackgroundModelling/ProbabilityMap.h}
+\newpage
+\lstinputlisting{../Modules/BackgroundModelling/ProbabilityMap.cpp}
 
 \newpage
 \section{Source code for Foreground segmentation}
 \label{sec:ForeGroundSeg_code}
-\lstinputlisting{code_files/frame.cpp}
+\lstinputlisting{../Modules/ForegroundProcessing/ForegroundProcessor.h}
+\newpage
+\lstinputlisting{../Modules/ForegroundProcessing/ForegroundProcessor.cpp}
 
 \newpage
 \section{Source code for Object identification}
-\label{sec:ObjectID_code}
-\lstinputlisting{code_files/object.h}
+\label{sec:ObjID_code}
+\lstinputlisting{../Modules/ObjectIdentification/Identification.h}
+\newpage
+\lstinputlisting{../Modules/ObjectIdentification/Identification.cpp}
 
 \newpage
 \section{Source code for Kalman prediction}
 \label{sec:Kalman_code}
-\lstinputlisting{code_files/object.cpp}
+\lstinputlisting{../Modules/Prediction/Kalman.h}
+\newpage
+\lstinputlisting{../Modules/Prediction/Kalman.cpp}
 
 \newpage
 \section{Source code for Main program}
 \label{sec:Main_code}
-\lstinputlisting{code_files/object.cpp}
+\lstinputlisting{../tracking.cpp}
 
 % Set properties for Matlab code listings
 \lstset{

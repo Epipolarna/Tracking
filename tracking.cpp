@@ -1,7 +1,7 @@
 #include "Modules/FrameList.h"
-#include "Modules/Background modelling/BackgroundModel.h"
-#include "Modules/Foreground processing/ForegroundProcessor.h"
-#include "Modules/Object identification/Identification.h"
+#include "Modules/BackgroundModelling/BackgroundModel.h"
+#include "Modules/ForegroundProcessing/ForegroundProcessor.h"
+#include "Modules/ObjectIdentification/Identification.h"
 #include "Modules/Prediction/Kalman.h"
 
 #include "Modules/Profiler.h"

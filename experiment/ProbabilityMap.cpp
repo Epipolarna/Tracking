@@ -1,7 +1,6 @@
 #include "ProbabilityMap.h"
 
-ProbabilityMap::ProbabilityMap(Frame *prevFrame, Frame *currFrame){
-	
+ProbabilityMap::ProbabilityMap(Frame *prevFrame, Frame *currFrame){	
 	
 	numGauss = 3;
 	lambda = 2.5; //this should probably be tweaked to be lower
@@ -16,7 +15,6 @@ ProbabilityMap::ProbabilityMap(Frame *prevFrame, Frame *currFrame){
 		distributions = new gauss3D[numGauss*numPixels];
 		//for all pixels
 		for(int row=0; row < image.rows; row++){
-			uchar* p = image.ptr(row);
 			//for all columns
 			for(int col=0; col < image.cols*3; col++){
 				//for each channel in the image
@@ -25,7 +23,7 @@ ProbabilityMap::ProbabilityMap(Frame *prevFrame, Frame *currFrame){
 					for(int k=0; k < numGauss; k++){
 						distributions[row*image.rows+col+k].mean[c] = image.at<Vec3b>(row,col)[c];
 						distributions[row*image.rows+col+k].sigma[c] = initSigma;
-						distributions[row*image.rows+col+k].w[c] = 1/float(numGauss);
+						distributions[row*image.rows+col+k].mean[c] = 1.0/float(numGauss);
 					}
 				}
 			}

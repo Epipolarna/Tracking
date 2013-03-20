@@ -53,20 +53,20 @@ int main()
 		// Display result
 		frameList.display("Tracking");
 		frameList.displayBackground("Background");
-		frameList.displayForeground("Foreground");							PROFILE("Display");
+		frameList.displayForeground("Foreground");
 				
 		// Give the GUI time to render
-		waitKey(1);
+		waitKey(1);															PROFILE("Display");
 
 		// Optional pause between each frame
 		//waitKey(0);
 						
+		// Read next frame from source
+		frameList.queryNextFrame();											PROFILE("QueryNextFrame");										
+																			PROFILE_TOTALTIME();
+				
 		// Display info
 		frameList.displayInfo("Info");
-
-		// Read next frame from source
-		frameList.queryNextFrame();											PROFILE_TOTALTIME();
-
 	}
 	
 	waitKey(0);

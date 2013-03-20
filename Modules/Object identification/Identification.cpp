@@ -50,7 +50,7 @@ namespace Identification
 		int matchingPrevious;
 		float min;
 		std::list<int>::iterator bestMatch;
-		for(int candidate = 0; candidate < last->objects.size(); candidate++)
+		for(int candidate = 0; candidate < std::min(last->objects.size(), current->objects.size()); candidate++)
 		{
 			min = 1000000;
 			for(std::list<int>::iterator i = undecidedObjects.begin(); i != undecidedObjects.end(); i++)

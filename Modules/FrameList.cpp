@@ -102,6 +102,10 @@ void FrameList::displayForeground(std::string windowID)
 
 void FrameList::displayInfo(std::string windowID)
 {
+	Frame * frame = &getLatestFrame();
+	if(oldFrames.size() > 2)
+		frame = &(*(++oldFrames.begin()));
+
 	int fontFace = CV_FONT_HERSHEY_COMPLEX;
 	double fontScale = 1;
 	int thickness = 1;
@@ -112,7 +116,7 @@ void FrameList::displayInfo(std::string windowID)
 
 	PUTTEXT(5,25,"Profiling:");
 	int l = 60;
-	for(std::map<std::string, double>::iterator i = getLatestFrame().profileData.begin(); i != getLatestFrame().profileData.end(); i++)
+	for(std::map<std::string, double>::iterator i = frame->profileData.begin(); i != frame->profileData.end(); i++)
 	{
 		text = "   "+i->first+":";
 		while(getTextSize(text, fontFace, fontScale, thickness, &baseline).width < 400)

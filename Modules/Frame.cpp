@@ -4,7 +4,6 @@
 *
 */
 
-//#include "stdafx.h"
 #include "frame.h"
 
 using namespace cv;

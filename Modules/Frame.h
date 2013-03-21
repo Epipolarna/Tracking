@@ -27,8 +27,9 @@ public:
 	void drawObjects(std::vector<Object> & objects, Scalar color);
 		
 	//Data
-	Mat image;		    //Should be 3-channel color
-	Mat probMap;		//Should be single channel grayscale
+	Mat image;						 //Should be 3-channel color
+	Mat backgroundProbMap;			 //Should be 3-channel color
+	Mat probMap;					 //Should be single channel grayscale
 	std::vector<Object> objects;
 	std::map<std::string, double> profileData;	// Time in seconds
 	ProbabilityMap * bgModel;

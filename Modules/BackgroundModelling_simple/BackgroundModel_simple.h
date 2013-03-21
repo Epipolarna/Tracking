@@ -2,7 +2,6 @@
 #define _BACKGROUND_MODEL_SIMPLE_H_
 
 #include "../Frame.h"
-#include "ProbabilityMap.h"
 #include <iostream>
 using namespace std;
 
@@ -20,7 +19,7 @@ namespace BackgroundModelling_simple
 		int counter;
 		float varianceTreshold;
 		Mat probabilityMap;
-		Mat probabilityMapTemp;
+		Mat blurredImage;
 	};
 }
 

@@ -19,7 +19,7 @@ int main()
 	PROFILER_INIT();
 
 	// Frame container
-	FrameList frameList(10000);	// Keep a history of up to 100 frames (might be used by some modules)
+	FrameList frameList(10);	// Keep a history of up to 100 frames (might be used by some modules)
 	
 	// Modules
 	BackgroundModelling_simple::BackgroundModel backgroundModel;
@@ -28,7 +28,8 @@ int main()
 	Prediction::Kalman kalmanFilter;
 
 	// Init
-	foregroundProcessor.init(ForegroundProcessing::FAST, 50, 3);
+	foregroundProcessor.setAlgortihm(ForegroundProcessing::AREA);
+	foregroundProcessor.init(50, 3, 5, 25, 2);
 	
 	// Load frame source
 	frameList.open("camera1.mov");
@@ -48,7 +49,6 @@ int main()
 
 		// Do the nessecary processing
 		backgroundModel.update(frameList.getFrames());						PROFILE("BackgroundModel");
-		frameList.displayBackground("Background");
 		foregroundProcessor.segmentForeground(frameList.getLatestFrame());	PROFILE("ForegroundSeg.");
 		identifier.identify(frameList.getFrames());							PROFILE("Identification");	
 		kalmanFilter.predict(frameList.getLatestFrame());					PROFILE("Kalman Prediction");		
@@ -57,6 +57,7 @@ int main()
 		// Display result
 		frameList.display("Tracking");
 		frameList.displayForeground("Foreground");
+		frameList.displayProbabilityMap("Background");
 		backgroundModel.display("BackgroundModel");
 				
 		// Give the GUI time to render

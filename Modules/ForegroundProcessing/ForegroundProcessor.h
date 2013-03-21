@@ -38,8 +38,10 @@ namespace ForegroundProcessing
 
 		void init(int threshval, int Iterations, double minDist, double minArea, double minQuotient);
 		
-		void ForegroundProcessor::setAlgortihm(Algorithm algorithm) {
-			this->algorithm = algorithm; }
+		void ForegroundProcessor::setAlgortihm(Algorithm algorithm)
+		{
+			this->algorithm = algorithm; 
+		}
 
 	private:
 		//Finds objects in a binary image and puts them in the list.

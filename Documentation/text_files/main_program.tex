@@ -1,7 +1,16 @@
-How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program 
+The main program is composed of two parts. The first one is initiation part, where the modules are declared, parameters specified, and movie clip loaded. The second one is the main loop, where the actual program is executed.
 
-\subsubsection{Initiation}
-How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program  
+
+\subsubsection{Main loop}
+When the program is started and the initiation is done the program is set to run until the end of the specified movie sequence. For each frame in the sequence, the Background model is updated and a probability map matrix containing information about what pixels are part of the background is created. After the probability map has been created, the foreground processing module is called upon to perform some noise removal and to detect all the interesting regions in the probability map (the regions that are likely to be part of the foreground). 
+
+Once all the interesting regions are labeled, the identification module takes all the created objects in the current frame and associates them with the proper ID. This is done by comparison with the objects in the previous frame.
+
+To help in the labeling process we use a Kalman predictor, that predicts the position of the each object in the next frame. The Prediction module is called upon after the identification is done.
+
+Once all the processing in the module is finished the objects in the current frame are drawn in the current frame as bounding boxes with velocity vectors, position in pixel coordinates and ID numbers.
+
+
 See code in appendix \ref*{sec:Main_code}. %referens till kod, ger klickbar länk.
 
 \begin{figure}[htb]
@@ -11,5 +20,3 @@ See code in appendix \ref*{sec:Main_code}. %referens till kod, ger klickbar länk
 	\label{fig:MainProgram_fig} %Skapar referens till figuren
 \end{figure}
 
-\subsubsection{Main loop}
-How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program How do i main program 

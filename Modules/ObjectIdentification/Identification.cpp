@@ -7,27 +7,95 @@ namespace Identification
 	//////////     Module     ///////////
 	/////////////////////////////////////
 
+	void Identifier::init(Algorithm algorithmName)
+	{
+		switch(algorithmName)
+		{
+		case Naive:
+			algorithm = &Identifier::algorithm1;
+			break;
+		case Test:
+			algorithm = &Identifier::algorithm2;
+			break;
+		case Experimental:
+			algorithm = &Identifier::algorithm3;
+			break;
+		}
+	}
+
 	void Identifier::identify(std::list<Frame> & frames)
 	{
-		// First time no objects are identified
-		if(frames.size() == 1)
+		if(frames.size() == 1)	// First time no objects are identified
 		{
 			for(int i = 0; i < frames.front().objects.size(); i++)
 			{
 				frames.front().objects[i].id = newID();
 			}
-			return;
+		}
+		else
+		{
+			(this->*algorithm)(frames);
+		}
+	}
+
+	void Identifier::algorithm1(std::list<Frame> & frames)
+	{
+		Frame * current = &frames.front();
+		Frame * previous = &(*(++frames.begin()));
+		
+		// Find the previous object which is probably the current object
+		float distanceError, error;
+		int pIndex, prevpIndex;
+		std::list<ProbabilityContainer> mostProbable;
+
+		isDecided.clear();
+		for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
+			isDecided.push_back(false);
+
+		for(std::vector<Object>::iterator c = current->objects.begin(); c != current->objects.end(); c++)
+		{
+			mostProbable.push_back(ProbabilityContainer(-1, -1, 1000000));
+			pIndex = 0;
+			prevpIndex = -1;
+			for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
+			{
+				distanceError = std::pow(c->x - p->x - p->dx, 2) + std::pow(c->y - p->y - p->dy, 2);
+				error = distanceError;
+				if(!isDecided[pIndex] && mostProbable.back().error > error && error < 5000)
+				{
+					mostProbable.back().error = error;
+					mostProbable.back().index = pIndex;
+					if(prevpIndex >= 0)
+						isDecided[prevpIndex] = false;
+					isDecided[pIndex] = true;
+					prevpIndex = pIndex;
+				}
+				pIndex++;
+			}
 		}
 
+		pIndex = 0;
+		for(std::list<ProbabilityContainer>::iterator p = mostProbable.begin(); p != mostProbable.end(); p++)
+		{
+			if(p->index >= 0)
+				current->objects[pIndex].id = previous->objects[p->index].id;
+			else
+				current->objects[pIndex].id = newID();
+			pIndex++;
+		}
+		
+	}
 
+	void Identifier::algorithm2(std::list<Frame> & frames)
+	{
+		
 		Frame * current = &frames.front();
 		Frame * last = &(*(++frames.begin()));
-		
+
+		mostProbable.clear();
+		undecidedObjects.clear();
 		float distance, error;
-		std::vector<std::list<ProbabilityContainer> > mostProbable;
-		std::list<int> undecidedObjects;
-
-
+		
 		for(int i = 0; i < current->objects.size(); i++)
 		{
 			undecidedObjects.push_back(i);
@@ -47,9 +115,9 @@ namespace Identification
 		}
 
 		//std::cout << "\nFind most probable previous object:\n";
+		std::list<int>::iterator bestMatch;
 		int matchingPrevious;
 		float min;
-		std::list<int>::iterator bestMatch;
 		for(int candidate = 0; candidate < std::min(last->objects.size(), current->objects.size()); candidate++)
 		{
 			min = 1000000;
@@ -89,9 +157,22 @@ namespace Identification
 		{
 			current->objects[*i].id = newID();
 		}
+
 	}
 
-
+	void Identifier::algorithm3(std::list<Frame> & frames)
+	{
+		/*
+		// Select the objects in the previous frame that are candidates to the unidentified in the current frame
+		std::vector<Object *> candidates;
+		candidates.clear();
+		for(std::vector<Object>::iterator c = previous->objects.begin(); c != previous->objects.end(); c++)
+		{
+			if(!probablyOutsideOfImage(*c))
+				candidates.push_back(&(*c));
+		}
+		*/
+	}
 
 
 

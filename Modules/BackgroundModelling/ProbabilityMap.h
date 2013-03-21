@@ -30,14 +30,17 @@ public:
 	const float lambda; //treshold for belonging to a distribution
 	const float initSigma; //inital sigma for new distribution
 	const float alpha;
+	int maxRow, maxCol, maxIndex;
 	
 	gauss3D *distributions;
 	void updateDistributions(Mat image);
-	void resetDistance(float *d);
 	bool betterMatch(gauss3D bestDist, gauss3D distK);
 	void initDistribution(gauss3D &g, uchar sigma, Vec3b mean);
 	float sigmaSize(gauss3D g);
 	float sumW(int row, int col, int maxRow);
+	int ci(int row,int col, int k); //dumb index computation
+	int ci(int row, int col);
+	uchar distanceToGauss(gauss3D g, Vec<unsigned char, 3> p);
 };
 
 #endif

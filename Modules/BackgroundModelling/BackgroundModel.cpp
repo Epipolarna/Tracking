@@ -44,20 +44,21 @@ namespace BackgroundModelling
 		currFrame->probMap = backgroundModel->pImage;
 		currFrame->bgModel = backgroundModel;
 
-		cout << "p1 matrix is:" << getImgType(backgroundModel->pImage.type()) << endl;
-		cout << "rows: " << backgroundModel->pImage.rows << " cols: " << backgroundModel->pImage.cols << endl;
-
-		cout << "p2 matrix is:" << getImgType(currFrame->probMap.type()) << endl;
-		cout << "rows: " << currFrame->probMap.rows << " cols: " << currFrame->probMap.cols << endl;
-
-		cout << "first few positions are:" << currFrame->probMap.at<float>(1,1) << ", "
-		<< currFrame->probMap.at<float>(1,2) << ", "
-		<< currFrame->probMap.at<float>(1,3) << endl;
+		cout << "first few positions are:";
+		cout << currFrame->probMap.at<float>(1,0) << ", ";
+		cout << currFrame->probMap.at<float>(2,0) << ", ";
+		cout << currFrame->probMap.at<float>(3,0) << endl;
 
 		cout << "first few w is: ";
-		cout << currFrame->bgModel->distributions[0].w << ", ";
-		cout << currFrame->bgModel->distributions[1].w << ", ";
-		cout << currFrame->bgModel->distributions[2].w << ", ";
+		cout << currFrame->bgModel->biggestW[0] << ", ";
+		cout << currFrame->bgModel->biggestW[4] << ", ";
+		cout << currFrame->bgModel->biggestW[20] << ", ";
+		cout << endl;
+
+		cout << "the first gauss has sigma:";
+		cout << (int)currFrame->bgModel->distributions[0].sigma[0] << ", ";
+		cout << (int)currFrame->bgModel->distributions[1].sigma[0] << ", ";
+		cout << (int)currFrame->bgModel->distributions[2].sigma[0] << ", ";
 		cout << endl << endl << endl;
 
 	}

@@ -82,7 +82,7 @@ namespace ForegroundProcessing
 		}
 	}
 
-		void ForegroundProcessor::getObjectsArea(Frame & frame, double maxArea, double minQuotient)
+		void ForegroundProcessor::getObjectsArea(Frame & frame, double minArea, double minQuotient)
 	{
 		double objArea;
 		Rect objRect;
@@ -94,13 +94,14 @@ namespace ForegroundProcessing
 			objArea = contourArea(contours[i]);
 			objRect = boundingRect(contours[i]);
 			
-			if (objArea > 25 && objArea > (objRect.width * objRect.height)/minQuotient)
+			if ((objArea > minArea) && (objArea > (objRect.width * objRect.height)/minQuotient))
 			{
+				//Create an object for every countour using the boundingRect command
 				frame.objects.push_back(Object(objRect));	
 			}
 			
-			//Create an object for every countour using the boundingRect command
-			frame.objects.push_back(Object(boundingRect(contours[i])));	
+			//
+			//frame.objects.push_back(Object(boundingRect(contours[i])));	
 		}
 	}
 
@@ -145,7 +146,7 @@ namespace ForegroundProcessing
 	void ForegroundProcessor::openingBinMap(Mat probMap, int iterations)
 	{
 		cv::Mat kernel;
-		kernel = getStructuringElement( MORPH_RECT, Size(3, 3));
+		kernel = getStructuringElement( MORPH_CROSS, Size(3, 3));
 		dilate(probMap, probMap, kernel, cv::Point(-1,-1), iterations);
 		erode(probMap, probMap, kernel, cv::Point(-1,-1), iterations);
 	}

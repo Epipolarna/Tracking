@@ -17,7 +17,8 @@ namespace BackgroundModelling_simple
 		
 		//for ( int i = 1; i < MAX_KERNEL_LENGTH; i = i + 2 ) // Better smoothing..
 		int i = MAX_KERNEL_LENGTH;
-			blur( current->image, blurredImage, Size( i, i ), Point(-1,-1) );
+			//blur( current->image, blurredImage, Size( i, i ), Point(-1,-1) );
+			GaussianBlur( current->image, blurredImage, Size( i, i ), 0,0 );
 		
 		float learningRate = 100;
 

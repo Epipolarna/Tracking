@@ -10,7 +10,7 @@ namespace BackgroundModelling_simple
 	class BackgroundModel
 	{
 	public:
-		BackgroundModel() { varianceTreshold = 20; MAX_KERNEL_LENGTH = 10; counter = 0; }
+		BackgroundModel() { varianceTreshold = 20; MAX_KERNEL_LENGTH = 11; counter = 0; }
 		void update(std::list<Frame> &frames);
 		void display(std::string windowID);
 		

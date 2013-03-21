@@ -29,7 +29,7 @@ int main()
 
 	// Init
 	foregroundProcessor.setAlgortihm(ForegroundProcessing::AREA);
-	foregroundProcessor.init(50, 3, 5, 25, 2);
+	foregroundProcessor.init(50, 3, 5, 75, 2);
 	
 	// Load frame source
 	frameList.open("camera1.mov");

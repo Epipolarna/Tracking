@@ -1,0 +1,37 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [1][-]{section.2}{System description}{}% 2
+\BOOKMARK [2][-]{subsection.2.1}{Main Program}{section.2}% 3
+\BOOKMARK [3][-]{subsubsection.2.1.1}{Main loop}{subsection.2.1}% 4
+\BOOKMARK [2][-]{subsection.2.2}{Data structures}{section.2}% 5
+\BOOKMARK [3][-]{subsubsection.2.2.1}{ProbabilityMap}{subsection.2.2}% 6
+\BOOKMARK [3][-]{subsubsection.2.2.2}{Object}{subsection.2.2}% 7
+\BOOKMARK [3][-]{subsubsection.2.2.3}{Frame}{subsection.2.2}% 8
+\BOOKMARK [3][-]{subsubsection.2.2.4}{FrameList}{subsection.2.2}% 9
+\BOOKMARK [2][-]{subsection.2.3}{Background modeling}{section.2}% 10
+\BOOKMARK [3][-]{subsubsection.2.3.1}{Expectation maximization}{subsection.2.3}% 11
+\BOOKMARK [3][-]{subsubsection.2.3.2}{Moar info}{subsection.2.3}% 12
+\BOOKMARK [2][-]{subsection.2.4}{Foreground segmentation}{section.2}% 13
+\BOOKMARK [3][-]{subsubsection.2.4.1}{Morphological cleanup}{subsection.2.4}% 14
+\BOOKMARK [3][-]{subsubsection.2.4.2}{Object detection}{subsection.2.4}% 15
+\BOOKMARK [2][-]{subsection.2.5}{Object identification}{section.2}% 16
+\BOOKMARK [3][-]{subsubsection.2.5.1}{Possible situations}{subsection.2.5}% 17
+\BOOKMARK [3][-]{subsubsection.2.5.2}{Algorithms}{subsection.2.5}% 18
+\BOOKMARK [2][-]{subsection.2.6}{Kalman prediction}{section.2}% 19
+\BOOKMARK [3][-]{subsubsection.2.6.1}{Some stuff}{subsection.2.6}% 20
+\BOOKMARK [3][-]{subsubsection.2.6.2}{Moar stuff}{subsection.2.6}% 21
+\BOOKMARK [1][-]{section.3}{System Evaluation}{}% 22
+\BOOKMARK [2][-]{subsection.3.1}{Evaluation setup}{section.3}% 23
+\BOOKMARK [2][-]{subsection.3.2}{Results and stuff}{section.3}% 24
+\BOOKMARK [1][-]{section*.3}{References}{}% 25
+\BOOKMARK [1][-]{section*.3}{Appendices}{}% 26
+\BOOKMARK [1][-]{appendix.A}{Source code for data structures}{}% 27
+\BOOKMARK [2][-]{subsection.A.1}{Frame class}{appendix.A}% 28
+\BOOKMARK [2][-]{subsection.A.2}{FrameList class}{appendix.A}% 29
+\BOOKMARK [2][-]{subsection.A.3}{Object class}{appendix.A}% 30
+\BOOKMARK [1][-]{appendix.B}{Source code for Background modeling}{}% 31
+\BOOKMARK [2][-]{subsection.B.1}{Background Model}{appendix.B}% 32
+\BOOKMARK [2][-]{subsection.B.2}{Probability Map}{appendix.B}% 33
+\BOOKMARK [1][-]{appendix.C}{Source code for Foreground segmentation}{}% 34
+\BOOKMARK [1][-]{appendix.D}{Source code for Object identification}{}% 35
+\BOOKMARK [1][-]{appendix.E}{Source code for Kalman prediction}{}% 36
+\BOOKMARK [1][-]{appendix.F}{Source code for Main program}{}% 37

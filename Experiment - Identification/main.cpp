@@ -16,7 +16,7 @@ int main()
 {
 	std::list<Frame> frames;
 	std::list<Frame> testFrames;
-	Identification::generate_testdata(testFrames);
+	Identification::generate_testdata(testFrames, "complex1");
 	Identification::Identifier identifier;
 
 

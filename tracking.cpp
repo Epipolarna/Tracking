@@ -1,5 +1,6 @@
 #include "Modules/FrameList.h"
 #include "Modules/BackgroundModelling/BackgroundModel.h"
+#include "Modules/BackgroundModelling_simple/BackgroundModel_simple.h"
 #include "Modules/ForegroundProcessing/ForegroundProcessor.h"
 #include "Modules/ObjectIdentification/Identification.h"
 #include "Modules/Prediction/Kalman.h"
@@ -21,7 +22,7 @@ int main()
 	FrameList frameList(10000);	// Keep a history of up to 100 frames (might be used by some modules)
 	
 	// Modules
-	BackgroundModelling::BackgroundModel backgroundModel;
+	BackgroundModelling_simple::BackgroundModel backgroundModel;
 	ForegroundProcessing::ForegroundProcessor foregroundProcessor;
 	Identification::Identifier identifier;
 	Prediction::Kalman kalmanFilter;
@@ -37,6 +38,7 @@ int main()
 	namedWindow("Background",CV_WINDOW_AUTOSIZE);
 	namedWindow("Foreground",CV_WINDOW_AUTOSIZE);
 	namedWindow("Tracking",CV_WINDOW_AUTOSIZE);
+	namedWindow("BackgroundModel",CV_WINDOW_AUTOSIZE);
 	
 	// Track objects through all frames
 	while(!frameList.isSourceEmpty())
@@ -46,6 +48,7 @@ int main()
 
 		// Do the nessecary processing
 		backgroundModel.update(frameList.getFrames());						PROFILE("BackgroundModel");
+		frameList.displayBackground("Background");
 		foregroundProcessor.segmentForeground(frameList.getLatestFrame());	PROFILE("ForegroundSeg.");
 		identifier.identify(frameList.getFrames());							PROFILE("Identification");	
 		kalmanFilter.predict(frameList.getLatestFrame());					PROFILE("Kalman Prediction");		
@@ -53,8 +56,8 @@ int main()
 		
 		// Display result
 		frameList.display("Tracking");
-		frameList.displayBackground("Background");
 		frameList.displayForeground("Foreground");
+		backgroundModel.display("BackgroundModel");
 				
 		// Give the GUI time to render
 		waitKey(1);															PROFILE("Display");

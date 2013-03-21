@@ -1,7 +1,15 @@
-How do i identify object?? How do i identify object?? How do i identify object?? How do i identify object?? How do i identify object?? How do i identify object?? How do i identify object?? How do i identify object?? How do i identify object?? How do i identify object?? How do i identify object?? How do i identify object?? How do i identify object?? How do i identify object?? How do i identify object?? How do i identify object?? How do i identify object?? How do i identify object??  
+The purpose of \emph{Object identification} is to assign id's to objects discovered in the current frame based on what was known previous frames and using predictions from the Kalman filter. The aim is to assign a previously detected objects id to the most probable current object, or to none if the previous objects was moving out of the frame. New objects must be given new id's. Occlusion should be handled and objects that disappears by entering something or becoming stationary should be marked as lost but kept.
 
-\subsubsection{Some stuff}
-How Do i some stuff?? How Do i some stuff?? How Do i some stuff?? How Do i some stuff?? How Do i some stuff?? How Do i some stuff?? How Do i some stuff?? How Do i some stuff?? How Do i some stuff?? How Do i some stuff?? How Do i some stuff?? How Do i some stuff?? How Do i some stuff?? How Do i some stuff?? How Do i some stuff?? How Do i some stuff?? 
+\subsubsection{Possible situations}
+* Two objects move so close that they are estimated as one object by the foreground segmentation.
+- The new bounding box should approximately cover the two previous objects.
+
+
+\subsubsection{Error measurement}
+
+
+
+\subsubsection{Algorithms}
 See code in appendix \ref{sec:ObjID_code}. %referens till kod, ger klickbar länk.
 
 \begin{figure}[htb]
@@ -11,6 +19,3 @@ See code in appendix \ref{sec:ObjID_code}. %referens till kod, ger klickbar län
 	\label{fig:ObjID_fig} %Skapar referens till figuren
 \end{figure}
 
-\subsubsection{Moar stuff}
-How Do i moar stuff?? How Do i moar stuff?? How Do i moar stuff?? How Do i moar stuff?? How Do i moar stuff?? How Do i moar stuff?? How Do i moar stuff?? How Do i moar stuff?? How Do i moar stuff?? How Do i moar stuff?? How Do i moar stuff?? How Do i moar stuff?? How Do i moar stuff?? How Do i moar stuff?? How Do i moar stuff?? How Do i moar stuff?? How Do i moar stuff?? How Do i moar stuff??  
-This can be seen in figure \ref{fig:ObjID_fig}. %Referens till figur, Ger klickbar länk i pdfen.

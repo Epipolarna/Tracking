@@ -1,19 +1,16 @@
 #include "Evaluation.h"
-#include <iostream>
-#include <vector>
-#include <fstream>
-
 #include "rapidxml.hpp"
+
+#include <iostream>
+#include <fstream>
 
 using namespace std;
 using namespace rapidxml;
 
 
-void readXML2FrameList()
+list<vector<Object>> readXML2FrameList(char* fileName)
 {
-	cout << "Dick" << endl;
-
-	ifstream myfile("groundTruth.xml");
+	ifstream myfile(fileName);
 	xml_document<> doc;
 
 	vector<char> buffer((istreambuf_iterator<char>(myfile)), istreambuf_iterator<char>( ));
@@ -26,13 +23,21 @@ void readXML2FrameList()
 	xml_node<>* objectPropertyPointer;
 
 	framePointer = doc.first_node()->first_node();
+	
+	// Extract numberof frames
+	char* frameAttribute = doc.first_node()->last_node()->first_attribute()->value();
+	int numberOfFrames = atoi(frameAttribute);
 
-	cout << framePointer->first_attribute()->value() << endl;
+	list<vector<Object>> groundTruthFrameList;
+	
+	int frameNumber, objectID;
+	int x, y, h, w;
 
 	// Loop untill no frames are left
 	while(framePointer != 0)
 	{
-		cout << "Frame number: " << framePointer->first_attribute()->value() << endl;
+		frameNumber = atoi(framePointer->first_attribute()->value());
+		groundTruthFrameList.push_back(vector<Object>());
 
 		objectListPointer = framePointer->first_node();
 		objectPointer = objectListPointer->first_node();
@@ -41,17 +46,25 @@ void readXML2FrameList()
 		while(objectPointer != 0)
 		{
 			// Extract information about objects
-			cout << "Object id: " << objectPointer->first_attribute()->value() << endl;
+			objectID = atoi(objectPointer->first_attribute()->value());
+			groundTruthFrameList.back().push_back(Object());
 
 			objectPropertyPointer = objectPointer->first_node("box");
-			cout << "x: " << objectPropertyPointer->first_attribute("xc")->value() << endl;
-			cout << "y: " << objectPropertyPointer->first_attribute("yc")->value() << endl;
-			cout << "h: " << objectPropertyPointer->first_attribute("h")->value() << endl;
-			cout << "w: " << objectPropertyPointer->first_attribute("w")->value() << endl;
+			x = atoi(objectPropertyPointer->first_attribute("xc")->value());
+			y = atoi(objectPropertyPointer->first_attribute("yc")->value());
+			h = atoi(objectPropertyPointer->first_attribute("h")->value());
+			w = atoi(objectPropertyPointer->first_attribute("w")->value());
+
+			groundTruthFrameList.back().back().x = x;
+			groundTruthFrameList.back().back().y = y;
+			groundTruthFrameList.back().back().height = h;
+			groundTruthFrameList.back().back().width = w;
 			
 			objectPointer = objectPointer->next_sibling();
 		}
 
 		framePointer = framePointer->next_sibling();
 	}
+
+	return groundTruthFrameList;
 }

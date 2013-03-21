@@ -24,7 +24,7 @@ namespace Identification
 	class Identifier
 	{
 	public:
-		Identifier() {uniqueIDPool = 1; algorithm = &Identifier::algorithm1;}
+		Identifier() {uniqueIDPool = 1; algorithm = &Identifier::algorithm_naive;}
 		void identify(std::list<Frame> & frames);
 
 		void init(Algorithm algorithmName);
@@ -40,7 +40,7 @@ namespace Identification
 		std::list<int> undecidedObjects;
 		std::vector<bool> isDecided;
 
-		void algorithm1(std::list<Frame> & frames);
+		void algorithm_naive(std::list<Frame> & frames);
 		void algorithm2(std::list<Frame> & frames);
 		void algorithm3(std::list<Frame> & frames);
 	};

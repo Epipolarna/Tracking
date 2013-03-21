@@ -12,7 +12,7 @@ namespace Identification
 		switch(algorithmName)
 		{
 		case Naive:
-			algorithm = &Identifier::algorithm1;
+			algorithm = &Identifier::algorithm_naive;
 			break;
 		case Test:
 			algorithm = &Identifier::algorithm2;
@@ -38,7 +38,7 @@ namespace Identification
 		}
 	}
 
-	void Identifier::algorithm1(std::list<Frame> & frames)
+	void Identifier::algorithm_naive(std::list<Frame> & frames)
 	{
 		Frame * current = &frames.front();
 		Frame * previous = &(*(++frames.begin()));
@@ -59,7 +59,11 @@ namespace Identification
 			prevpIndex = -1;
 			for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
 			{
+				/*
+				 * distanceError = (x-x0-vx0)^2 + (y-y0-vy0)^2
+				 */
 				distanceError = std::pow(c->x - p->x - p->dx, 2) + std::pow(c->y - p->y - p->dy, 2);
+
 				error = distanceError;
 				if(!isDecided[pIndex] && mostProbable.back().error > error && error < 5000)
 				{
@@ -90,26 +94,26 @@ namespace Identification
 	{
 		
 		Frame * current = &frames.front();
-		Frame * last = &(*(++frames.begin()));
+		Frame * previous = &(*(++frames.begin()));
 
 		mostProbable.clear();
 		undecidedObjects.clear();
-		float distance, error;
+		float distanceError, error;
 		
 		for(int i = 0; i < current->objects.size(); i++)
 		{
 			undecidedObjects.push_back(i);
 			mostProbable.push_back(std::list<ProbabilityContainer>());
 			
-			for(int j = 0; j < last->objects.size(); j++)
+			for(int j = 0; j < previous->objects.size(); j++)
 			{
 				/*
 				 * distanceError = (x-x0-vx0)^2 + (y-y0-vy0)^2
 				 */
-				distance = std::pow(current->objects[i].x - last->objects[j].x - last->objects[j].dx, 2) + std::pow(current->objects[i].y - last->objects[j].y - last->objects[j].dy, 2);
-				error = distance;
+				distanceError = std::pow(current->objects[i].x - previous->objects[j].x - previous->objects[j].dx, 2) + std::pow(current->objects[i].y - previous->objects[j].y - previous->objects[j].dy, 2);
+				error = distanceError;
 				
-				mostProbable[i].push_back(ProbabilityContainer(j,last->objects[j].id,error));
+				mostProbable[i].push_back(ProbabilityContainer(j,previous->objects[j].id,error));
 			}
 			mostProbable[i].sort();
 		}
@@ -118,7 +122,7 @@ namespace Identification
 		std::list<int>::iterator bestMatch;
 		int matchingPrevious;
 		float min;
-		for(int candidate = 0; candidate < std::min(last->objects.size(), current->objects.size()); candidate++)
+		for(int candidate = 0; candidate < std::min(previous->objects.size(), current->objects.size()); candidate++)
 		{
 			min = 1000000;
 			for(std::list<int>::iterator i = undecidedObjects.begin(); i != undecidedObjects.end(); i++)
@@ -132,7 +136,7 @@ namespace Identification
 
 			//A most probable candidate found!
 			matchingPrevious = mostProbable[*bestMatch].front().index;
-			current->objects[*bestMatch].id = last->objects[matchingPrevious].id;
+			current->objects[*bestMatch].id = previous->objects[matchingPrevious].id;
 
 			//std::cout << "\tObject " << mostProbable[*bestMatch].front().probableId << " found with minError " << mostProbable[*bestMatch].front().error << "\n";
 
@@ -201,7 +205,13 @@ namespace Identification
 		}
 		else if(test == "complex1")
 		{
-
+			float var = 20;	// Variance
+			for(int t = 0; t < cTEST_FRAME_WIDTH; t++)
+			{
+				NEW_FRAME();
+				INSERT_OBJECT(t*10, 200+var*randf(), 10+var*randf(), var*randf());
+				INSERT_OBJECT(20+t*10+10*randf(), 20+t*10+10*randf(), 10+var*randf(), var*randf());
+			}
 		}
 
 	}

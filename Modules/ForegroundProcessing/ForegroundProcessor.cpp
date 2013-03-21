@@ -45,9 +45,9 @@ namespace ForegroundProcessing
 
 	void ForegroundProcessor::segmentForegroundArea(Frame & frame, int threshval, int Iterations, double minArea, double minQuotient)
 	{
-		threshMap(frame.probMap, threshval); //Threshold at threshval
+		//threshMap(frame.probMap, threshval); //Threshold at threshval
 	
-		openingBinMap(frame.probMap, iterations); 
+		closingBinMap(frame.probMap, iterations); 
 
 		getObjectsArea(frame, minArea, minQuotient);
 	
@@ -147,14 +147,14 @@ namespace ForegroundProcessing
 	{
 		cv::Mat kernel;
 		kernel = getStructuringElement( MORPH_CROSS, Size(3, 3));
-		dilate(probMap, probMap, kernel, cv::Point(-1,-1), iterations);
 		erode(probMap, probMap, kernel, cv::Point(-1,-1), iterations);
+		dilate(probMap, probMap, kernel, cv::Point(-1,-1), iterations);
 	}
 
 	void ForegroundProcessor::closingBinMap(Mat probMap, int iterations)
 	{
 		cv::Mat kernel;
-		kernel = getStructuringElement( MORPH_RECT, Size(3, 3));
+		kernel = getStructuringElement( MORPH_CROSS, Size(3, 3));
 		dilate(probMap, probMap, kernel, cv::Point(-1,-1), iterations);
 		erode(probMap, probMap, kernel, cv::Point(-1,-1), iterations);
 	}

@@ -163,10 +163,7 @@ namespace Identification
 		}
 
 	}
-
-	void Identifier::algorithm3(std::list<Frame> & frames)
-	{
-		/*
+	/*
 		// Select the objects in the previous frame that are candidates to the unidentified in the current frame
 		std::vector<Object *> candidates;
 		candidates.clear();
@@ -176,6 +173,151 @@ namespace Identification
 				candidates.push_back(&(*c));
 		}
 		*/
+	void Identifier::algorithm3(std::list<Frame> & frames)
+	{
+		/* 
+		 * 
+		 * 
+		 * 
+		 * 
+		 */
+
+		Frame * current = &frames.front();
+		Frame * previous = &(*(++frames.begin()));
+		
+		// Find the previous object which is probably the current object
+		float distanceError, error;
+		int pIndex, prevpIndex;
+		mostProbable_.clear();
+		undecidedObjects.clear();
+
+		isDecided.clear();
+		for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
+			isDecided.push_back(false);
+
+		for(std::vector<Object>::iterator c = current->objects.begin(); c != current->objects.end(); c++)
+		{
+			mostProbable_.push_back(ProbabilityContainer(-1, -1, 1000000));
+			pIndex = 0;
+			prevpIndex = -1;
+			for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
+			{
+				
+				float area1 = c->containedAreaQuotient(*p);
+				float area2 = p->containedAreaQuotient(*c);
+				//std::cout << "(id1,id2)=(" << c->id << "," << p->id << "): " << area1 << " | " << area2 << "\n";
+
+				/*
+				 * distanceError = (x-x0-vx0)^2 + (y-y0-vy0)^2
+				 */
+				distanceError = std::pow(c->x - p->x - p->dx, 2) + std::pow(c->y - p->y - p->dy, 2);
+
+				error = distanceError;
+				if(!isDecided[pIndex] && mostProbable_.back().error > error && error < 5000)
+				{
+					mostProbable_.back().error = error;
+					mostProbable_.back().index = pIndex;
+					if(prevpIndex >= 0)
+						isDecided[prevpIndex] = false;
+					isDecided[pIndex] = true;
+					prevpIndex = pIndex;
+				}
+				pIndex++;
+			}
+		}
+
+		pIndex = 0;
+		for(std::list<ProbabilityContainer>::iterator p = mostProbable_.begin(); p != mostProbable_.end(); p++)
+		{
+			if(p->index >= 0)
+			{
+				current->objects[pIndex].id = previous->objects[p->index].id;
+			}
+			else // Unidentified
+			{
+				current->objects[pIndex].id = newID();
+			}				
+			current->objects[pIndex].lost = false;
+			pIndex++;
+		}
+
+		
+		// Find objects from last frame that was not "found" (lost) at the current frame
+		bool lost;
+		pIndex = 0;
+		for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
+		{
+			lost = true;
+			for(std::list<ProbabilityContainer>::iterator pr = mostProbable_.begin(); pr != mostProbable_.end(); pr++)
+			{
+				if(pr->index == pIndex)
+				{
+					lost = false;
+					break;
+				}
+			}
+			if(lost)
+			{
+				undecidedObjects.push_back(pIndex);
+			}
+			pIndex++;
+		}
+
+		int lostAmount = 0, lostAmount2 = 0;
+		for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
+		{
+			if(p->lost)
+				lostAmount++;
+		}
+		 
+		for(std::vector<Object>::iterator c = current->objects.begin(); c != current->objects.end(); c++)
+		{
+			if(c->lost)
+				lostAmount2++;
+		}
+		//std::cout << "previous: " << previous->objects.size() << " prevlost: " << lostAmount << " currlost: " << lostAmount2 << "\n";		
+
+		int decidedAmount = current->objects.size();
+		Object * cObject, * pObject;
+		// Manage objects from last frame that was not "found" at the current frame
+		for(std::list<int>::iterator l = undecidedObjects.begin(); l != undecidedObjects.end(); l++)
+		{
+			pObject = &previous->objects[*l];
+			// Did it probably leave the screen?
+			//...
+
+			
+			// Is it contained within a currently identified object?
+			for(int cIndex = 0; cIndex < decidedAmount; cIndex++)
+			{
+				cObject = &current->objects[cIndex];
+				float area1 = cObject->containedAreaQuotient(*pObject);
+				float area2 = pObject->containedAreaQuotient(*cObject);
+				
+				//std::cout << "(id1,id2)=(" << cObject->id << "," << pObject->id << "): " << area1 << " | " << area2 << "\n";
+				if(area2 > 0.1)	//How much of the later that 'was' inside of what *c now is
+				{
+					isDecided[*l] = true;
+					pObject->lost = true;
+					pObject->x += pObject->dx;
+					pObject->y += pObject->dy;
+					current->objects.push_back(*pObject);
+					break;
+				}
+			}
+
+			// Is it just hidden behind something?
+			if(!pObject->lost)
+			{
+				pObject->lost = true;
+				current->objects.push_back(*pObject);
+			}
+
+		}
+
+		current->profileData["#objectsID'd"] = decidedAmount;
+		current->profileData["#objects lost"] = current->objects.size()-decidedAmount;
+
 	}
 
 
@@ -213,7 +355,16 @@ namespace Identification
 				INSERT_OBJECT(20+t*10+10*randf(), 20+t*10+10*randf(), 10+var*randf(), var*randf());
 			}
 		}
-
+		else if(test == "testing1")
+		{
+			float var = 20;	// Variance
+			for(int t = 0; t < cTEST_FRAME_WIDTH; t++)
+			{
+				NEW_FRAME();
+				INSERT_OBJECT(150, 100+t, 0, 0);
+				INSERT_OBJECT(150, 100, 0, 0);
+			}
+		}
 	}
 
 	float randf()

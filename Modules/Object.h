@@ -16,10 +16,15 @@ public:
 
 	int id, x, y, width, height;
 	float dx, dy;
+	bool lost;
 	
 	cv::Rect boundingBox;
 		
 	friend std::ostream & operator<< (std::ostream & o, Object & obj);
 	void info();
+	bool operator==(const Object & other) { return id == other.id; }
+
+	float containedAreaQuotient(Object & other);
+	float intervalOverlap(float x1, float x2, float y1, float y2);
 };
 #endif

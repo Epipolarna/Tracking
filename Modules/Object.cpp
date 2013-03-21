@@ -14,6 +14,7 @@ Object::Object(int x, int y, float dx, float dy, int width, int height, int id)
 	boundingBox.y = y-height/2;
 	boundingBox.width = width;
 	boundingBox.height = height;
+	lost = false;
 }
 
 Object::Object(cv::Rect boundingBox, float dx, float dy, int id)
@@ -40,4 +41,20 @@ void Object::info()
 	cout << "Position: (" << x << ", " << y << ")" << endl;
 	cout << "Dimenson: (" << width << ", " << height << ")" << endl;
 	cout << "Velocity: (" << dx << ", " << dy << ")" << endl;
+}
+
+float Object::containedAreaQuotient(Object & other)
+{
+	float w = intervalOverlap(x-width/2, x+width/2, other.x-other.width/2, other.x+other.width/2);
+	float h = intervalOverlap(y-height/2, y+height/2, other.y-other.height/2, other.y+other.height/2);
+	return w*h/(width*height);
+}
+
+float Object::intervalOverlap(float x1, float x2, float y1, float y2)
+{
+	if(x2 >= y2 && y2 >= x1)
+		return y2 - x1;
+	if(y2 >= x2 && x2 >= y1)
+		return x2 - y1;
+	return 0;
 }

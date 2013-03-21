@@ -30,6 +30,7 @@ int main()
 	// Init
 	foregroundProcessor.setAlgortihm(ForegroundProcessing::AREA);
 	foregroundProcessor.init(50, 3, 5, 50, 3);
+	identifier.init(Identification::Experimental);
 	
 	// Load frame source
 	frameList.open("camera1.mov");

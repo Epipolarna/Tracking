@@ -3,7 +3,7 @@
 #include <iostream>
 #include <string>
 #include <list>
-#include "frame.h"
+#include "../Modules/Frame.h"
 #include "../Modules/Objectidentification/Identification.h"
 
 using namespace cv;
@@ -16,9 +16,9 @@ int main()
 {
 	std::list<Frame> frames;
 	std::list<Frame> testFrames;
-	Identification::generate_testdata(testFrames, "complex1");
+	Identification::generate_testdata(testFrames, "testing1");
 	Identification::Identifier identifier;
-
+	identifier.init(Identification::Experimental);
 
 	cvNamedWindow("Identify::Test", 1 ); 
 
@@ -41,7 +41,7 @@ int main()
 		if(frames.size() > 1)
 			frames.front().drawObjects((++frames.begin())->objects, cv::Scalar(250, 250, 0, 255));
 		frames.front().drawObjects(cv::Scalar(250, 0, 0, 255));
-		putText(frames.front().rawFrame, text, Point(5, 15), fontFace, fontScale, Scalar::all(255), thickness, 8);
+		putText(frames.front().image, text, Point(5, 15), fontFace, fontScale, Scalar::all(255), thickness, 8);
 		frames.front().showImageRaw("Identify::Test");
 		waitKey(0);
 	}

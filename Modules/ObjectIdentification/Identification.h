@@ -5,6 +5,7 @@
 #include <list>
 #include <cmath>
 #include <queue>
+#include <algorithm>
 
 namespace Identification
 {
@@ -37,6 +38,7 @@ namespace Identification
 		int newID() {return uniqueIDPool++;}
 
 		std::vector<std::list<ProbabilityContainer> > mostProbable;
+		std::list<ProbabilityContainer> mostProbable_;
 		std::list<int> undecidedObjects;
 		std::vector<bool> isDecided;
 

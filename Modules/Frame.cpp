@@ -13,6 +13,9 @@ void Frame::drawObjects(Scalar color)
 {
 	for (std::vector<Object>::iterator it = objects.begin(); it != objects.end(); ++it)
 	{
+		if(it->lost)
+			color = Scalar(255, 255, 0);
+
 		rectangle(image, Point(it->boundingBox.x, it->boundingBox.y), 
 							Point(it->boundingBox.x + it->width, it->boundingBox.y + it->height), 
 							color, 1, 8);

@@ -46,7 +46,8 @@ namespace BackgroundModelling_simple
 			{
 				for(int i = 0; i < 3; i++)
 					if(std::abs(probabilityMap.at<Vec3b>(row, col)[i] - blurredImage.at<Vec3b>(row, col)[i]) > varianceTreshold)
-					{						
+					{				
+						 // Optimal box for row,col += 3
 						current->probMap.at<uchar>(row-2, col-2) = 255;
 						current->probMap.at<uchar>(row-2, col-1) = 255;						
 						current->probMap.at<uchar>(row+1, col-2) = 255;
@@ -55,6 +56,14 @@ namespace BackgroundModelling_simple
 						current->probMap.at<uchar>(row-1, col+1) = 255;
 						current->probMap.at<uchar>(row+1, col) = 255;
 						current->probMap.at<uchar>(row+1, col+1) = 255;
+						
+						
+						/* // Optimal box for row,col += 2
+						current->probMap.at<uchar>(row-1, col-1) = 255;
+						current->probMap.at<uchar>(row+1, col-1) = 255;
+						current->probMap.at<uchar>(row-1, col+1) = 255;
+						current->probMap.at<uchar>(row+1, col+1) = 255;
+						*/
 						break;
 					}
 

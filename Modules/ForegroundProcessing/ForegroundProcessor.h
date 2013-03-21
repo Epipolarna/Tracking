@@ -13,6 +13,7 @@ namespace ForegroundProcessing
 	enum Algorithm
 	{
 		FAST = 0,
+		AREA = 1,
 		SLOW
 	};
 
@@ -29,13 +30,22 @@ namespace ForegroundProcessing
 		
 		// Higher performance algorithm (Hopefully) (~650ms) 
 		// Specify threshold value and minimum consour thickness 
+		void segmentForegroundArea(Frame & frame, int threshval, int iterations, double minArea, double minQuotient);
+		
+		// Higher performance algorithm (Hopefully) (~650ms) 
+		// Specify threshold value and minimum consour thickness 
 		void segmentForegroundSlow(Frame & frame, int threshval, double minDist);
 
-		void init(Algorithm algorithm, int threshval, double iterationsORmindist);
+		void init(int threshval, int Iterations, double minDist, double minArea, double minQuotient);
+		
+		void ForegroundProcessor::setAlgortihm(Algorithm algorithm) {
+			this->algorithm = algorithm; }
 
 	private:
 		//Finds objects in a binary image and puts them in the list.
 		void getObjects(Frame & frame);
+
+		void getObjectsArea( Frame & frame, double maxArea, double minQuotient );
 		//Same as above but also performs a cleanup using the distance transform.
 		void getObjectsDistMap(Frame & frame, double minDist);
 	
@@ -48,7 +58,8 @@ namespace ForegroundProcessing
 
 		// Settings
 		Algorithm algorithm;
-		int threshval, iterations, minDist;
+		int threshval, iterations;
+		double minArea, minDist, minQuotient;
 
 	};
 }

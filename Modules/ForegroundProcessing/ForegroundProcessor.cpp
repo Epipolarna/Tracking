@@ -15,6 +15,9 @@ namespace ForegroundProcessing
 			segmentForegroundFast(frame, threshval, iterations);
 			break;
 		case 1:
+			segmentForegroundArea(frame, threshval, iterations, minArea, minQuotient);
+			break;
+		case 2:
 			segmentForegroundSlow(frame, threshval, minDist);
 			break;
 		}
@@ -40,14 +43,27 @@ namespace ForegroundProcessing
 		return;
 	}
 
+	void ForegroundProcessor::segmentForegroundArea(Frame & frame, int threshval, int Iterations, double minArea, double minQuotient)
+	{
+		threshMap(frame.probMap, threshval); //Threshold at threshval
+	
+		openingBinMap(frame.probMap, iterations); 
+
+		getObjectsArea(frame, minArea, minQuotient);
+	
+		return;
+	}
+
 
 	
-	void ForegroundProcessor::init(Algorithm algorithm, int threshval, double iterationsORmindist)
+	void ForegroundProcessor::init(int threshval, int iterations, double minDist, double minArea, double minQuotient)
 	{
 		this->algorithm = algorithm;
 		this->threshval = threshval;
-		this->iterations = int(iterationsORmindist);
-		this->minDist = iterationsORmindist;
+		this->iterations = iterations;
+		this->minDist = minDist;
+		this->minArea = minArea; 
+		this->minQuotient =	minQuotient;
 	}
 
 	////////////////// Private Functions //////////////////////
@@ -61,6 +77,28 @@ namespace ForegroundProcessing
 	
 		for(unsigned int i = 0; i < contours.size(); i++)
 		{		
+			//Create an object for every countour using the boundingRect command
+			frame.objects.push_back(Object(boundingRect(contours[i])));	
+		}
+	}
+
+		void ForegroundProcessor::getObjectsArea(Frame & frame, double maxArea, double minQuotient)
+	{
+		double objArea;
+		Rect objRect;
+		vector<vector<Point>> contours;
+		findContours( frame.probMap.clone(), contours, CV_RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+	
+		for(unsigned int i = 0; i < contours.size(); i++)
+		{		
+			objArea = contourArea(contours[i]);
+			objRect = boundingRect(contours[i]);
+			
+			if (objArea > 25 && objArea > (objRect.width * objRect.height)/minQuotient)
+			{
+				frame.objects.push_back(Object(objRect));	
+			}
+			
 			//Create an object for every countour using the boundingRect command
 			frame.objects.push_back(Object(boundingRect(contours[i])));	
 		}

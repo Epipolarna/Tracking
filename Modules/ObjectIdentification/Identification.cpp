@@ -189,17 +189,10 @@ namespace Identification
 		std::cout << "\n---------------------\n";
 		for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
 		{
+			std::cout << "(" << p->id << ") (dx,dy):(x,y):(xHat,yHat) = (" << p->dx << ", " << p->dy << "):(" << p->x << ", " << p->y << "):(" << p->xHat << ", " << p->yHat << ")\n";
 			if(p->lost)
 			{
 				
-				p->x = p->xHat;
-				p->y = p->yHat;
-				
-				/*
-				p->dx = p->xHat - p->x;
-				p->dy = p->yHat - p->y;
-				*/
-				std::cout << "(" << p->id << ") (dx,dy):(x,y):(xHat,yHat) = (" << p->dx << ", " << p->dy << "):(" << p->x << ", " << p->y << "):(" << p->xHat << ", " << p->yHat << ")\n";
 			}
 		}
 		
@@ -231,7 +224,7 @@ namespace Identification
 				distanceError = std::pow(c->x - p->x - p->dx, 2) + std::pow(c->y - p->y - p->dy, 2);
 
 				error = distanceError;
-				if(!isDecided[pIndex] && mostProbable_.back().error > error && error < 5000)
+				if(!isDecided[pIndex] && mostProbable_.back().error > error && error < 10000)
 				{
 					mostProbable_.back().error = error;
 					mostProbable_.back().index = pIndex;
@@ -250,6 +243,7 @@ namespace Identification
 			if(p->index >= 0)
 			{
 				current->objects[pIndex].id = previous->objects[p->index].id;
+				current->objects[pIndex].model = previous->objects[p->index].model;
 			}
 			else // Unidentified
 			{
@@ -345,7 +339,7 @@ namespace Identification
 	const int cTEST_FRAME_HEIGHT = 360;
 
 	#define NEW_FRAME() frameList.push_back(Frame(cv::Mat(cTEST_FRAME_HEIGHT, cTEST_FRAME_WIDTH, CV_8UC3), cv::Mat(cTEST_FRAME_HEIGHT, cTEST_FRAME_WIDTH, CV_8UC3))); frameList.back().image = Scalar(0,0,0);
-	#define INSERT_OBJECT(x,y,dx,dy) frameList.back().objects.push_back(Object(x, y, dx, dy, 20, 60));
+	#define INSERT_OBJECT(x,y,dx,dy) frameList.back().objects.push_back(Object(x, y, dx, dy, 0, 0, 20, 60));
 	//#define INSERT_OBJECT(x,y) frameList.back().objects.push_back(Object(x, y, 0, 0, 20, 60));
 
 	void generate_testdata(std::list<Frame> & frameList, std::string test)

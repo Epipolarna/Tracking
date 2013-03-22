@@ -43,6 +43,12 @@ namespace Prediction
 			i->yHat	= xHat[1];
 			i->dx = xHat[2];
 			i->dy = xHat[3];
+
+			if (i->lost == true)
+			{
+				i->x = i->xHat;
+				i->y = i->yHat;
+			}
 		}
 	}
 	// Additional function-/methodimplementations here

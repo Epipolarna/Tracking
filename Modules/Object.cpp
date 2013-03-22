@@ -1,13 +1,11 @@
 // object.ccp
 
-//#include "stdafx.h"
-
 #include "Object.h"
 #include <iostream>
 
 using namespace std;
 
-Object::Object(int x, int y, float dx, float dy, int xHat, int yHat, int width, int height, int id)
+Object::Object(int x, int y, float dx, float dy, float xHat, float yHat, int width, int height, int id)
 : x(x), y(y), dx(dx), dy(dy), xHat(xHat), yHat(yHat), width(width), height(height), id(id)  
 {
 	boundingBox.x = x-width/2;
@@ -15,13 +13,17 @@ Object::Object(int x, int y, float dx, float dy, int xHat, int yHat, int width, 
 	boundingBox.width = width;
 	boundingBox.height = height;
 	lost = false;
+	xHat = x;
+	yHat = y;
 }
 
-Object::Object(cv::Rect boundingBox, float dx, float dy, int id)
-: boundingBox(boundingBox), dx(dx), dy(dy), id(id) 
+Object::Object(cv::Rect boundingBox, float dx, float dy, float xHat, float yHat, int id)
+: boundingBox(boundingBox), dx(dx), dy(dy), xHat(xHat), yHat(yHat), id(id)
 {
 	x = boundingBox.x + boundingBox.width/2;
 	y = boundingBox.y + boundingBox.height/2;
+	xHat = x;
+	yHat = y;
 	width = boundingBox.width;
 	height = boundingBox.height;
 }

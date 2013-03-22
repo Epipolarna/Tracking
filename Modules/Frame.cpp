@@ -16,8 +16,13 @@ void Frame::drawObjects(Scalar color)
 		if(it->lost)
 			color = Scalar(255, 255, 0);
 
-		rectangle(image, Point(it->boundingBox.x, it->boundingBox.y), 
-							Point(it->boundingBox.x + it->width, it->boundingBox.y + it->height), 
+		float x = it->x - it->width/2;
+		float y = it->y - it->height/2;
+		float x_w = it->x + it->width/2;
+		float y_h = it->y + it->height/2;
+
+		rectangle(image, Point(x, y), 
+							Point(x_w, y_h), 
 							color, 1, 8);
 		line(image, Point(it->x, it->y), Point(it->x + (int)(it->dx), it->y + (int)(it->dy)), color, 2 ,8);
 
@@ -25,7 +30,7 @@ void Frame::drawObjects(Scalar color)
 		int fontFace = CV_FONT_HERSHEY_COMPLEX;
 		double fontScale = 0.3;
 		int thickness = 0.3;
-		putText(image, objectText, Point(it->boundingBox.x-it->width/2, it->boundingBox.y+it->height+10), fontFace, fontScale, Scalar::all(255), thickness, 8);
+		putText(image, objectText, Point(x, y+10+it->height), fontFace, fontScale, Scalar::all(255), thickness, 8);
 	}
 }
 
@@ -36,16 +41,21 @@ void Frame::drawObjectsPrediction(Scalar color)
 		if(it->lost)
 			color = Scalar(255, 255, 0);
 
-		rectangle(image, Point(it->xHat, it->yHat), 
-							Point(it->xHat, it->yHat),
-							color, 1, 8);
-		line(image, Point(it->xHat, it->yHat), Point(it->xHat + (int)(it->dx), it->yHat + (int)(it->dy)), color, 2 ,8);
+		float x = it->xHat - it->width/2;
+		float y = it->yHat - it->height/2;
+		float x_w = it->xHat + it->width/2;
+		float y_h = it->yHat + it->height/2;
 
-		std::string objectText = "("+std::to_string(it->xHat)+","+std::to_string(it->yHat)+") id:"+std::to_string(it->id);
+		rectangle(image, Point(x, y), 
+							Point(x_w, y_h), 
+							color, 1, 8);
+		line(image, Point(x_w, y_h), Point(x_w + (int)(it->dx), y_h + (int)(it->dy)), color, 2 ,8);
+
+		std::string objectText = "("+std::to_string(it->x)+","+std::to_string(it->y)+") id:"+std::to_string(it->id);
 		int fontFace = CV_FONT_HERSHEY_COMPLEX;
 		double fontScale = 0.3;
 		int thickness = 0.3;
-		putText(image, objectText, Point(it->xHat-it->width/2, it->yHat+it->height+10), fontFace, fontScale, Scalar::all(255), thickness, 8);
+		putText(image, objectText, Point(x, y+10+it->height), fontFace, fontScale, Scalar::all(255), thickness, 8);
 	}
 }
 
@@ -53,8 +63,8 @@ void Frame::drawObjects(std::vector<Object> & objects, Scalar color)
 {
 	for (std::vector<Object>::iterator it = objects.begin(); it != objects.end(); ++it)
 	{
-		rectangle(image, Point(it->boundingBox.x, it->boundingBox.y), 
-							Point(it->boundingBox.x + it->width, it->boundingBox.y + it->height), 
+		rectangle(image, Point(it->x, it->y), 
+							Point(it->x + it->width, it->y + it->height), 
 							color, 1, 8);
 		line(image, Point(it->x, it->y), Point(it->x + (int)(it->dx), it->y + (int)(it->dy)), color, 2 ,8);
 
@@ -62,7 +72,7 @@ void Frame::drawObjects(std::vector<Object> & objects, Scalar color)
 		int fontFace = CV_FONT_HERSHEY_COMPLEX;
 		double fontScale = 0.3;
 		int thickness = 0.3;
-		putText(image, objectText, Point(it->boundingBox.x-it->width/2, it->boundingBox.y-10), fontFace, fontScale, Scalar::all(255), thickness, 8);
+		putText(image, objectText, Point(it->x-it->width/2, it->y-10), fontFace, fontScale, Scalar::all(255), thickness, 8);
 	}
 }
 

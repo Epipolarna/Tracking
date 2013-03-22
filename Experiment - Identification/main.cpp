@@ -39,9 +39,9 @@ int main()
 		
 		// Perform identification & Prediction
 		identifier.identify(frames);
-			frames.front().drawObjectsPrediction(cv::Scalar(0, 100, 250, 150));	// Display prediction Before KF (green)
+			frames.front().drawObjectsPrediction(cv::Scalar(0, 100, 250, 250));	// Display prediction Before KF (green)
 		KF.predict(frames.front());
-			frames.front().drawObjectsPrediction(cv::Scalar(0, 250, 120, 150));	// Display prediction AFter KF (orange/red)
+			//frames.front().drawObjectsPrediction(cv::Scalar(0, 250, 120, 150));	// Display prediction AFter KF (orange/red)
 		
 		// Print info
 		std::cout << "==========\n";
@@ -52,7 +52,7 @@ int main()
 		// Draw objects
 		//if(frames.size() > 1)
 		//	frames.front().drawObjects((++frames.begin())->objects, cv::Scalar(250, 250, 0, 255));
-		frames.front().drawObjects(cv::Scalar(250, 0, 0, 255));
+		frames.front().drawObjects(cv::Scalar(250, 0, 0, 100));
 
 		// Draw frame number text
 		text = "[Frame "+std::to_string(n)+"("+std::to_string(tests)+")]";

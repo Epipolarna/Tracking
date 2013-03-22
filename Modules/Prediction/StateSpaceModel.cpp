@@ -26,7 +26,7 @@ namespace Prediction
 							0, 0, 0, 1 };
 		P = cv::Mat(4, 4, CV_32FC1, PData).clone();
 
-		float Qvalue = 0.1f;
+		float Qvalue = 50.1f;
 		float QData[] = {	Qvalue, 0, 0, 0,
 							0, Qvalue, 0, 0,
 							0, 0, Qvalue, 0,

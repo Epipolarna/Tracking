@@ -90,6 +90,7 @@ void Evaluation::currentFrame()
 	// The first frame desn't have any previous frame
 	if (frameCounter > 0)
 	{
+		hypothesisList = frameList->getLatestFrame().objects;
 		// Check if old correspondances, in previous frame, are still valid
 			// Use dist < T
 
@@ -104,10 +105,15 @@ void Evaluation::currentFrame()
 			// Hypothesis id
 			hypID = i->second;
 
+			//isCorr also adds the distance between frames to the 
+			//total distance, and removes found correspondences from both vectors
 			if( isCorr(obID, hypID) )
 			{
 				correspondance.at(frameCounter).insert(pair<int,int>(obID, hypID));
-				occupiedHypothesis.push_back(hypID);
+				//occupiedHypothesis.push_back(hypID);
+				// Remove correctly classified objects from the list.
+				deleteObj(&groundTruth.at(frameCounter), obID);
+				deleteObj(&hypothesisList, hypID);
 			}
 		}
 		
@@ -122,7 +128,7 @@ void Evaluation::currentFrame()
 		{
 			// If you end up here the object has no correspondance.
 			// Look for best candidate with dist < T
-			for (vector<Object>::iterator j = hypothesisList->begin(); j != hypothesisList->end(); j++)
+			for (vector<Object>::iterator j = hypothesisList.begin(); j != hypothesisList.end(); j++)
 			{
 				hypID = j->id;
 				for (vector<int>::iterator k = occupiedHypothesis.begin(); k != occupiedHypothesis.end(); k++)
@@ -161,6 +167,19 @@ Object* Evaluation::getObj(vector<Object>* objVec, int ID)
 	return NULL;
 }
 
+void Evaluation::deleteObj(vector<Object>* objVec, int ID)
+{
+	for (vector<Object>::iterator it = objVec->begin(); it != objVec->end(); it++)
+	{
+		if (it->id == ID)
+		{
+			objVec->erase(it);
+			return;
+		}
+	}
+	cerr << "object not found" << endl;
+}
+
 bool Evaluation::isCorr(int truID, int hypID)
 {
 	Object* truObj; 
@@ -170,7 +189,7 @@ bool Evaluation::isCorr(int truID, int hypID)
 	if (!truObj)
 		return false;
  
-	hypObj = getObj(hypothesisList, truID);
+	hypObj = getObj(&hypothesisList, hypID);
 	if (!hypObj)
 		return false;
  

@@ -16,7 +16,7 @@ public:
 	vector<vector<Object>> groundTruth;
 	// Reference to global framelist
 	FrameList* frameList;
-	vector<Object>* hypothesisList;
+	vector<Object> hypothesisList;
 
 	
 	void MOTP();
@@ -32,6 +32,7 @@ private:
 	Object *ob, *hyp;
 
 	Object* getObj(vector<Object>* objVec, int ID);
+	void deleteObj(vector<Object>* objVec, int ID);
 	bool isCorr(int truID, int hypID);
 };
 

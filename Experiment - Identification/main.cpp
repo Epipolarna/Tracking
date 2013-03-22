@@ -5,6 +5,7 @@
 #include <list>
 #include "../Modules/Frame.h"
 #include "../Modules/Objectidentification/Identification.h"
+#include "../Modules/Prediction/Kalman.h"
 
 using namespace cv;
 using namespace std;
@@ -19,6 +20,7 @@ int main()
 	Identification::generate_testdata(testFrames, "testing1");
 	Identification::Identifier identifier;
 	identifier.init(Identification::Experimental);
+	Prediction::Kalman KF;
 
 	cvNamedWindow("Identify::Test", 1 ); 
 
@@ -34,14 +36,28 @@ int main()
 		n++;
 		frames.push_front(testFrames.front());
 		testFrames.pop_front();
-
+		
+		// Perform identification & Prediction
 		identifier.identify(frames);
+		KF.predict(frames.front());
+		
+		// Print info
+		std::cout << "==========\n";
+		for(std::vector<Object>::iterator i = frames.front().objects.begin(); i != frames.front().objects.end(); i++)
+			std::cout << *i << "\n";
 
-		text = "[Frame "+std::to_string(n)+"("+std::to_string(tests)+")]";
-		if(frames.size() > 1)
-			frames.front().drawObjects((++frames.begin())->objects, cv::Scalar(250, 250, 0, 255));
+
+		// Draw objects
+		//if(frames.size() > 1)
+		//	frames.front().drawObjects((++frames.begin())->objects, cv::Scalar(250, 250, 0, 255));
 		frames.front().drawObjects(cv::Scalar(250, 0, 0, 255));
+		frames.front().drawObjectsPrediction(cv::Scalar(0, 250, 120, 150));
+
+		// Draw frame number text
+		text = "[Frame "+std::to_string(n)+"("+std::to_string(tests)+")]";
 		putText(frames.front().image, text, Point(5, 15), fontFace, fontScale, Scalar::all(255), thickness, 8);
+
+		// Display frame
 		frames.front().showImageRaw("Identify::Test");
 		waitKey(0);
 	}

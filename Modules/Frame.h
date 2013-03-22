@@ -25,6 +25,7 @@ public:
 	//Draws the bounding boxes and velocity vectors of the objects in object list.
 	void drawObjects(cv::Scalar color);
 	void drawObjects(std::vector<Object> & objects, Scalar color);
+	void drawObjectsPrediction(Scalar color);
 		
 	//Data
 	Mat image;						 //Should be 3-channel color

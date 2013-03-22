@@ -29,9 +29,11 @@ Object::Object(cv::Rect boundingBox, float dx, float dy, int id)
 std::ostream & operator<< (std::ostream & o, Object & object)
 {
 	o << "ID: " << object.id << "\n";
-	o << "Position: (" << object.x << ", " << object.y << ")" << "\n";
-	o << "Dimenson: (" << object.width << ", " << object.height << ")" << "\n";
-	o << "Velocity: (" << object.xHat << ", " << object.yHat << ")" << "\n";
+	o << "Position: (" << object.x << ", " << object.y << ")\n";
+	o << "PEstimate: (" << object.xHat << ", " << object.yHat << ")\n";
+	o << "Dimenson: (" << object.width << ", " << object.height << ")\n";
+	o << "Velocity: (" << object.xHat << ", " << object.yHat << ")\n";
+	o << "Lost: " << object.lost << "\n";
 	return o;
 }
 

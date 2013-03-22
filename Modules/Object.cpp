@@ -7,7 +7,7 @@
 
 using namespace std;
 
-Object::Object(int x, int y, float dx, float dy, int width, int height, int id)
+Object::Object(int x, int y, float dx, float dy, int xHat, int yHat, int width, int height, int id)
 : x(x), y(y), dx(dx), dy(dy), width(width), height(height), id(id)  
 {
 	boundingBox.x = x-width/2;

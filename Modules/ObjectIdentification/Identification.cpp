@@ -379,7 +379,7 @@ namespace Identification
 			for(int t = 0; t < cTEST_FRAME_WIDTH; t++)
 			{
 				NEW_FRAME();
-				INSERT_OBJECT(150, 100+t, 0, 0);
+				INSERT_OBJECT(150+t, 100, 0, 0);
 				INSERT_OBJECT(150, 100, 0, 0);
 			}
 		}

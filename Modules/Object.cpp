@@ -32,7 +32,7 @@ std::ostream & operator<< (std::ostream & o, Object & object)
 	o << "Position: (" << object.x << ", " << object.y << ")\n";
 	o << "PEstimate: (" << object.xHat << ", " << object.yHat << ")\n";
 	o << "Dimenson: (" << object.width << ", " << object.height << ")\n";
-	o << "Velocity: (" << object.xHat << ", " << object.yHat << ")\n";
+	o << "Velocity: (" << object.dx << ", " << object.dy << ")\n";
 	o << "Lost: " << object.lost << "\n";
 	return o;
 }

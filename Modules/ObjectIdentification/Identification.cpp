@@ -95,7 +95,7 @@ namespace Identification
 		
 		Frame * current = &frames.front();
 		Frame * previous = &(*(++frames.begin()));
-
+		
 		mostProbable.clear();
 		undecidedObjects.clear();
 		float distanceError, error;
@@ -176,14 +176,32 @@ namespace Identification
 	void Identifier::algorithm3(std::list<Frame> & frames)
 	{
 		/* 
-		 * 
-		 * 
-		 * 
-		 * 
+		   * Objects overlapp
+		   * 
 		 */
 
 		Frame * current = &frames.front();
 		Frame * previous = &(*(++frames.begin()));
+
+		
+		// Move lost objects
+		
+		std::cout << "\n---------------------\n";
+		for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
+		{
+			if(p->lost)
+			{
+				/*
+				p->x = p->xHat;
+				p->y = p->yHat;
+				*/
+				/*
+				p->dx = p->xHat - p->x;
+				p->dy = p->yHat - p->y;
+				*/
+				std::cout << "(" << p->id << ") (dx,dy):(x,y):(xHat,yHat) = (" << p->dx << ", " << p->dy << "):(" << p->x << ", " << p->y << "):(" << p->xHat << ", " << p->yHat << ")\n";
+			}
+		}
 		
 		// Find the previous object which is probably the current object
 		float distanceError, error;

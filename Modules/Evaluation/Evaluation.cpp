@@ -18,6 +18,12 @@ void Evaluation::readXML2FrameList(char* fileName)
 {
 	cout << "Reading ground truth from " << fileName << endl;
 	ifstream myfile(fileName);
+
+	if(!myfile.is_open())
+	{
+		cout << "Could not open xml file!\n";
+		return;
+	}
 	xml_document<> doc;
 
 	vector<char> buffer((istreambuf_iterator<char>(myfile)), istreambuf_iterator<char>( ));

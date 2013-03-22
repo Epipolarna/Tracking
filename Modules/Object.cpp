@@ -8,7 +8,7 @@
 using namespace std;
 
 Object::Object(int x, int y, float dx, float dy, int xHat, int yHat, int width, int height, int id)
-: x(x), y(y), dx(dx), dy(dy), width(width), height(height), id(id)  
+: x(x), y(y), dx(dx), dy(dy), xHat(xHat), yHat(yHat), width(width), height(height), id(id)  
 {
 	boundingBox.x = x-width/2;
 	boundingBox.y = y-height/2;
@@ -31,7 +31,7 @@ std::ostream & operator<< (std::ostream & o, Object & object)
 	o << "ID: " << object.id << "\n";
 	o << "Position: (" << object.x << ", " << object.y << ")" << "\n";
 	o << "Dimenson: (" << object.width << ", " << object.height << ")" << "\n";
-	o << "Velocity: (" << object.dx << ", " << object.dy << ")" << "\n";
+	o << "Velocity: (" << object.xHat << ", " << object.yHat << ")" << "\n";
 	return o;
 }
 
@@ -39,6 +39,7 @@ void Object::info()
 {
 	cout << "ID: " << id << endl;
 	cout << "Position: (" << x << ", " << y << ")" << endl;
+	cout << "PEstimate: (" << xHat << ", " << yHat << ")" << endl;
 	cout << "Dimenson: (" << width << ", " << height << ")" << endl;
 	cout << "Velocity: (" << dx << ", " << dy << ")" << endl;
 }

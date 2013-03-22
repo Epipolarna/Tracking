@@ -250,6 +250,7 @@ namespace Identification
 			if(p->index >= 0)
 			{
 				current->objects[pIndex].id = previous->objects[p->index].id;
+				current->objects[pIndex].model = previous->objects[p->index].model;
 			}
 			else // Unidentified
 			{
@@ -347,7 +348,7 @@ namespace Identification
 	const int cTEST_FRAME_HEIGHT = 360;
 
 	#define NEW_FRAME() frameList.push_back(Frame(cv::Mat(cTEST_FRAME_HEIGHT, cTEST_FRAME_WIDTH, CV_8UC3), cv::Mat(cTEST_FRAME_HEIGHT, cTEST_FRAME_WIDTH, CV_8UC3))); frameList.back().image = Scalar(0,0,0);
-	#define INSERT_OBJECT(x,y,dx,dy) frameList.back().objects.push_back(Object(x, y, dx, dy, x, y, 20, 60));
+	#define INSERT_OBJECT(x,y,dx,dy) frameList.back().objects.push_back(Object(x, y, dx, dy, 0, 0, 20, 60));
 	//#define INSERT_OBJECT(x,y) frameList.back().objects.push_back(Object(x, y, 0, 0, 20, 60));
 
 	void generate_testdata(std::list<Frame> & frameList, std::string test)

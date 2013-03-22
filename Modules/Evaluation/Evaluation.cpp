@@ -45,7 +45,7 @@ void Evaluation::readXML2FrameList(char* fileName)
 	char* frameAttribute = doc.first_node()->last_node()->first_attribute()->value();
 	numberOfFrames = atoi(frameAttribute);
 
-	list<vector<Object>> groundTruth;
+	vector<vector<Object>> groundTruth;
 	
 	int frameNumber, objectID;
 	int x, y, h, w;
@@ -84,11 +84,20 @@ void Evaluation::readXML2FrameList(char* fileName)
 		framePointer = framePointer->next_sibling();
 	}
 
+	for (vector<vector<Object>>::iterator i = groundTruth.begin(); i != groundTruth.end(); i++)
+	{
+		numberOfObjects += i->size();
+	}
+
 	cout << "Done!" << endl;
 }
 
 void Evaluation::currentFrame()
 {
+	// Init variables
+	currentDistance = 0;
+	currentMismatches = 0;
+
 	// The first frame desn't have any previous frame
 	if (frameCounter > 0)
 	{
@@ -120,7 +129,6 @@ void Evaluation::currentFrame()
 				correspondance.at(frameCounter - 1).erase(i);
 			}
 		}
-		
 	}
 	
 	// Objects without correspondance 
@@ -140,59 +148,33 @@ void Evaluation::currentFrame()
 	{
 		obID = distMap.begin()->second.first;
 		hypID = distMap.begin()->second.second;
+
+		if (correspondance.at(frameCounter - 1)[obID] != hypID)
+		{
+			currentMismatches += 1;
+		}
+
 		correspondance.at(frameCounter).insert(pair<int,int>(obID, hypID));
 		deleteObj(&groundTruth.at(frameCounter), obID);
 		deleteObj(&hypothesisList, hypID);
 		distance.at(frameCounter) += distMap.begin()->first;
 		for ( multimap<double, pair<int, int>>::iterator it = distMap.begin(); it != distMap.end(); it++)
 		{
-			if ( it->second.first = obID)
+			if ( it->second.first == obID)
 				distMap.erase(it);
 		}
+
+		mismatches.push_back(currentMismatches);
 	}
-	/*
 
-	for (map<int,int>::iterator i = correspondance.at(frameCounter - 1).begin(); i != correspondance.at(frameCounter - 1).end(); i++)
-	{
-		obID = i->first;
-		
-		
-		for ()
-		Object* truObj = getObj(&groundTruth.at(frameCounter - 1), obID);
-		Object* hypObj
+	// Calculate the last variables
+	matches.push_back(correspondance.at(frameCounter).size());
 
-		
-		if ( correspondance.at(frameCounter).find(obID) == correspondance.at(frameCounter).end() )
-		{
-			// If you end up here the object has no correspondance.
-			// Look for best candidate with dist < T
-			for (vector<Object>::iterator j = hypothesisList.begin(); j != hypothesisList.end(); j++)
-			{
-				hypID = j->id;
-				for (vector<int>::iterator k = occupiedHypothesis.begin(); k != occupiedHypothesis.end(); k++)
-				{
-					if ( hypID != *k )
-					{
-						hypX = j->x;
-						hypY = j->y;
-						
-						ob = getObj(&groundTruth.at(frameCounter), obID);
-						if ( ob )
-						{
+	misses.push_back(groundTruth.at(frameCounter).size());
 
-						}
-					}
-				}
-			}
-		}
-	}
-		// Minimize total distance(object, hypothesis), Munker's Alg
+	flasePositive.push_back(hypothesisList.size());
 
-	// Check if objects has changed hypothesis
-		// correspondance(Object, hypothesis) at t - 1 != correspondance(Object, hypothesis) at t
-		// Replace old correspondance with new and add an error to mismatches
-
-	frameCounter++;*/
+	distance.push_back(currentDistance);
 }
 
 Object* Evaluation::getObj(vector<Object>* objVec, int ID)
@@ -239,7 +221,7 @@ bool Evaluation::isCorr(int truID, int hypID)
  
 	if (dist < T)
 	{
-		distance.at(frameCounter) += dist;
+		currentDistance += dist;
 		return true;
 	} 
 	

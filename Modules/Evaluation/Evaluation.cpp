@@ -111,9 +111,10 @@ void Evaluation::currentFrame()
 			{
 				correspondance.at(frameCounter).insert(pair<int,int>(obID, hypID));
 				//occupiedHypothesis.push_back(hypID);
-				// Remove correctly classified objects from the list.
+				// Remove correctly classified objects from the list and previous frame map.
 				deleteObj(&groundTruth.at(frameCounter), obID);
 				deleteObj(&hypothesisList, hypID);
+				//correspondance.at(frameCounter - 1).erase(i);
 			}
 		}
 		

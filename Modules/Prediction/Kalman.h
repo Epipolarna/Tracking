@@ -8,12 +8,14 @@ namespace Prediction
 	class Kalman
 	{
 	public:
-		Kalman(float x0 = 0, float y0 = 0);
+		Kalman() {}
 
 		void predict(Frame & frame);
-
-		cv::Mat A, C, Q, P, xHat;
-		float R;
+	private:
+		void MeasurementUpdate(std::vector<Object>::iterator i);
+		void TimeUpdate(std::vector<Object>::iterator i);
+		Mat S, L, K, y;
+		float* xHat;
 	};
 	// Additional function-/datastructuredeclarations here
 }

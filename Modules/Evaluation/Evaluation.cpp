@@ -7,10 +7,12 @@
 using namespace std;
 using namespace rapidxml;
 
-Evaluation::Evaluation(int threshold)
+Evaluation::Evaluation(FrameList* _frameList, int threshold)
 {
 	T = threshold;
 	frameCounter = 0;
+	fill(distance.begin(), distance.end(), 0.0f);
+	frameList = _frameList;
 }
 
 
@@ -90,7 +92,7 @@ void Evaluation::currentFrame()
 	{
 		// Check if old correspondances, in previous frame, are still valid
 			// Use dist < T
-		
+
 
 		for (map<int,int>::iterator i = correspondance.at(frameCounter - 1).begin(); i != correspondance.at(frameCounter - 1).end(); i++)
 		{
@@ -102,29 +104,44 @@ void Evaluation::currentFrame()
 			// Hypothesis id
 			hypID = i->second;
 
-			for (vector<Object>::iterator j = groundTruth.at(frameCounter).begin(); j != groundTruth.at(frameCounter).end(); j++)
+			if( isCorr(obID, hypID) )
 			{
-				// Find Object id on current frame
-				if (j->id == obID)
-				{
-					obX = j->x;
-					obY = j->y;
-
-					// Find hypothesis 
-					hypID = correspondance.at(frameCounter)[obID];
-
-
-				}
-				
+				correspondance.at(frameCounter).insert(pair<int,int>(obID, hypID));
+				occupiedHypothesis.push_back(hypID);
 			}
-
-			
 		}
+		
 	}
 	
 	// Objects without correspondance 
 		// Find matching hypothesis, allowing only 1-1 match
+	for (map<int,int>::iterator i = correspondance.at(frameCounter - 1).begin(); i != correspondance.at(frameCounter - 1).end(); i++)
+	{
+		obID = i->first;
+		if ( correspondance.at(frameCounter).find(obID) == correspondance.at(frameCounter).end() )
+		{
+			// If you end up here the object has no correspondance.
+			// Look for best candidate with dist < T
+			for (vector<Object>::iterator j = hypothesisList->begin(); j != hypothesisList->end(); j++)
+			{
+				hypID = j->id;
+				for (vector<int>::iterator k = occupiedHypothesis.begin(); k != occupiedHypothesis.end(); k++)
+				{
+					if ( hypID != *k )
+					{
+						hypX = j->x;
+						hypY = j->y;
+						
+						ob = getObj(&groundTruth.at(frameCounter), obID);
+						if ( ob )
+						{
 
+						}
+					}
+				}
+			}
+		}
+	}
 		// Minimize total distance(object, hypothesis), Munker's Alg
 
 	// Check if objects has changed hypothesis
@@ -132,4 +149,42 @@ void Evaluation::currentFrame()
 		// Replace old correspondance with new and add an error to mismatches
 
 	frameCounter++;
+}
+
+Object* Evaluation::getObj(vector<Object>* objVec, int ID)
+{
+	for (vector<Object>::iterator it = objVec->begin(); it != objVec->end(); it++)
+	{ 
+		if(it->id == ID)
+			return &(*it);
+	}
+	return NULL;
+}
+
+bool Evaluation::isCorr(int truID, int hypID)
+{
+	Object* truObj; 
+	Object* hypObj;
+
+	truObj = getObj(&groundTruth.at(frameCounter), truID);
+	if (!truObj)
+		return false;
+ 
+	hypObj = getObj(hypothesisList, truID);
+	if (!hypObj)
+		return false;
+ 
+	int truX = truObj->x;
+	int truY = truObj->y;
+	int hypX = hypObj->x;
+	int hypY = hypObj->y;
+	float dist = sqrt((truX - hypX)^2 + (truY - hypY)^2);
+ 
+	if (dist < T)
+	{
+		distance.at(frameCounter) += dist;
+		return true;
+	} 
+	
+	return false;   
 }

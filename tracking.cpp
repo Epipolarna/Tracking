@@ -27,7 +27,7 @@ int main()
 	ForegroundProcessing::ForegroundProcessor foregroundProcessor;
 	Identification::Identifier identifier;
 	Prediction::Kalman kalmanFilter;
-	Evaluation Evaluate;
+	Evaluation Evaluate(&frameList);
 
 	// Init
 	foregroundProcessor.setAlgortihm(ForegroundProcessing::AREA);

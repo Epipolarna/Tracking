@@ -31,13 +31,14 @@ namespace Prediction
 			float yData[] = {i->x, i->y};
 			y = Mat(2, 1, CV_32FC1, yData);
 
-			// If object is not found in current frame perform only Time Update
+			// If object is lost in current frame perform only Time Update
 			if (i->lost != true)
 			{
 				MeasurementUpdate(i);
 			}
 			TimeUpdate(i);
 
+			// Update values in current object according to Kalman
 			xHat = i->model.xHat.ptr<float>();
 			i->xHat = xHat[0];
 			i->yHat	= xHat[1];

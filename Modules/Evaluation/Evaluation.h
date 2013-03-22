@@ -4,6 +4,25 @@
 #include "../FrameList.h"
 #include <vector>
 
-list<vector<Object>> readXML2FrameList(char* fileName);
+class Evaluation
+{
+public:
+	Evaluation(int threshold = 2);
+
+	void readXML2FrameList(char* fileName);
+	void currentFrame();
+
+	vector<vector<Object>> frameList;
+	void MOTP();
+	void MOTA();
+
+private:
+	int frameCounter;
+	int numberOfFrames, T;
+	vector<int> numberOfObjects, matches, misses, flasePositive, mismatches;
+	vector<vector<float>> distance;
+	vector<map<int, int>> correspondance;
+
+};
 
 #endif

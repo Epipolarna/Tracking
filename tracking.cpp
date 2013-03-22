@@ -4,6 +4,7 @@
 #include "Modules/ForegroundProcessing/ForegroundProcessor.h"
 #include "Modules/ObjectIdentification/Identification.h"
 #include "Modules/Prediction/Kalman.h"
+#include "Modules/Evaluation/Evaluation.h"
 
 #include "Modules/Profiler.h"
 
@@ -26,11 +27,14 @@ int main()
 	ForegroundProcessing::ForegroundProcessor foregroundProcessor;
 	Identification::Identifier identifier;
 	Prediction::Kalman kalmanFilter;
+	Evaluation Evaluate;
 
 	// Init
 	foregroundProcessor.setAlgortihm(ForegroundProcessing::AREA);
 	foregroundProcessor.init(50, 3, 5, 50, 3);
 	identifier.init(Identification::Experimental);
+	Evaluate.readXML2FrameList("clip1.xml");
+	
 	
 	// Load frame source
 	frameList.open("camera1.mov");
@@ -41,6 +45,7 @@ int main()
 	namedWindow("Foreground",CV_WINDOW_AUTOSIZE);
 	namedWindow("Tracking",CV_WINDOW_AUTOSIZE);
 	namedWindow("BackgroundModel",CV_WINDOW_AUTOSIZE);
+
 	
 	// Track objects through all frames
 	while(!frameList.isSourceEmpty())
@@ -52,7 +57,7 @@ int main()
 		backgroundModel.update(frameList.getFrames());						PROFILE("BackgroundModel");
 		foregroundProcessor.segmentForeground(frameList.getLatestFrame());	PROFILE("ForegroundSeg.");
 		identifier.identify(frameList.getFrames());							PROFILE("Identification");	
-		kalmanFilter.predict(frameList.getLatestFrame());					PROFILE("Kalman Prediction");		
+		kalmanFilter.predict(frameList.getLatestFrame());					PROFILE("Kalman Prediction");
 
 		
 		// Display result
@@ -65,7 +70,7 @@ int main()
 		waitKey(1);															PROFILE("Display");
 
 		// Optional pause between each frame
-		//waitKey(0);
+		// waitKey(0);
 						
 		// Read next frame from source
 		frameList.queryNextFrame();											PROFILE("QueryNextFrame");										

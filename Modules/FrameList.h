@@ -21,6 +21,8 @@ public:
 	bool isSourceEmpty();
 	void queryNextFrame();
 
+
+
 	int getFrameAmount();
 	int getFrameRate();
 	int getCurrentFrameNumber();

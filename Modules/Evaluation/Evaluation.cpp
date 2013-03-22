@@ -3,6 +3,8 @@
 
 #include <iostream>
 #include <fstream>
+#define car first
+#define cdr second
 
 using namespace std;
 using namespace rapidxml;
@@ -129,10 +131,25 @@ void Evaluation::currentFrame()
 		for( vector<Object>::iterator hypObj = hypothesisList.begin(); hypObj != hypothesisList.end(); hypObj++)
 		{
 			double distance = sqrt((truObj->x - hypObj->x)^2 + (truObj->y - hypObj->y)^2); 
-			distMap.emplace(distance, make_pair(truObj->id, hypObj->id));
+				if (distance < T)
+					distMap.emplace(distance, make_pair(truObj->id, hypObj->id));
 		}
 	}
 
+	while (!distMap.empty())
+	{
+		obID = distMap.begin()->second.first;
+		hypID = distMap.begin()->second.second;
+		correspondance.at(frameCounter).insert(pair<int,int>(obID, hypID));
+		deleteObj(&groundTruth.at(frameCounter), obID);
+		deleteObj(&hypothesisList, hypID);
+		distance.at(frameCounter) += distMap.begin()->first;
+		for ( multimap<double, pair<int, int>>::iterator it = distMap.begin(); it != distMap.end(); it++)
+		{
+			if ( it->second.first = obID)
+				distMap.erase(it);
+		}
+	}
 	/*
 
 	for (map<int,int>::iterator i = correspondance.at(frameCounter - 1).begin(); i != correspondance.at(frameCounter - 1).end(); i++)
@@ -222,7 +239,7 @@ bool Evaluation::isCorr(int truID, int hypID)
  
 	if (dist < T)
 	{
-		//distance.at(frameCounter) += dist;
+		distance.at(frameCounter) += dist;
 		return true;
 	} 
 	

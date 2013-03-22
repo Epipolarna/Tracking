@@ -114,17 +114,37 @@ void Evaluation::currentFrame()
 				// Remove correctly classified objects from the list and previous frame map.
 				deleteObj(&groundTruth.at(frameCounter), obID);
 				deleteObj(&hypothesisList, hypID);
-				//correspondance.at(frameCounter - 1).erase(i);
+				// remove matched correspondances from the previous map.
+				correspondance.at(frameCounter - 1).erase(i);
 			}
 		}
 		
 	}
 	
 	// Objects without correspondance 
-		// Find matching hypothesis, allowing only 1-1 match
+	// Find matching hypothesis, allowing only 1-1 match
+	multimap<double, pair<int, int>> distMap;
+	for( vector<Object>::iterator truObj = groundTruth.at(frameCounter).begin(); truObj != groundTruth.at(frameCounter).end(); truObj++)
+	{
+		for( vector<Object>::iterator hypObj = hypothesisList.begin(); hypObj != hypothesisList.end(); hypObj++)
+		{
+			double distance = sqrt((truObj->x - hypObj->x)^2 + (truObj->y - hypObj->y)^2); 
+			distMap.emplace(distance, make_pair(truObj->id, hypObj->id));
+		}
+	}
+
+	/*
+
 	for (map<int,int>::iterator i = correspondance.at(frameCounter - 1).begin(); i != correspondance.at(frameCounter - 1).end(); i++)
 	{
 		obID = i->first;
+		
+		
+		for ()
+		Object* truObj = getObj(&groundTruth.at(frameCounter - 1), obID);
+		Object* hypObj
+
+		
 		if ( correspondance.at(frameCounter).find(obID) == correspondance.at(frameCounter).end() )
 		{
 			// If you end up here the object has no correspondance.
@@ -155,7 +175,7 @@ void Evaluation::currentFrame()
 		// correspondance(Object, hypothesis) at t - 1 != correspondance(Object, hypothesis) at t
 		// Replace old correspondance with new and add an error to mismatches
 
-	frameCounter++;
+	frameCounter++;*/
 }
 
 Object* Evaluation::getObj(vector<Object>* objVec, int ID)
@@ -202,7 +222,7 @@ bool Evaluation::isCorr(int truID, int hypID)
  
 	if (dist < T)
 	{
-		distance.at(frameCounter) += dist;
+		//distance.at(frameCounter) += dist;
 		return true;
 	} 
 	

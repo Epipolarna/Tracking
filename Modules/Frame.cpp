@@ -37,7 +37,7 @@ void Frame::drawObjectsPrediction(Scalar color)
 			color = Scalar(255, 255, 0);
 
 		rectangle(image, Point(it->xHat, it->yHat), 
-							Point(it->xHat + it->width, it->yHat + it->height), 
+							Point(it->xHat, it->yHat),
 							color, 1, 8);
 		line(image, Point(it->xHat, it->yHat), Point(it->xHat + (int)(it->dx), it->yHat + (int)(it->dy)), color, 2 ,8);
 

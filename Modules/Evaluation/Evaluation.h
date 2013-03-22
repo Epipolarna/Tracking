@@ -12,13 +12,14 @@ public:
 	void readXML2FrameList(char* fileName);
 	void currentFrame();
 
-	vector<vector<Object>> frameList;
+	// GroundTruth
+	vector<vector<Object>> groundTruth;
 	void MOTP();
 	void MOTA();
 
 private:
 	int frameCounter;
-	int numberOfFrames, T;
+	int numberOfFrames, T, obID, hypID, obX, obY, hypX, hypY;
 	vector<int> numberOfObjects, matches, misses, flasePositive, mismatches;
 	vector<vector<float>> distance;
 	vector<map<int, int>> correspondance;

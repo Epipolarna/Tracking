@@ -35,7 +35,7 @@ void Evaluation::readXML2FrameList(char* fileName)
 	char* frameAttribute = doc.first_node()->last_node()->first_attribute()->value();
 	numberOfFrames = atoi(frameAttribute);
 
-	list<vector<Object>> frameList;
+	list<vector<Object>> groundTruth;
 	
 	int frameNumber, objectID;
 	int x, y, h, w;
@@ -44,7 +44,7 @@ void Evaluation::readXML2FrameList(char* fileName)
 	while(framePointer != 0)
 	{
 		frameNumber = atoi(framePointer->first_attribute()->value());
-		frameList.push_back(vector<Object>());
+		groundTruth.push_back(vector<Object>());
 
 		objectListPointer = framePointer->first_node();
 		objectPointer = objectListPointer->first_node();
@@ -54,7 +54,7 @@ void Evaluation::readXML2FrameList(char* fileName)
 		{
 			// Extract information about objects
 			objectID = atoi(objectPointer->first_attribute()->value());
-			frameList.back().push_back(Object());
+			groundTruth.back().push_back(Object());
 
 			objectPropertyPointer = objectPointer->first_node("box");
 			x = atoi(objectPropertyPointer->first_attribute("xc")->value());
@@ -62,11 +62,11 @@ void Evaluation::readXML2FrameList(char* fileName)
 			h = atoi(objectPropertyPointer->first_attribute("h")->value());
 			w = atoi(objectPropertyPointer->first_attribute("w")->value());
 
-			frameList.back().back().x = x;
-			frameList.back().back().y = y;
-			frameList.back().back().height = h;
-			frameList.back().back().width = w;
-			frameList.back().back().id = objectID;
+			groundTruth.back().back().x = x;
+			groundTruth.back().back().y = y;
+			groundTruth.back().back().height = h;
+			groundTruth.back().back().width = w;
+			groundTruth.back().back().id = objectID;
 			
 			objectPointer = objectPointer->next_sibling();
 		}
@@ -84,18 +84,35 @@ void Evaluation::currentFrame()
 	{
 		// Check if old correspondances, in previous frame, are still valid
 			// Use dist < T
-		for (vector<Object>::iterator i = frameList.at(frameCounter).begin(); i != frameList.at(frameCounter).end(); i++)
-		{
-			i->id;
-		}
+		
 
 		for (map<int,int>::iterator i = correspondance.at(frameCounter - 1).begin(); i != correspondance.at(frameCounter - 1).end(); i++)
 		{
 			// Get Object position from GroundTruthFrameList
 			// correspondance.at(frameCounter)[i->first] // Returns Object ID
 
+			// Object id
+			obID = i->first;
 			// Hypothesis id
-			i->second;
+			hypID = i->second;
+
+			for (vector<Object>::iterator j = groundTruth.at(frameCounter).begin(); j != groundTruth.at(frameCounter).end(); j++)
+			{
+				// Find Object id on current frame
+				if (j->id == obID)
+				{
+					obX = j->x;
+					obY = j->y;
+
+					// Find hypothesis 
+					hypID = correspondance.at(frameCounter)[obID];
+
+
+				}
+				
+			}
+
+			
 		}
 	}
 	

@@ -10,9 +10,9 @@
 class Object
 {
 public:
-	Object() {x = 0, y = 0, dx = 0, dy = 0, xHat = 0, yHat = 0, width = 0, height = 0, id = 0;}
-	Object(int x, int y, float dx, float dy, int xHat = 0, int yHat = 0, int width = 0, int height = 0, int id = 0);
-	Object(cv::Rect boundingBox, float dx = 0, float dy = 0, int id = 0);
+	Object() {x = 0, y = 0, dx = 0, dy = 0, xHat = 0, yHat = 0, width = 0, height = 0, id = -1;}
+	Object(int x, int y, float dx, float dy, int xHat = 0, int yHat = 0, int width = 0, int height = 0, int id = -1);
+	Object(cv::Rect boundingBox, float dx = 0, float dy = 0, int id = -1);
 
 	int id, x, y, xHat, yHat, width, height;
 	float dx, dy;

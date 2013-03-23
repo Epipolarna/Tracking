@@ -18,12 +18,11 @@ public:
 	void open(std::string path);
 	Frame & getLatestFrame();
 	list<Frame> & getFrames();
-	bool isSourceEmpty();
-	void queryNextFrame();
-
-
-
+	
+	bool queryNextFrame();
+	
 	int getFrameAmount();
+	
 	int getFrameRate();
 	int getCurrentFrameNumber();
 
@@ -46,6 +45,7 @@ private:
 	int frameAmount, frameRate;
 	int maxFrames;
 	int currentFrameNumber;
+	bool eofReached;
 	
 	void appendFrame(IplImage *frameImage);
 

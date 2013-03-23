@@ -13,15 +13,15 @@ void FrameList::open(std::string path)
 	if ( source.open(path))
 	{
 		frameAmount = (int)source.get(CV_CAP_PROP_FRAME_COUNT);
+		cout << "number of frames: " << frameAmount << endl;
 		frameRate = (int)source.get(CV_CAP_PROP_FPS);
+		cout << "FPS: " << frameRate << endl;
 		currentFrameNumber = 0;
 
-		// Load the first frame from source
-		queryNextFrame();
 	}
 	else
 	{
-
+		cout << "unable to open file." << endl;
 	}
 }
 
@@ -36,45 +36,25 @@ list<Frame> & FrameList::getFrames()
 	return oldFrames;
 }
 
-bool FrameList::isSourceEmpty()
-{
-	return getCurrentFrameNumber() >= frameAmount;
-}
 
-void FrameList::queryNextFrame()
+bool FrameList::queryNextFrame()
 {
-	if(getFrameAmount() <= getCurrentFrameNumber())
-		return;
-
 	Mat frameImage;
 	if(getCurrentFrameNumber() >= maxFrames)
 	{
 		oldFrames.pop_back();
 	}
 	
-	source >> frameImage;
+	if (!source.read(frameImage))
+	{
+		cout << "eof reached" << endl;
+		return false;
+	}
 	oldFrames.push_front(Frame(frameImage, probMap));
 	currentFrameNumber++;
+	return true;
 }
 
-/*
-void FrameList::queryNextFrame()
-{
-	if(getFrameAmount() <= getCurrentFrameNumber())
-		return;
-
-	appendFrame(cvQueryFrame(source));
-	currentFrameNumber++;
-}
-
-void FrameList::appendFrame(IplImage *frameImage)
-{
-	if(getCurrentFrameNumber() >= maxFrames)
-	{
-		oldFrames.pop_back();
-	}
-	oldFrames.push_front(Frame(Mat(frameImage, CV_8UC3), probMap));
-}*/
 
 int FrameList::getFrameAmount()
 {

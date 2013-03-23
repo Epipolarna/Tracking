@@ -11,6 +11,8 @@ public:
 
 	void readXML2FrameList(char* fileName);
 	void currentFrame();
+	void MOTP();
+	void MOTA();
 
 	// GroundTruth
 	vector<vector<Object>> groundTruth;
@@ -18,18 +20,14 @@ public:
 	FrameList* frameList;
 	vector<Object> hypothesisList;
 
-	
-	void MOTP();
-	void MOTA();
-
 private:
-	int frameCounter;
-	int numberOfFrames, numberOfObjects, T, obID, hypID, obX, obY, hypX, hypY, frameMismatches;
-	float frameDistance;
-	vector<int> matches, misses, flasePositive, mismatches;
+	int frameCounter, numberOfFrames, frameMismatches;
+	int T, obID, hypID, obX, obY, hypX, hypY;
+	float frameDistance, motpValue, motaValue;
+	float sumDistance, sumMisses, sumMatches, sumFalsePositive, sumMismatches, sumNumberOfObjects;
+	vector<int> numberOfObjects, matches, misses, falsePositive, mismatches;
 	vector<float> distance;
 	vector<map<int, int>> correspondance;
-	vector<int> occupiedHypothesis;
 	Object *ob, *hyp;
 
 	Object* getObj(vector<Object>* objVec, int ID);

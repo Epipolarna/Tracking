@@ -101,11 +101,12 @@ void Evaluation::currentFrame()
 	// The first frame desn't have any previous frame
 	if (frameCounter > 0)
 	{
+		
 		hypothesisList = frameList->getLatestFrame().objects;
 		// Check if old correspondances, in previous frame, are still valid
 			// Use dist < T
 
-
+		
 		for (map<int,int>::iterator i = correspondance.at(frameCounter - 1).begin(); i != correspondance.at(frameCounter - 1).end(); i++)
 		{
 			// Get Object position from GroundTruthFrameList
@@ -134,6 +135,7 @@ void Evaluation::currentFrame()
 	// Objects without correspondance 
 	// Find matching hypothesis, allowing only 1-1 match
 	multimap<double, pair<int, int>> distMap;
+	/*
 	for( vector<Object>::iterator truObj = groundTruth.at(frameCounter).begin(); truObj != groundTruth.at(frameCounter).end(); truObj++)
 	{
 		for( vector<Object>::iterator hypObj = hypothesisList.begin(); hypObj != hypothesisList.end(); hypObj++)
@@ -143,7 +145,8 @@ void Evaluation::currentFrame()
 					distMap.emplace(distance, make_pair(truObj->id, hypObj->id));
 		}
 	}
-
+	*/
+	
 	while (!distMap.empty())
 	{
 		obID = distMap.begin()->second.first;
@@ -166,15 +169,18 @@ void Evaluation::currentFrame()
 
 		mismatches.push_back(frameMismatches);
 	}
-
+	
+	
 	// Calculate the last variables
-	matches.push_back(correspondance.at(frameCounter).size());
+	//matches.push_back(correspondance.at(frameCounter).size());
 
-	misses.push_back(groundTruth.at(frameCounter).size());
+	//misses.push_back(groundTruth.at(frameCounter).size());
 
 	flasePositive.push_back(hypothesisList.size());
 
 	distance.push_back(frameDistance);
+
+	//frameCounter += 1;
 }
 
 Object* Evaluation::getObj(vector<Object>* objVec, int ID)

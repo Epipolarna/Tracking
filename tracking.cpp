@@ -27,13 +27,13 @@ int main()
 	ForegroundProcessing::ForegroundProcessor foregroundProcessor;
 	Identification::Identifier identifier;
 	Prediction::Kalman kalmanFilter;
-	Evaluation Evaluate(&frameList);
+	Evaluation evaluate(&frameList);
 
 	// Init
 	foregroundProcessor.setAlgortihm(ForegroundProcessing::AREA);
 	foregroundProcessor.init(50, 3, 5, 50, 3);
 	identifier.init(Identification::Experimental);
-	Evaluate.readXML2FrameList("clip1.xml");
+	evaluate.readXML2FrameList("clip1.xml");
 	
 	
 	// Load frame source
@@ -41,10 +41,10 @@ int main()
 	
 	// Create windows
 	namedWindow("Info",CV_WINDOW_AUTOSIZE);
-	namedWindow("Background",CV_WINDOW_AUTOSIZE);
-	namedWindow("Foreground",CV_WINDOW_AUTOSIZE);
-	namedWindow("Tracking",CV_WINDOW_AUTOSIZE);
-	namedWindow("BackgroundModel",CV_WINDOW_AUTOSIZE);
+	//namedWindow("Background",CV_WINDOW_AUTOSIZE);
+	//namedWindow("Foreground",CV_WINDOW_AUTOSIZE);
+	//namedWindow("Tracking",CV_WINDOW_AUTOSIZE);
+	//namedWindow("BackgroundModel",CV_WINDOW_AUTOSIZE);
 
 	
 	// Track objects through all frames
@@ -58,13 +58,14 @@ int main()
 		foregroundProcessor.segmentForeground(frameList.getLatestFrame());	PROFILE("ForegroundSeg.");
 		identifier.identify(frameList.getFrames());							PROFILE("Identification");	
 		kalmanFilter.predict(frameList.getLatestFrame());					PROFILE("Kalman Prediction");
+		evaluate.currentFrame();											PROFILE("Evaluation");
 
 		
 		// Display result
-		frameList.display("Tracking");
-		frameList.displayForeground("Foreground");
-		frameList.displayProbabilityMap("Background");
-		backgroundModel.display("BackgroundModel");
+		//frameList.display("Tracking");
+		//frameList.displayForeground("Foreground");
+		//frameList.displayProbabilityMap("ProbabilityMap");
+		//backgroundModel.display("BackgroundModel");
 				
 		// Give the GUI time to render
 		waitKey(1);															PROFILE("Display");

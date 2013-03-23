@@ -41,7 +41,8 @@ public:
 
 private:
 	list<Frame> oldFrames;
-	CvCapture * source;
+	//CvCapture * source;
+	VideoCapture source;
 	int frameAmount, frameRate;
 	int maxFrames;
 	int currentFrameNumber;

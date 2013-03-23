@@ -7,17 +7,25 @@ FrameList::FrameList(int framesToKeep)
 	infoDisplayMatrix = Mat(480,720, CV_8UC3);
 }
 
+
 void FrameList::open(std::string path)
 {
-	source = cvCaptureFromFile(path.c_str());
-	frameAmount = (int)cvGetCaptureProperty(source,CV_CAP_PROP_FRAME_COUNT);
-	frameRate = (int)cvGetCaptureProperty(source,CV_CAP_PROP_FPS);
-	currentFrameNumber = 0;
+	if ( source.open(path))
+	{
+		frameAmount = (int)source.get(CV_CAP_PROP_FRAME_COUNT);
+		frameRate = (int)source.get(CV_CAP_PROP_FPS);
+		currentFrameNumber = 0;
 
-	// Load the first frame from source
-	queryNextFrame();
+		// Load the first frame from source
+		queryNextFrame();
+	}
+	else
+	{
+
+	}
 }
 
+	
 Frame & FrameList::getLatestFrame()
 {
 	return oldFrames.front();
@@ -38,6 +46,23 @@ void FrameList::queryNextFrame()
 	if(getFrameAmount() <= getCurrentFrameNumber())
 		return;
 
+	Mat frameImage;
+	if(getCurrentFrameNumber() >= maxFrames)
+	{
+		oldFrames.pop_back();
+	}
+	
+	source >> frameImage;
+	oldFrames.push_front(Frame(frameImage, probMap));
+	currentFrameNumber++;
+}
+
+/*
+void FrameList::queryNextFrame()
+{
+	if(getFrameAmount() <= getCurrentFrameNumber())
+		return;
+
 	appendFrame(cvQueryFrame(source));
 	currentFrameNumber++;
 }
@@ -49,7 +74,7 @@ void FrameList::appendFrame(IplImage *frameImage)
 		oldFrames.pop_back();
 	}
 	oldFrames.push_front(Frame(Mat(frameImage, CV_8UC3), probMap));
-}
+}*/
 
 int FrameList::getFrameAmount()
 {

@@ -16,10 +16,10 @@ void Frame::drawObjects(Scalar color)
 		if(it->lost)
 			color = Scalar(255, 255, 0);
 
-		float x = it->x - it->width/2;
-		float y = it->y - it->height/2;
-		float x_w = it->x + it->width/2;
-		float y_h = it->y + it->height/2;
+		int x = it->x - it->width/2;
+		int y = it->y - it->height/2;
+		int x_w = it->x + it->width/2;
+		int y_h = it->y + it->height/2;
 
 		rectangle(image, Point(x, y), 
 							Point(x_w, y_h), 
@@ -29,7 +29,7 @@ void Frame::drawObjects(Scalar color)
 		std::string objectText = "("+std::to_string(it->x)+","+std::to_string(it->y)+") id:"+std::to_string(it->id);
 		int fontFace = CV_FONT_HERSHEY_COMPLEX;
 		double fontScale = 0.3;
-		int thickness = 0.3;
+		int thickness = (int)0.3;
 		putText(image, objectText, Point(x, y+10+it->height), fontFace, fontScale, Scalar::all(255), thickness, 8);
 	}
 }
@@ -41,10 +41,10 @@ void Frame::drawObjectsPrediction(Scalar color)
 		if(it->lost)
 			color = Scalar(255, 255, 0);
 
-		float x = it->xHat - it->width/2;
-		float y = it->yHat - it->height/2;
-		float x_w = it->xHat + it->width/2;
-		float y_h = it->yHat + it->height/2;
+		int x = (int)it->xHat - it->width/2;
+		int y = (int)it->yHat - it->height/2;
+		int x_w = (int)it->xHat + it->width/2;
+		int y_h = (int)it->yHat + it->height/2;
 
 		rectangle(image, Point(x, y), 
 							Point(x_w, y_h), 
@@ -54,7 +54,7 @@ void Frame::drawObjectsPrediction(Scalar color)
 		std::string objectText = "("+std::to_string(it->x)+","+std::to_string(it->y)+") id:"+std::to_string(it->id);
 		int fontFace = CV_FONT_HERSHEY_COMPLEX;
 		double fontScale = 0.3;
-		int thickness = 0.3;
+		int thickness = (int)0.3; 
 		putText(image, objectText, Point(x, y+10+it->height), fontFace, fontScale, Scalar::all(255), thickness, 8);
 	}
 }
@@ -71,7 +71,7 @@ void Frame::drawObjects(std::vector<Object> & objects, Scalar color)
 		std::string objectText = "("+std::to_string(it->x)+","+std::to_string(it->y)+") id:"+std::to_string(it->id);
 		int fontFace = CV_FONT_HERSHEY_COMPLEX;
 		double fontScale = 0.3;
-		int thickness = 0.3;
+		int thickness = (int)0.3;
 		putText(image, objectText, Point(it->x-it->width/2, it->y-10), fontFace, fontScale, Scalar::all(255), thickness, 8);
 	}
 }

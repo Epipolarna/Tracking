@@ -10,8 +10,8 @@ FrameList::FrameList(int framesToKeep)
 void FrameList::open(std::string path)
 {
 	source = cvCaptureFromFile(path.c_str());
-	frameAmount = cvGetCaptureProperty(source,CV_CAP_PROP_FRAME_COUNT);
-	frameRate = cvGetCaptureProperty(source,CV_CAP_PROP_FPS);
+	frameAmount = (int)cvGetCaptureProperty(source,CV_CAP_PROP_FRAME_COUNT);
+	frameRate = (int)cvGetCaptureProperty(source,CV_CAP_PROP_FPS);
 	currentFrameNumber = 0;
 
 	// Load the first frame from source

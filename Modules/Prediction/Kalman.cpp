@@ -28,7 +28,7 @@ namespace Prediction
 
 		for(std::vector<Object>::iterator i = frame.objects.begin(); i != frame.objects.end(); i++)
 		{
-			float yData[] = {i->x, i->y};
+			float yData[] = {(float)i->x, (float)i->y};
 			y = Mat(2, 1, CV_32FC1, yData);
 
 			// If object is not found in current frame perform only Time Update
@@ -46,8 +46,8 @@ namespace Prediction
 
 			if (i->lost == true)
 			{
-				i->x = i->xHat;
-				i->y = i->yHat;
+				i->x = (int)floor(i->xHat + 0.5);
+				i->y = (int)floor(i->yHat + 0.5);
 			}
 		}
 	}

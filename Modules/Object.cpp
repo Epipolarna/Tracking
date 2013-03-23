@@ -13,8 +13,8 @@ Object::Object(int x, int y, float dx, float dy, float xHat, float yHat, int wid
 	boundingBox.width = width;
 	boundingBox.height = height;
 	lost = false;
-	xHat = x;
-	yHat = y;
+	xHat = (float)x;
+	yHat = (float)y;
 }
 
 Object::Object(cv::Rect boundingBox, float dx, float dy, float xHat, float yHat, int id)
@@ -22,8 +22,8 @@ Object::Object(cv::Rect boundingBox, float dx, float dy, float xHat, float yHat,
 {
 	x = boundingBox.x + boundingBox.width/2;
 	y = boundingBox.y + boundingBox.height/2;
-	xHat = x;
-	yHat = y;
+	xHat = (float)x;
+	yHat = (float)y;
 	width = boundingBox.width;
 	height = boundingBox.height;
 }
@@ -50,8 +50,8 @@ void Object::info()
 
 float Object::containedAreaQuotient(Object & other)
 {
-	float w = intervalOverlap(x-width/2, x+width/2, other.x-other.width/2, other.x+other.width/2);
-	float h = intervalOverlap(y-height/2, y+height/2, other.y-other.height/2, other.y+other.height/2);
+	float w = intervalOverlap((float)x-width/2, (float)(x+width/2), (float)other.x-other.width/2, (float)other.x+other.width/2);
+	float h = intervalOverlap((float)y-height/2, (float)(y+height/2), (float)other.y-other.height/2, (float)other.y+other.height/2);
 	return w*h/(width*height);
 }
 

@@ -95,8 +95,8 @@ void Evaluation::readXML2FrameList(char* fileName)
 void Evaluation::currentFrame()
 {
 	// Init variables
-	currentDistance = 0;
-	currentMismatches = 0;
+	frameDistance = 0;
+	frameMismatches = 0;
 
 	// The first frame desn't have any previous frame
 	if (frameCounter > 0)
@@ -151,20 +151,20 @@ void Evaluation::currentFrame()
 
 		if (correspondance.at(frameCounter - 1)[obID] != hypID)
 		{
-			currentMismatches += 1;
+			frameMismatches += 1;
 		}
 
 		correspondance.at(frameCounter).insert(pair<int,int>(obID, hypID));
 		deleteObj(&groundTruth.at(frameCounter), obID);
 		deleteObj(&hypothesisList, hypID);
-		distance.at(frameCounter) += distMap.begin()->first;
+		distance.at(frameCounter) += (float)distMap.begin()->first;
 		for ( multimap<double, pair<int, int>>::iterator it = distMap.begin(); it != distMap.end(); it++)
 		{
 			if ( it->second.first == obID)
 				distMap.erase(it);
 		}
 
-		mismatches.push_back(currentMismatches);
+		mismatches.push_back(frameMismatches);
 	}
 
 	// Calculate the last variables
@@ -174,7 +174,7 @@ void Evaluation::currentFrame()
 
 	flasePositive.push_back(hypothesisList.size());
 
-	distance.push_back(currentDistance);
+	distance.push_back(frameDistance);
 }
 
 Object* Evaluation::getObj(vector<Object>* objVec, int ID)
@@ -213,15 +213,15 @@ bool Evaluation::isCorr(int truID, int hypID)
 	if (!hypObj)
 		return false;
  
-	int truX = truObj->x;
-	int truY = truObj->y;
-	int hypX = hypObj->x;
-	int hypY = hypObj->y;
-	float dist = sqrt((truX - hypX)^2 + (truY - hypY)^2);
+	obX = truObj->x;
+	obY = truObj->y;
+	hypX = hypObj->x;
+	hypY = hypObj->y;
+	float dist = (float)sqrt((obX - hypX)^2 + (obY - hypY)^2);
  
 	if (dist < T)
 	{
-		currentDistance += dist;
+		frameDistance += dist;
 		return true;
 	} 
 	

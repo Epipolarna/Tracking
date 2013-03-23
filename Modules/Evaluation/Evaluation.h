@@ -24,8 +24,8 @@ public:
 
 private:
 	int frameCounter;
-	int numberOfFrames, numberOfObjects, T, obID, hypID, obX, obY, hypX, hypY, currentMismatches;
-	float currentDistance;
+	int numberOfFrames, numberOfObjects, T, obID, hypID, obX, obY, hypX, hypY, frameMismatches;
+	float frameDistance;
 	vector<int> matches, misses, flasePositive, mismatches;
 	vector<float> distance;
 	vector<map<int, int>> correspondance;

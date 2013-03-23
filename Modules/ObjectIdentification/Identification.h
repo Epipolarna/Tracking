@@ -15,7 +15,8 @@ namespace Identification
 	{
 		Naive = 0,
 		Test,
-		Experimental
+		Experimental,
+		Ultimate
 	};
 
 
@@ -45,6 +46,7 @@ namespace Identification
 		void algorithm_naive(std::list<Frame> & frames);
 		void algorithm2(std::list<Frame> & frames);
 		void algorithm3(std::list<Frame> & frames);
+		void algorithm_ultimate(std::list<Frame> & frames);
 	};
 	
 

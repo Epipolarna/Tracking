@@ -22,8 +22,8 @@ void Frame::drawObjects(Scalar color)
 		int y_h = it->y + it->height/2;
 
 		rectangle(image, Point(x, y), 
-							Point(x_w, y_h), 
-							color, 1, 8);
+						 Point(x_w, y_h), 
+						 color, 1, 8);
 		line(image, Point(it->x, it->y), Point(it->x + (int)(it->dx), it->y + (int)(it->dy)), color, 2 ,8);
 
 		std::string objectText = "("+std::to_string(it->x)+","+std::to_string(it->y)+") id:"+std::to_string(it->id);

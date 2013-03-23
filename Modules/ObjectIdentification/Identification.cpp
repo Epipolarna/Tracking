@@ -20,6 +20,9 @@ namespace Identification
 		case Experimental:
 			algorithm = &Identifier::algorithm3;
 			break;
+		case Ultimate:
+			algorithm = &Identifier::algorithm_ultimate;
+			break;
 		}
 	}
 
@@ -82,7 +85,10 @@ namespace Identification
 		for(std::list<ProbabilityContainer>::iterator p = mostProbable.begin(); p != mostProbable.end(); p++)
 		{
 			if(p->index >= 0)
+			{
 				current->objects[pIndex].id = previous->objects[p->index].id;
+				current->objects[pIndex].model = previous->objects[p->index].model;
+			}
 			else
 				current->objects[pIndex].id = newID();
 			pIndex++;
@@ -328,6 +334,40 @@ namespace Identification
 		current->profileData["#objectsID'd"] = decidedAmount;
 		current->profileData["#objects lost"] = current->objects.size()-decidedAmount;
 
+	}
+
+	void Identifier::algorithm_ultimate(std::list<Frame> & frames)
+	{
+		Frame * current = &frames.front();
+		Frame * previous = &(*(++frames.begin()));
+
+		const int MAX_OBJECT_AMOUNT = 100;
+
+		bool isDecided[MAX_OBJECT_AMOUNT];	// isDecided[Index] == true  -->  current->objects[Index] is decided
+		std::list<ProbabilityContainer> mostProbableObject[MAX_OBJECT_AMOUNT];  // 
+		std::list<int> undecidedObjects, hiddenObjects, lostObjects;
+		
+		// for each previous object "p"
+			// for each current object "c"
+				// if(c->contains(p, 0.1)) c.addChild(p);	// p->c DONE
+				// else
+					// 
+
+
+
+		// Find most probable new location of previous objects among the current objects. (Position,velocity error measure)
+		
+		// Find the most probable object in the current frame from the previous (Based on above error measure, and an area error measure)
+
+		// Find objects that have become children to a parent object
+
+		// Find hidden objects
+
+		// Find lost objects
+
+		// Assign id&model to the best candidate in the current frame from those in the previous frame that has not yet been decided upond
+
+		// Assign a new id to the remaining undecided
 	}
 
 

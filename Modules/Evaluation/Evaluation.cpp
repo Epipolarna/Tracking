@@ -16,6 +16,14 @@ Evaluation::Evaluation(FrameList* _frameList, int threshold)
 	T = threshold;
 	frameCounter = 0;
 	frameList = _frameList;
+
+	motpValue = 0;
+	motaValue = 1;
+	sumDistance = 0;
+	sumFalsePositive = 0;
+	sumMatches = 0;
+	sumMismatches = 0;
+	sumNumberOfObjects = 0;
 }
 
 void Evaluation::readXML2FrameList(char* fileName)
@@ -250,7 +258,10 @@ void Evaluation::MOTP()
 	// Sum number of matches
 	float sumMatches = (float)accumulate(matches.begin(), matches.end(), 0);
 	// Calculate quote
-	motpValue = sumDistance/sumMatches;
+	if (sumMatches > 0)
+	{
+		motpValue = sumDistance/sumMatches;
+	}
 	cout << "MOTP:\t\t" << motpValue << endl;
 }
 
@@ -265,8 +276,17 @@ void Evaluation::MOTA()
 	// Sum total number of objets
 	float sumNumberOfObjects = (float)accumulate(numberOfObjects.begin(), numberOfObjects.end(), 0);
 	// Calculate quote
-	motaValue = 1 - (sumMisses + sumFalsePositive + sumMismatches)/sumNumberOfObjects;
+	if (sumNumberOfObjects > 0)
+	{
+		motaValue = 1 - (sumMisses + sumFalsePositive + sumMismatches)/sumNumberOfObjects;
+	}
 	cout << "MOTA:\t\t" << motaValue << endl;
+}
+
+void Evaluation::printInfo()
+{
+
+
 }
 
 Object* Evaluation::getObj(vector<Object>* objVec, int ID)

@@ -13,6 +13,7 @@ public:
 	void currentFrame();
 	void MOTP();
 	void MOTA();
+	void printInfo();
 
 	// GroundTruth
 	vector<vector<Object>> groundTruth;

@@ -12,7 +12,7 @@ Object::Object(int x, int y, float dx, float dy, float xHat, float yHat, int wid
 	boundingBox.y = y-height/2;
 	boundingBox.width = width;
 	boundingBox.height = height;
-	lost = false;
+	isLost = isHidden = isParent = isChild = isDecided = false;
 	xHat = (float)x;
 	yHat = (float)y;
 }
@@ -26,6 +26,7 @@ Object::Object(cv::Rect boundingBox, float dx, float dy, float xHat, float yHat,
 	yHat = (float)y;
 	width = boundingBox.width;
 	height = boundingBox.height;
+	isLost = isHidden = isParent = isChild = isDecided = false;
 }
 
 std::ostream & operator<< (std::ostream & o, Object & object)
@@ -35,7 +36,7 @@ std::ostream & operator<< (std::ostream & o, Object & object)
 	o << "PEstimate: (" << object.xHat << ", " << object.yHat << ")\n";
 	o << "Dimenson: (" << object.width << ", " << object.height << ")\n";
 	o << "Velocity: (" << object.dx << ", " << object.dy << ")\n";
-	o << "Lost: " << object.lost << "\n";
+	o << "Lost|Hidden|Parent|Child: " << object.isLost << "|" << "\n";
 	return o;
 }
 

@@ -14,8 +14,7 @@ namespace Identification
 	enum Algorithm
 	{
 		Naive = 0,
-		Test,
-		Experimental,
+		NearestFit,
 		Ultimate
 	};
 
@@ -37,15 +36,9 @@ namespace Identification
 
 		int uniqueIDPool;
 		int newID() {return uniqueIDPool++;}
-
-		std::vector<std::list<ProbabilityContainer> > mostProbable;
-		std::list<ProbabilityContainer> mostProbable_;
-		std::list<int> undecidedObjects;
-		std::vector<bool> isDecided;
-
+		
 		void algorithm_naive(std::list<Frame> & frames);
-		void algorithm2(std::list<Frame> & frames);
-		void algorithm3(std::list<Frame> & frames);
+		void algorithm_nearestFit(std::list<Frame> & frames);
 		void algorithm_ultimate(std::list<Frame> & frames);
 	};
 	
@@ -53,22 +46,18 @@ namespace Identification
 	//////////  Internal structures  ///////////
 	////////////////////////////////////////////
 
-	class ProbabilityContainer
+	class Error
 	{
 	public:
-		int index;
-		int probableId;
+		Object * current;
+		Object * previous;
+		int previousIndex;
 		float error;
-		ProbabilityContainer(int index, int probableId, float error) : index(index),probableId(probableId),error(error) {}
-		bool operator<(const ProbabilityContainer & pc) { return error < pc.error; }
-	};
+		Error(Object * current, Object * previous, int previousIndex, float error)
+			: current(current),previous(previous), previousIndex(previousIndex), error(error) {}
+		bool operator<(const Error & e) { return error < e.error; }
+	};	
 
-	struct Condition
-	{
-		int indexValue;
-		Condition(int indexValue) : indexValue(indexValue) {}
-		bool operator() (const ProbabilityContainer& pc) { return pc.index == indexValue; }
-	};
 
 
 	////////// TEST GENERATION ///////////

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <opencv2/core/core.hpp>
 #include "Prediction\StateSpaceModel.h"
+#include <list>
 
 #ifndef OBJECT_H
 #define OBJECT_H
@@ -20,7 +21,8 @@ public:
 
 	Prediction::StateSpaceModel model;
 
-	bool lost;
+	std::list<Object*> children, parents;
+	bool isLost, isHidden, isParent, isChild, isDecided;
 
 	
 	cv::Rect boundingBox;
@@ -28,6 +30,7 @@ public:
 	friend std::ostream & operator<< (std::ostream & o, Object & obj);
 	void info();
 	bool operator==(const Object & other) { return id == other.id; }
+	bool operator<(const Object & other) { return id < other.id; }
 
 	float containedAreaQuotient(Object & other);
 	float intervalOverlap(float x1, float x2, float y1, float y2);

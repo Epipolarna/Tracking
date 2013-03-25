@@ -14,15 +14,12 @@ namespace Identification
 		case Naive:
 			algorithm = &Identifier::algorithm_naive;
 			break;
-		case Test:
-			algorithm = &Identifier::algorithm2;
-			break;
-		case Experimental:
-			algorithm = &Identifier::algorithm3;
-			break;
 		case Ultimate:
 			algorithm = &Identifier::algorithm_ultimate;
 			break;
+		case NearestFit:
+			algorithm = &Identifier::algorithm_nearestFit;
+			break;			
 		}
 	}
 
@@ -30,9 +27,9 @@ namespace Identification
 	{
 		if(frames.size() == 1)	// First time no objects are identified
 		{
-			for(int i = 0; i < frames.front().objects.size(); i++)
+			for(std::vector<Object>::iterator i = frames.front().objects.begin(); i != frames.front().objects.end(); i++)
 			{
-				frames.front().objects[i].id = newID();
+				i->id = newID();
 			}
 		}
 		else
@@ -46,328 +43,346 @@ namespace Identification
 		Frame * current = &frames.front();
 		Frame * previous = &(*(++frames.begin()));
 		
-		// Find the previous object which is probably the current object
-		float distanceError, error;
-		int pIndex, prevpIndex;
-		std::list<ProbabilityContainer> mostProbable;
-
-		isDecided.clear();
-		for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
-			isDecided.push_back(false);
-
-		for(std::vector<Object>::iterator c = current->objects.begin(); c != current->objects.end(); c++)
-		{
-			mostProbable.push_back(ProbabilityContainer(-1, -1, 1000000));
-			pIndex = 0;
-			prevpIndex = -1;
-			for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
-			{
-				/*
-				 * distanceError = (x-x0-vx0)^2 + (y-y0-vy0)^2
-				 */
-				distanceError = std::pow(c->x - p->x - p->dx, 2) + std::pow(c->y - p->y - p->dy, 2);
-
-				error = distanceError;
-				if(!isDecided[pIndex] && mostProbable.back().error > error && error < 5000)
-				{
-					mostProbable.back().error = error;
-					mostProbable.back().index = pIndex;
-					if(prevpIndex >= 0)
-						isDecided[prevpIndex] = false;
-					isDecided[pIndex] = true;
-					prevpIndex = pIndex;
-				}
-				pIndex++;
-			}
-		}
-
-		pIndex = 0;
-		for(std::list<ProbabilityContainer>::iterator p = mostProbable.begin(); p != mostProbable.end(); p++)
-		{
-			if(p->index >= 0)
-			{
-				current->objects[pIndex].id = previous->objects[p->index].id;
-				current->objects[pIndex].model = previous->objects[p->index].model;
-			}
-			else
-				current->objects[pIndex].id = newID();
-			pIndex++;
-		}
+		
 		
 	}
 
-	void Identifier::algorithm2(std::list<Frame> & frames)
+	
+	bool operator<(const std::list<Error> & l, const std::list<Error> & r) { return !l.empty() && !r.empty() && l.front().error < r.front().error; }
+
+	void Identifier::algorithm_nearestFit(std::list<Frame> & frames)
 	{
-		
-		Frame * current = &frames.front();
-		Frame * previous = &(*(++frames.begin()));
-		
-		mostProbable.clear();
-		undecidedObjects.clear();
-		float distanceError, error;
-		
-		for(int i = 0; i < current->objects.size(); i++)
-		{
-			undecidedObjects.push_back(i);
-			mostProbable.push_back(std::list<ProbabilityContainer>());
-			
-			for(int j = 0; j < previous->objects.size(); j++)
-			{
-				/*
-				 * distanceError = (x-x0-vx0)^2 + (y-y0-vy0)^2
-				 */
-				distanceError = std::pow(current->objects[i].x - previous->objects[j].x - previous->objects[j].dx, 2) + std::pow(current->objects[i].y - previous->objects[j].y - previous->objects[j].dy, 2);
-				error = distanceError;
-				
-				mostProbable[i].push_back(ProbabilityContainer(j,previous->objects[j].id,error));
-			}
-			mostProbable[i].sort();
-		}
-
-		//std::cout << "\nFind most probable previous object:\n";
-		std::list<int>::iterator bestMatch;
-		int matchingPrevious;
-		float min;
-		for(int candidate = 0; candidate < std::min(previous->objects.size(), current->objects.size()); candidate++)
-		{
-			min = 1000000;
-			for(std::list<int>::iterator i = undecidedObjects.begin(); i != undecidedObjects.end(); i++)
-			{
-				if(mostProbable[*i].front().error < min)
-				{
-					min = mostProbable[*i].front().error;
-					bestMatch = i;
-				}
-			}
-
-			//A most probable candidate found!
-			matchingPrevious = mostProbable[*bestMatch].front().index;
-			current->objects[*bestMatch].id = previous->objects[matchingPrevious].id;
-
-			//std::cout << "\tObject " << mostProbable[*bestMatch].front().probableId << " found with minError " << mostProbable[*bestMatch].front().error << "\n";
-
-			for(std::list<int>::iterator i = undecidedObjects.begin(); i != undecidedObjects.end(); i++)
-			{
-				std::list<ProbabilityContainer>::iterator it = mostProbable[*i].begin();
-				while(it != mostProbable[*i].end())
-				{
-					if(it->index == matchingPrevious)
-						mostProbable[*i].erase(it++);
-					else
-						it++;
-				}
-				mostProbable[*i].sort();
-			}
-			undecidedObjects.erase(bestMatch);
-		}
-
-		
-		//Take care of the new objects detected (still undecided):
-		for(std::list<int>::iterator i = undecidedObjects.begin(); i != undecidedObjects.end(); i++)
-		{
-			current->objects[*i].id = newID();
-		}
-
-	}
-	/*
-		// Select the objects in the previous frame that are candidates to the unidentified in the current frame
-		std::vector<Object *> candidates;
-		candidates.clear();
-		for(std::vector<Object>::iterator c = previous->objects.begin(); c != previous->objects.end(); c++)
-		{
-			if(!probablyOutsideOfImage(*c))
-				candidates.push_back(&(*c));
-		}
-		*/
-	void Identifier::algorithm3(std::list<Frame> & frames)
-	{
-		/* 
-		   * Objects overlapp
-		   * 
-		 */
-
 		Frame * current = &frames.front();
 		Frame * previous = &(*(++frames.begin()));
 
+		static std::list<std::list<Error>> errorMap;
+		errorMap.clear();
 		
-		// Move lost objects
-		
-		std::cout << "\n---------------------\n";
-		for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
-		{
-			std::cout << "(" << p->id << ") (dx,dy):(x,y):(xHat,yHat) = (" << p->dx << ", " << p->dy << "):(" << p->x << ", " << p->y << "):(" << p->xHat << ", " << p->yHat << ")\n";
-			if(p->lost)
-			{
-				
-			}
-		}
-		
-		// Find the previous object which is probably the current object
-		float distanceError, error;
-		int pIndex, prevpIndex;
-		mostProbable_.clear();
-		undecidedObjects.clear();
+		float error, distanceError;
+		int pIndex;
 
-		isDecided.clear();
-		for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
-			isDecided.push_back(false);
-
+		// Calculate the error between each previous object and each current object
 		for(std::vector<Object>::iterator c = current->objects.begin(); c != current->objects.end(); c++)
 		{
-			mostProbable_.push_back(ProbabilityContainer(-1, -1, 1000000));
+			errorMap.push_back(std::list<Error>());
 			pIndex = 0;
-			prevpIndex = -1;
 			for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
 			{
-				
-				float area1 = c->containedAreaQuotient(*p);
-				float area2 = p->containedAreaQuotient(*c);
-				//std::cout << "(id1,id2)=(" << c->id << "," << p->id << "): " << area1 << " | " << area2 << "\n";
-
-				/*
-				 * distanceError = (x-x0-vx0)^2 + (y-y0-vy0)^2
-				 */
 				distanceError = std::pow(c->x - p->x - p->dx, 2) + std::pow(c->y - p->y - p->dy, 2);
-
 				error = distanceError;
-				if(!isDecided[pIndex] && mostProbable_.back().error > error && error < 10000)
-				{
-					mostProbable_.back().error = error;
-					mostProbable_.back().index = pIndex;
-					if(prevpIndex >= 0)
-						isDecided[prevpIndex] = false;
-					isDecided[pIndex] = true;
-					prevpIndex = pIndex;
-				}
+
+				errorMap.back().push_back(Error(&(*c), &(*p), pIndex, error));
 				pIndex++;
 			}
+			errorMap.back().sort();
 		}
 
-		pIndex = 0;
-		for(std::list<ProbabilityContainer>::iterator p = mostProbable_.begin(); p != mostProbable_.end(); p++)
+		// Those previous-current object pair with smallest error is assumed to be the same object
+		for(int i = 0; i < std::min(current->objects.size(), previous->objects.size()); i++)
 		{
-			if(p->index >= 0)
-			{
-				current->objects[pIndex].id = previous->objects[p->index].id;
-				current->objects[pIndex].model = previous->objects[p->index].model;
-			}
-			else // Unidentified
-			{
-				current->objects[pIndex].id = newID();
-			}				
-			current->objects[pIndex].lost = false;
-			pIndex++;
-		}
+			errorMap.sort();
+			errorMap.front().front().current->id = errorMap.front().front().previous->id;
+			errorMap.front().front().current->model = errorMap.front().front().previous->model;
+			errorMap.front().front().current->isDecided = true;
 
-		
-		// Find objects from last frame that was not "found" (lost) at the current frame
-		bool lost;
-		pIndex = 0;
-		for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
-		{
-			lost = true;
-			for(std::list<ProbabilityContainer>::iterator pr = mostProbable_.begin(); pr != mostProbable_.end(); pr++)
+			// Remove all occurances of this currentObject
+			for(std::list<std::list<Error>>::iterator errorMapI = ++(errorMap.begin()); errorMapI != errorMap.end(); errorMapI++)
 			{
-				if(pr->index == pIndex)
+				std::list<Error>::iterator errorI = errorMapI->begin();
+				while(errorI != errorMapI->end())
 				{
-					lost = false;
-					break;
+					if(errorI->current == errorMap.front().front().current)
+					{
+						errorMapI->erase(errorI);
+						break;
+					}
+					errorI++;
 				}
 			}
-			if(lost)
-			{
-				undecidedObjects.push_back(pIndex);
-			}
-			pIndex++;
+
+			// Remove all occurances of this previousObject
+			errorMap.erase(errorMap.begin());
 		}
 
-		int lostAmount = 0, lostAmount2 = 0;
-		for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
-		{
-			if(p->lost)
-				lostAmount++;
-		}
-		 
+		// Any current object not decided is assumed to be a new object
 		for(std::vector<Object>::iterator c = current->objects.begin(); c != current->objects.end(); c++)
 		{
-			if(c->lost)
-				lostAmount2++;
+			if(!c->isDecided)
+				c->id = newID();
 		}
-		//std::cout << "previous: " << previous->objects.size() << " prevlost: " << lostAmount << " currlost: " << lostAmount2 << "\n";		
-
-		int decidedAmount = current->objects.size();
-		Object * cObject, * pObject;
-		// Manage objects from last frame that was not "found" at the current frame
-		for(std::list<int>::iterator l = undecidedObjects.begin(); l != undecidedObjects.end(); l++)
-		{
-			pObject = &previous->objects[*l];
-			// Did it probably leave the screen?
-			//...
-
-			
-			// Is it contained within a currently identified object?
-			for(int cIndex = 0; cIndex < decidedAmount; cIndex++)
-			{
-				cObject = &current->objects[cIndex];
-				float area1 = cObject->containedAreaQuotient(*pObject);
-				float area2 = pObject->containedAreaQuotient(*cObject);
-				
-				//std::cout << "(id1,id2)=(" << cObject->id << "," << pObject->id << "): " << area1 << " | " << area2 << "\n";
-				if(area2 > 0.1)	//How much of the later that 'was' inside of what *c now is
-				{
-					isDecided[*l] = true;
-					pObject->lost = true;
-					current->objects.push_back(*pObject);
-					break;
-				}
-			}
-			/*
-			// Is it just hidden behind something?
-			if(!pObject->lost)
-			{
-				pObject->lost = true;
-				current->objects.push_back(*pObject);
-			}*/
-
-		}
-
-		current->profileData["#objectsID'd"] = decidedAmount;
-		current->profileData["#objects lost"] = current->objects.size()-decidedAmount;
 
 	}
+
+
+	bool object_compare(Object & l, Object & r) { return l.id == r.id; }
 
 	void Identifier::algorithm_ultimate(std::list<Frame> & frames)
 	{
 		Frame * current = &frames.front();
 		Frame * previous = &(*(++frames.begin()));
+				
+		static std::list<Object> decidedPrevious, decidedCurrent;
 
-		const int MAX_OBJECT_AMOUNT = 100;
+		static std::list<Object*> parents, children;
+		static std::vector<Object*> undecidedPrevObject, undecidedCurrObject;
+		static std::list<std::list<Error>> errorMap;
+		static std::list<Error> parentError;
+		float error, distanceError;
+		int pIndex;
 
-		bool isDecided[MAX_OBJECT_AMOUNT];	// isDecided[Index] == true  -->  current->objects[Index] is decided
-		std::list<ProbabilityContainer> mostProbableObject[MAX_OBJECT_AMOUNT];  // 
-		std::list<int> undecidedObjects, hiddenObjects, lostObjects;
+		decidedPrevious.clear();
+		decidedCurrent.clear();
+		parents.clear();
+		children.clear();
+		undecidedPrevObject.clear();
+		undecidedCurrObject.clear();
+		errorMap.clear();
+		/*
+		for(std::vector<Object>::iterator i = current->objects.begin(); i != current->objects.end(); i++)
+		{
+			undecidedCurrObject.push_back(&(*i));
+		}
 		
-		// for each previous object "p"
-			// for each current object "c"
-				// if(c->contains(p, 0.1)) c.addChild(p);	// p->c DONE
-				// else
-					// 
+		for(std::vector<Object>::iterator i = previous->objects.begin(); i != previous->objects.end(); i++)
+		{
+			undecidedPrevObject.push_back(&(*i));
+		}*/
 
-
-
-		// Find most probable new location of previous objects among the current objects. (Position,velocity error measure)
+		std::cout << "---\n";
 		
-		// Find the most probable object in the current frame from the previous (Based on above error measure, and an area error measure)
+		for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
+		{
+			//p->isChild = false;
+			p->isParent = false;
+			p->isLost = false;
+			p->isDecided = false;
+			p->children.clear();
+			p->parents.clear();
+		}
 
-		// Find objects that have become children to a parent object
+		// Find parents and children
+		for(std::vector<Object>::iterator c = current->objects.begin(); c != current->objects.end(); c++)
+		{
+			for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
+			{
+				if(p->containedAreaQuotient(*c) > 0.2)	// p (previous object) is a child of c (current object)
+				{
+					parents.push_back(&(*c));
+					children.push_back(&(*p));
+					c->children.push_back(&(*p));
+					p->parents.push_back(&(*c));
+					c->isParent = true;
+					p->isChild = true;
 
-		// Find hidden objects
+					if(c->children.size() > 2)
+						std::cout << "ohnoes\n";
 
-		// Find lost objects
+					std::cout << ">Parent with " << c->children.size() << " children\n";
+					int index = 1;
+					for(std::list<Object*>::iterator child = c->children.begin(); child != c->children.end(); child++)
+					{
+						std::cout << "\t Child " << std::to_string(index++) << ": " << c->children.front()->id << "\n";
+					}
+				}
+			}
+			if(!c->isParent)
+				undecidedCurrObject.push_back(&(*c));
+		}
 
-		// Assign id&model to the best candidate in the current frame from those in the previous frame that has not yet been decided upond
+		// Find undecided Previous objects (those who are not children)
+		for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
+		{
+			if(!p->isChild)
+				undecidedPrevObject.push_back(&(*p));
+		}
 
-		// Assign a new id to the remaining undecided
+		// Does a child have a single parent?
+		//   Yes -> It is probably its parent
+		//   No  -> Find out which is the most probable parent
+		for(std::list<Object*>::iterator child = children.begin(); child != children.end(); child++)
+		{
+			if((*child)->parents.size() == 1)
+			{
+
+			}
+			else
+			{
+				std::cout << ">>A child has multiple parents<<\n";
+				// Which parent is the most likely? <TODO>
+				parentError.clear();
+				for(std::list<Object*>::iterator p = (*child)->parents.begin(); p != (*child)->parents.end(); p++)
+				{
+					distanceError = std::pow((*child)->x - (*p)->x - (*p)->dx, 2) + std::pow((*child)->y - (*p)->y - (*p)->dy, 2);
+					error = distanceError;
+					parentError.push_back(Error(0, *p, 0, error));
+				}
+				parentError.sort();
+
+
+				for(std::list<Error>::iterator errorI = ++(parentError.begin()); errorI != parentError.end(); errorI++)
+				{
+					for(std::list<Object*>::iterator pI = (errorI->previous)->children.begin(); pI != (errorI->previous)->children.end(); pI++)
+					{
+						if(*pI == *child)
+						{
+							(errorI->previous)->children.erase(pI);
+							break;
+						}
+					}
+
+				    // If the parent that isn't most likely only had one child, remove it from parents and add it to undecidedPrevObjects
+					if((errorI->previous)->children.empty())
+					{
+						for(std::list<Object*>::iterator pI = parents.begin(); pI != parents.end(); pI++)
+						{
+							if(errorI->previous == *pI)
+							{
+								parents.erase(pI);
+								break;
+							}
+						}
+					}
+				}
+			}
+			
+			// The child is now decided, remove it from undecidedPrevObjects
+			// ...
+		}
+
+
+		// Does the parent only have one child?
+		//	 Yes -> They are the same object (probably)
+		//   No  -> The parent is the composition of its children
+		for(std::list<Object*>::iterator parent = parents.begin(); parent != parents.end(); parent++)
+		{
+			if((*parent)->children.size() == 1)
+			{
+				(*parent)->id = (*parent)->children.front()->id;
+				(*parent)->model = (*parent)->children.front()->model;
+				(*parent)->children.front()->isChild = false;
+				(*parent)->isParent = false;
+				decidedCurrent.push_back(**parent);
+			}
+			else
+			{
+				// Debug
+				std::cout << "Parent with " << (*parent)->children.size() << " children\n";
+				std::cout << "\t Child 1: " << (*parent)->children.front()->id << "n";
+				
+				// Visualise Parent
+				std::string objectText = "Parent (";
+
+				for(std::list<Object*>::iterator child = (*parent)->children.begin(); child != (*parent)->children.end(); child++)
+				{
+					// Adjust width & height of child to fit inside of the parent
+					float widthDiff =  (*child)->width - (*parent)->width;
+					float heightDiff = (*child)->height - (*parent)->height;
+					if(widthDiff > 0)
+						(*child)->width -= widthDiff;
+					if(heightDiff > 0)
+						(*child)->height -= heightDiff;
+
+					// Adjust position of child to fit inside of parent
+					float leftDiff   = ((*parent)->x-(*parent)->width/2)  - ((*child)->x-(*child)->width/2);
+					float rightDiff  = ((*child)->x+(*child)->width/2)    - ((*parent)->x+(*parent)->width/2);
+					float topDiff    = ((*parent)->y-(*parent)->height/2) - ((*child)->y-(*child)->height/2);
+					float bottomDiff = ((*child)->y+(*child)->height/2)   - ((*parent)->y+(*parent)->height/2);
+					if(leftDiff > 0)
+						{(*child)->x += leftDiff;	(*child)->xHat += leftDiff;}
+					if(rightDiff > 0)
+						{(*child)->x -= rightDiff;	(*child)->xHat -= rightDiff;}
+					if(topDiff > 0)
+						{(*child)->y+= topDiff;		(*child)->yHat += topDiff;}
+					if(bottomDiff > 0)
+						{(*child)->y-= bottomDiff;	(*child)->yHat -= bottomDiff;}
+
+
+
+					// Add child as decided 'current'.
+					decidedCurrent.push_back(**child);
+
+					// Visualise Parent
+					objectText += std::to_string((*child)->id) + ",";
+				}
+
+				// Visualise Parent
+				objectText[objectText.size()-2] = ')';
+				rectangle(current->image, Point((*parent)->x-(*parent)->width/2, (*parent)->y-(*parent)->height/2), 
+											Point((*parent)->x+(*parent)->width/2,   (*parent)->y+(*parent)->height/2), 
+											Scalar(250, 0, 250), 1, 8);
+				int fontFace = CV_FONT_HERSHEY_COMPLEX;
+				double fontScale = 0.3;
+				int thickness = (int)0.3;
+				putText(current->image, objectText, Point((*parent)->x+(*parent)->width/2, (*parent)->y-(*parent)->height+10), fontFace, fontScale, Scalar::all(255), thickness, 8);
+			}
+		}
+		
+		
+		// Calculate the error between each previous object and each current object
+		for(std::vector<Object*>::iterator c = undecidedCurrObject.begin(); c != undecidedCurrObject.end(); c++)
+		{
+			errorMap.push_back(std::list<Error>());
+			pIndex = 0;
+			for(std::vector<Object*>::iterator p = undecidedPrevObject.begin(); p != undecidedPrevObject.end(); p++)
+			{
+				distanceError = std::pow((*c)->x - (*p)->x - (*p)->dx, 2) + std::pow((*c)->y - (*p)->y - (*p)->dy, 2);
+				error = distanceError;
+
+				errorMap.back().push_back(Error(*c, *p, pIndex, error));
+				pIndex++;
+			}
+			errorMap.back().sort();
+		}
+
+		// Those previous-current object pair with smallest error is assumed to be the same object
+		for(int i = 0; i < std::min(undecidedCurrObject.size(), undecidedPrevObject.size()); i++)
+		{
+			errorMap.sort();
+			errorMap.front().front().current->id = errorMap.front().front().previous->id;
+			errorMap.front().front().current->model = errorMap.front().front().previous->model;
+			errorMap.front().front().current->isDecided = true;
+
+			decidedCurrent.push_back(*errorMap.front().front().current);
+			decidedCurrent.back().model = errorMap.front().front().previous->model;
+
+			// Remove all occurances of this currentObject
+			for(std::list<std::list<Error>>::iterator errorMapI = ++(errorMap.begin()); errorMapI != errorMap.end(); errorMapI++)
+			{
+				std::list<Error>::iterator errorI = errorMapI->begin();
+				while(errorI != errorMapI->end())
+				{
+					if(errorI->current == errorMap.front().front().current)
+					{
+						errorMapI->erase(errorI);
+						break;
+					}
+					errorI++;
+				}
+			}
+
+			// Remove all occurances of this previousObject
+			errorMap.erase(errorMap.begin());
+		}
+
+		// Any current object not decided is assumed to be a new object
+		for(std::vector<Object*>::iterator c = undecidedCurrObject.begin(); c != undecidedCurrObject.end(); c++)
+		{
+			if(!(*c)->isDecided)
+			{
+				(*c)->id = newID();
+				decidedCurrent.push_back(**c);
+			}
+		}
+
+		// Remove duplicates (why tho??? :/U)
+		decidedCurrent.sort();
+		decidedCurrent.unique(object_compare);
+
+		current->objects.clear();
+		std::copy(decidedCurrent.begin(), decidedCurrent.end(), back_inserter(current->objects));
+
+		std::cout << "objectAmount: " << current->objects.size() << "\n";
+
 	}
 
 

@@ -13,7 +13,11 @@ void Frame::drawObjects(Scalar color)
 {
 	for (std::vector<Object>::iterator it = objects.begin(); it != objects.end(); ++it)
 	{
-		if(it->lost)
+		if(it->isParent)
+			color = Scalar(0, 255, 0);
+		if(it->isChild)
+			color = Scalar(0, 255, 255);
+		if(it->isLost)
 			color = Scalar(255, 255, 0);
 
 		int x = it->x - it->width/2;
@@ -26,7 +30,7 @@ void Frame::drawObjects(Scalar color)
 						 color, 1, 8);
 		line(image, Point(it->x, it->y), Point(it->x + (int)(it->dx), it->y + (int)(it->dy)), color, 2 ,8);
 
-		std::string objectText = "("+std::to_string(it->x)+","+std::to_string(it->y)+") id:"+std::to_string(it->id);
+		std::string objectText = "("+std::to_string(it->x)+","+std::to_string(it->y)+") id:"+std::to_string(it->id)+" ["+std::to_string(it->isParent)+"|"+std::to_string(it->isChild)+"|"+std::to_string(it->isHidden)+"|"+std::to_string(it->isLost)+"]";
 		int fontFace = CV_FONT_HERSHEY_COMPLEX;
 		double fontScale = 0.3;
 		int thickness = (int)0.3;
@@ -38,7 +42,7 @@ void Frame::drawObjectsPrediction(Scalar color)
 {
 	for (std::vector<Object>::iterator it = objects.begin(); it != objects.end(); ++it)
 	{
-		if(it->lost)
+		if(it->isLost)
 			color = Scalar(255, 255, 0);
 
 		int x = (int)it->xHat - it->width/2;

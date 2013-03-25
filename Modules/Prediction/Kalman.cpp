@@ -34,9 +34,11 @@ namespace Prediction
 			y = Mat(2, 1, CV_32FC1, yData);
 
 			// If object is not found in current frame perform only Time Update
-			if (i->lost != true)
+			if (i->isChild != true)
 			{
 				MeasurementUpdate(i);
+				//xHat[0] = i->xHat;
+				//xHat[1] = i->yHat;
 			}
 			TimeUpdate(i);
 
@@ -76,7 +78,7 @@ namespace Prediction
 				i->dy = dyMean;
 			}
 
-			if (i->lost == true)
+			if (i->isChild == true)
 			{
 				i->x = (int)floor(i->xHat + 0.5);
 				i->y = (int)floor(i->yHat + 0.5);

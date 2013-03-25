@@ -32,12 +32,12 @@ int main()
 	// Init
 	foregroundProcessor.setAlgortihm(ForegroundProcessing::AREA);
 	foregroundProcessor.init(50, 3, 5, 50, 3);
-	identifier.init(Identification::Experimental);
+	identifier.init(Identification::Ultimate);
 	evaluate.readXML2FrameList("clip1.xml");
 	
 	
 	// Load frame source
-	frameList.open("clip1.mpeg");
+	frameList.open("camera1.mov");
 	
 	// Create windows
 	namedWindow("Info",CV_WINDOW_AUTOSIZE);
@@ -58,7 +58,7 @@ int main()
 		foregroundProcessor.segmentForeground(frameList.getLatestFrame());	PROFILE("ForegroundSeg.");
 		identifier.identify(frameList.getFrames());							PROFILE("Identification");	
 		kalmanFilter.predict(frameList.getLatestFrame());					PROFILE("Kalman Prediction");
-		evaluate.currentFrame();											PROFILE("Evaluation");
+		//evaluate.currentFrame();											PROFILE("Evaluation");
 
 		
 		// Display result

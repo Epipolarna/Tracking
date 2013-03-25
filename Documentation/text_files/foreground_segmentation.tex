@@ -15,7 +15,7 @@ The first step in the foreground segmentation process is to threshold the probab
 and create a binary image where everything but the foreground objects are set to zero. By performing some simple 
 morphological erode/dilate iterations at least some of the noise is removed, after which, in case the fast algorithm 
 is selected, the object detection algorithm is used. If off-line processing is chosen a distance transform of each 
-detected region is a calculated, and objects that are not "thick" enough are assumed to be garbage, and is ignored.
+detected region is a calculated, and objects that are not "thick" enough are assumed to be garbage, and are ignored.
 
 %\begin{figure}[htb]
 %	\centering
@@ -25,7 +25,6 @@ detected region is a calculated, and objects that are not "thick" enough are ass
 %\end{figure}
 
 \subsubsection{Object detection}
-To detect the regions the OpenCV command \emph{findContours} is used. This will extract all contours in the image. 
-For each detected contour a bounding rectangle of the type \emph{cv::Rect} is created and, from this rectangle an 
+To detect the regions the OpenCV command \emph{findContours} is used. This will extract all contours in the image. The shadow handling function is the called with the extracted contours so detect what part od the contour that is made up from shadows. For each detected contour a bounding rectangle of the type \emph{cv::Rect} is created and, from this rectangle an 
 \emph{object} is created. All of the detected objects are then put into the Frame's object vector, 
 and the foreground processing is complete.

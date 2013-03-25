@@ -20,10 +20,13 @@ Evaluation::Evaluation(FrameList* _frameList, int threshold)
 	motpValue = 0;
 	motaValue = 1;
 	sumDistance = 0;
+	sumMisses = 0;
 	sumFalsePositive = 0;
 	sumMatches = 0;
 	sumMismatches = 0;
 	sumNumberOfObjects = 0;
+
+	infoDisplayMatrix = Mat(480,720, CV_8UC3);
 }
 
 void Evaluation::readXML2FrameList(char* fileName)
@@ -283,10 +286,37 @@ void Evaluation::MOTA()
 	cout << "MOTA:\t\t" << motaValue << endl;
 }
 
-void Evaluation::printInfo()
+#define PUTTEXT(x,y,text) putText(infoDisplayMatrix, text, Point(x, y), fontFace, fontScale, Scalar::all(0), thickness, 8);
+
+void Evaluation::displayInfo(string windowID)
 {
+	int fontFace = CV_FONT_HERSHEY_COMPLEX;
+	double fontScale = 1;
+	int thickness = 1;
 
+	infoDisplayMatrix = Scalar::all(200);
+	string text;
+	int baseline;
 
+	PUTTEXT(5,25,"Evaluation info:");
+	int l = 60;
+
+	int leftTab = 50;
+	int rightTab = 360;
+
+	l += 35;
+	PUTTEXT(leftTab, l, "Frame:");			PUTTEXT(rightTab, l, to_string(frameCounter));				l += 35;
+	l += 35;
+	PUTTEXT(leftTab, l, "MOTA:");			PUTTEXT(rightTab, l, to_string(motaValue));					l += 35;	
+	PUTTEXT(leftTab, l, "MOTP:");			PUTTEXT(rightTab, l, to_string(motpValue));					l += 35;
+	l += 35;
+	PUTTEXT(leftTab, l, "Matches:");		PUTTEXT(rightTab, l, to_string((int)sumMatches));			l += 35;	
+	PUTTEXT(leftTab, l, "Misses:");			PUTTEXT(rightTab, l, to_string((int)sumMisses));			l += 35;	
+	PUTTEXT(leftTab, l, "False Positive:");	PUTTEXT(rightTab, l, to_string((int)sumFalsePositive));		l += 35;	
+	PUTTEXT(leftTab, l, "Mismatches:");		PUTTEXT(rightTab, l, to_string((int)sumMismatches));		l += 35;	
+	PUTTEXT(leftTab, l, "Distance:");		PUTTEXT(rightTab, l, to_string(sumDistance));				l += 35;	
+
+	imshow( windowID.c_str(), infoDisplayMatrix);
 }
 
 Object* Evaluation::getObj(vector<Object>* objVec, int ID)

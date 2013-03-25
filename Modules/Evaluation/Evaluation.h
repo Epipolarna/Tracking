@@ -13,7 +13,7 @@ public:
 	void currentFrame();
 	void MOTP();
 	void MOTA();
-	void printInfo();
+	void displayInfo(string windowID);
 
 	// GroundTruth
 	vector<vector<Object>> groundTruth;
@@ -34,6 +34,8 @@ private:
 	Object* getObj(vector<Object>* objVec, int ID);
 	void deleteObj(vector<Object>* objVec, int ID);
 	bool isCorr(int truID, int hypID);
+
+	Mat infoDisplayMatrix;
 };
 
 #endif

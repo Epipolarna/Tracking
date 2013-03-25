@@ -1,5 +1,7 @@
 #include "Kalman.h"
 //#include <vector>
+#include <functional>
+#include <numeric>
 
 namespace Prediction
 {
@@ -38,17 +40,49 @@ namespace Prediction
 			}
 			TimeUpdate(i);
 
+
 			xHat = i->model.xHat.ptr<float>();
 			i->xHat = xHat[0];
 			i->yHat	= xHat[1];
-			i->dx = xHat[2];
-			i->dy = xHat[3];
+
+			// Smooth velocity with 5 latest measurements
+			i->model.dxHist.push_front(xHat[2]);
+			i->model.dyHist.push_front(xHat[3]);
+
+			if (i->model.dxHist.size() > i->model.hist)
+			{
+				i->model.dxHist.pop_back();
+				i->model.dyHist.pop_back();
+			}
+
+			float dxMean = 0;
+			float dyMean = 0;
+			
+			for (list<float>::iterator j = i->model.dxHist.begin(); j != i->model.dxHist.end(); j++)
+			{
+				dxMean += *j;
+			}
+			for (list<float>::iterator j = i->model.dyHist.begin(); j != i->model.dyHist.end(); j++)
+			{
+				dyMean += *j;
+			}
+
+			dxMean = dxMean/(float)i->model.hist;
+			dyMean = dyMean/(float)i->model.hist;
+
+			if (i->model.dxHist.size() == i->model.hist)
+			{
+				i->dx = dxMean;
+				i->dy = dyMean;
+			}
 
 			if (i->lost == true)
 			{
 				i->x = (int)floor(i->xHat + 0.5);
 				i->y = (int)floor(i->yHat + 0.5);
 			}
+			//cout << i->model.P << endl;
+			//waitKey(0);
 		}
 	}
 	// Additional function-/methodimplementations here

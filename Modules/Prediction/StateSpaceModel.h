@@ -3,6 +3,7 @@
 #define _STATESPACEMODEL_H_
 
 #include <opencv\cv.h>
+#include <list>
 
 namespace Prediction
 {
@@ -12,7 +13,10 @@ namespace Prediction
 		StateSpaceModel(float x0 = 0, float y0 = 0);
 
 		cv::Mat A, C, Q, P, xHat;
+		std::list<float> dxHist, dyHist;
 		float R;
+
+		int hist;
 	};
 }
 

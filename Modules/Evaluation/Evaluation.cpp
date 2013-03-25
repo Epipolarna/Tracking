@@ -233,6 +233,7 @@ void Evaluation::currentFrame()
 		mismatches.push_back(frameMismatches);
 		distance.push_back(frameDistance);
 
+		
 		cout << "FrameCounter:\t" << frameCounter << endl << endl;;
 
 		cout << "Matches:\t" << matches.back() << endl;
@@ -240,7 +241,7 @@ void Evaluation::currentFrame()
 		cout << "False Positive:\t" << falsePositive.back() << endl;
 		cout << "Mismatches:\t" << mismatches.back() << endl;
 		cout << "Distance:\t" << distance.back()	<< endl;
-
+		
 		frameCounter++;
 
 		// Calculate MOTP & MOTA
@@ -265,7 +266,7 @@ void Evaluation::MOTP()
 	{
 		motpValue = sumDistance/sumMatches;
 	}
-	cout << "MOTP:\t\t" << motpValue << endl;
+	//cout << "MOTP:\t\t" << motpValue << endl;
 }
 
 void Evaluation::MOTA()
@@ -283,7 +284,7 @@ void Evaluation::MOTA()
 	{
 		motaValue = 1 - (sumMisses + sumFalsePositive + sumMismatches)/sumNumberOfObjects;
 	}
-	cout << "MOTA:\t\t" << motaValue << endl;
+	//cout << "MOTA:\t\t" << motaValue << endl;
 }
 
 #define PUTTEXT(x,y,text) putText(infoDisplayMatrix, text, Point(x, y), fontFace, fontScale, Scalar::all(0), thickness, 8);
@@ -310,11 +311,11 @@ void Evaluation::displayInfo(string windowID)
 	PUTTEXT(leftTab, l, "MOTA:");			PUTTEXT(rightTab, l, to_string(motaValue));					l += 35;	
 	PUTTEXT(leftTab, l, "MOTP:");			PUTTEXT(rightTab, l, to_string(motpValue));					l += 35;
 	l += 35;
-	PUTTEXT(leftTab, l, "Matches:");		PUTTEXT(rightTab, l, to_string((int)sumMatches));			l += 35;	
-	PUTTEXT(leftTab, l, "Misses:");			PUTTEXT(rightTab, l, to_string((int)sumMisses));			l += 35;	
-	PUTTEXT(leftTab, l, "False Positive:");	PUTTEXT(rightTab, l, to_string((int)sumFalsePositive));		l += 35;	
-	PUTTEXT(leftTab, l, "Mismatches:");		PUTTEXT(rightTab, l, to_string((int)sumMismatches));		l += 35;	
-	PUTTEXT(leftTab, l, "Distance:");		PUTTEXT(rightTab, l, to_string(sumDistance));				l += 35;	
+	PUTTEXT(leftTab, l, "Matches:");		PUTTEXT(rightTab, l, to_string(matches.back()));					l += 35;	
+	PUTTEXT(leftTab, l, "Misses:");			PUTTEXT(rightTab, l, to_string(misses.back()));			l += 35;	
+	PUTTEXT(leftTab, l, "False Positive:");	PUTTEXT(rightTab, l, to_string(falsePositive.back()));		l += 35;	
+	PUTTEXT(leftTab, l, "Mismatches:");		PUTTEXT(rightTab, l, to_string(mismatches.back()));		l += 35;	
+	PUTTEXT(leftTab, l, "Precision:");		PUTTEXT(rightTab, l, to_string(distance.back()));				l += 35;	
 
 	imshow( windowID.c_str(), infoDisplayMatrix);
 }

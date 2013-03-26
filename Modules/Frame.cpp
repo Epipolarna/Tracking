@@ -28,9 +28,9 @@ void Frame::drawObjects(Scalar color)
 		rectangle(image, Point(x, y), 
 						 Point(x_w, y_h), 
 						 color, 1, 8);
-		line(image, Point(it->x, it->y), Point(it->x + (int)(it->dx), it->y + (int)(it->dy)), color, 2 ,8);
+		line(image, Point(it->x, it->y), Point(it->x + (int)(it->dx*30), it->y + (int)(it->dy*30)), color, 2 ,8);
 
-		std::string objectText = "("+std::to_string(it->x)+","+std::to_string(it->y)+") id:"+std::to_string(it->id)+" ["+std::to_string(it->isParent)+"|"+std::to_string(it->isChild)+"|"+std::to_string(it->isHidden)+"|"+std::to_string(it->isLost)+"]";
+		std::string objectText = "("+std::to_string(it->x)+","+std::to_string(it->y)+") id:"+std::to_string(it->id);
 		int fontFace = CV_FONT_HERSHEY_COMPLEX;
 		double fontScale = 0.3;
 		int thickness = (int)0.3;

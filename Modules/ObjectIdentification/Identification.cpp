@@ -115,19 +115,26 @@ namespace Identification
 
 
 	bool object_compare(Object & l, Object & r) { return l.id == r.id; }
-
+	
 	void Identifier::algorithm_ultimate(std::list<Frame> & frames)
 	{
 		Frame * current = &frames.front();
 		Frame * previous = &(*(++frames.begin()));
 				
+		static int i = 0;
+
+		i++;
+		if(i == 294)
+			std::cout << "ojo\n";
+
 		static std::list<Object> decidedPrevious, decidedCurrent;
 
 		static std::list<Object*> parents, children;
 		static std::vector<Object*> undecidedPrevObject, undecidedCurrObject;
 		static std::list<std::list<Error>> errorMap;
 		static std::list<Error> parentError;
-		float error, distanceError;
+		static int acceptedSizeChange = 10;
+		float error, distanceError, areaError;
 		int pIndex;
 
 		decidedPrevious.clear();
@@ -152,13 +159,20 @@ namespace Identification
 		
 		for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
 		{
-			//p->isChild = false;
+			p->isChild = false;
 			p->isParent = false;
-			p->isLost = false;
+			//p->isLost = false;
 			p->isDecided = false;
 			p->children.clear();
 			p->parents.clear();
+			//undecidedPrevObject.push_back(&(*p));
 		}
+		/*
+		for(std::vector<Object>::iterator c = current->objects.begin(); c != current->objects.end(); c++)
+		{
+			undecidedCurrObject.push_back(&(*c));
+		}
+		*/
 
 		// Find parents and children
 		for(std::vector<Object>::iterator c = current->objects.begin(); c != current->objects.end(); c++)
@@ -181,13 +195,17 @@ namespace Identification
 					int index = 1;
 					for(std::list<Object*>::iterator child = c->children.begin(); child != c->children.end(); child++)
 					{
-						std::cout << "\t Child " << std::to_string(index++) << ": " << c->children.front()->id << "\n";
+						std::cout << "\t Child " << std::to_string(index++) << ": " << (*child)->id << "\n";
 					}
 				}
 			}
 			if(!c->isParent)
 				undecidedCurrObject.push_back(&(*c));
 		}
+
+		// Remove duplicates in parent list
+		parents.sort();
+		parents.unique();
 
 		// Find undecided Previous objects (those who are not children)
 		for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
@@ -213,7 +231,9 @@ namespace Identification
 				for(std::list<Object*>::iterator p = (*child)->parents.begin(); p != (*child)->parents.end(); p++)
 				{
 					distanceError = std::pow((*child)->x - (*p)->x - (*p)->dx, 2) + std::pow((*child)->y - (*p)->y - (*p)->dy, 2);
-					error = distanceError;
+					areaError = std::pow(std::abs((*child)->width - (*p)->width) + std::abs((*child)->width - (*p)->width), 2);
+					error = distanceError + areaError;
+
 					parentError.push_back(Error(0, *p, 0, error));
 				}
 				parentError.sort();
@@ -261,19 +281,38 @@ namespace Identification
 				(*parent)->model = (*parent)->children.front()->model;
 				(*parent)->children.front()->isChild = false;
 				(*parent)->isParent = false;
+
+				// Force slow width/height changes
+				Object * c = (*parent);
+				Object * p = (*parent)->children.front();
+				if(std::abs(c->width - p->width) > acceptedSizeChange)
+					c->width = p->width + sign(c->width - p->width)*acceptedSizeChange;
+				if(std::abs(c->height - p->height) > acceptedSizeChange)
+					c->height = p->height + sign(c->height - p->height)*acceptedSizeChange;
+
 				decidedCurrent.push_back(**parent);
 			}
 			else
 			{
 				// Debug
 				std::cout << "Parent with " << (*parent)->children.size() << " children\n";
-				std::cout << "\t Child 1: " << (*parent)->children.front()->id << "n";
+				std::cout << "\t Child 1: " << (*parent)->children.front()->id << "\n";
 				
 				// Visualise Parent
 				std::string objectText = "Parent (";
 
 				for(std::list<Object*>::iterator child = (*parent)->children.begin(); child != (*parent)->children.end(); child++)
 				{
+					/*
+					// Force slow width/height changes
+					Object * c = (*child);
+					Object * p = (*parent);
+					if(std::abs(c->width - p->width) > acceptedSizeChange)
+						c->width = p->width + sign(c->width - p->width)*acceptedSizeChange;
+					if(std::abs(c->height - p->height) > acceptedSizeChange)
+						c->height = p->height + sign(c->height - p->height)*acceptedSizeChange;
+					*/
+
 					// Adjust width & height of child to fit inside of the parent
 					float widthDiff =  (*child)->width - (*parent)->width;
 					float heightDiff = (*child)->height - (*parent)->height;
@@ -288,16 +327,14 @@ namespace Identification
 					float topDiff    = ((*parent)->y-(*parent)->height/2) - ((*child)->y-(*child)->height/2);
 					float bottomDiff = ((*child)->y+(*child)->height/2)   - ((*parent)->y+(*parent)->height/2);
 					if(leftDiff > 0)
-						{(*child)->x += leftDiff;	(*child)->xHat += leftDiff;}
+						{(*child)->x += leftDiff;	(*child)->xHat += leftDiff; (*child)->model.xHat.ptr<float>()[0] += leftDiff; }
 					if(rightDiff > 0)
-						{(*child)->x -= rightDiff;	(*child)->xHat -= rightDiff;}
+						{(*child)->x -= rightDiff;	(*child)->xHat -= rightDiff; (*child)->model.xHat.ptr<float>()[0] -= rightDiff; }
 					if(topDiff > 0)
-						{(*child)->y+= topDiff;		(*child)->yHat += topDiff;}
+						{(*child)->y+= topDiff;		(*child)->yHat += topDiff; (*child)->model.xHat.ptr<float>()[1] += topDiff; }
 					if(bottomDiff > 0)
-						{(*child)->y-= bottomDiff;	(*child)->yHat -= bottomDiff;}
-
-
-
+						{(*child)->y-= bottomDiff;	(*child)->yHat -= bottomDiff; (*child)->model.xHat.ptr<float>()[1] -= bottomDiff; }
+					
 					// Add child as decided 'current'.
 					decidedCurrent.push_back(**child);
 
@@ -326,7 +363,8 @@ namespace Identification
 			for(std::vector<Object*>::iterator p = undecidedPrevObject.begin(); p != undecidedPrevObject.end(); p++)
 			{
 				distanceError = std::pow((*c)->x - (*p)->x - (*p)->dx, 2) + std::pow((*c)->y - (*p)->y - (*p)->dy, 2);
-				error = distanceError;
+				areaError = std::pow(std::abs((*c)->width - (*p)->width) + std::abs((*c)->width - (*p)->width), 2);
+				error = distanceError + areaError;
 
 				errorMap.back().push_back(Error(*c, *p, pIndex, error));
 				pIndex++;
@@ -341,9 +379,18 @@ namespace Identification
 			errorMap.front().front().current->id = errorMap.front().front().previous->id;
 			errorMap.front().front().current->model = errorMap.front().front().previous->model;
 			errorMap.front().front().current->isDecided = true;
+						
+			// Force slow width/height changes
+			Object * c = errorMap.front().front().current;
+			Object * p = errorMap.front().front().previous;
+			if(std::abs(c->width - p->width) > acceptedSizeChange)
+				c->width = p->width + sign(c->width - p->width)*acceptedSizeChange;
+			if(std::abs(c->height - p->height) > acceptedSizeChange)
+				c->height = p->height + sign(c->height - p->height)*acceptedSizeChange;
 
 			decidedCurrent.push_back(*errorMap.front().front().current);
 			decidedCurrent.back().model = errorMap.front().front().previous->model;
+
 
 			// Remove all occurances of this currentObject
 			for(std::list<std::list<Error>>::iterator errorMapI = ++(errorMap.begin()); errorMapI != errorMap.end(); errorMapI++)
@@ -374,14 +421,32 @@ namespace Identification
 			}
 		}
 
+		/*
+		// Any previous object not decided is assumed to be lost
+		for(std::vector<Object*>::iterator c = undecidedPrevObject.begin(); c != undecidedPrevObject.end(); c++)
+		{
+			if(!(*c)->isDecided)
+			{
+				(*c)->isLost = true;
+				decidedCurrent.push_back(**c);
+			}
+		}*/
+		
+
+		int before = decidedCurrent.size();
+
 		// Remove duplicates (why tho??? :/U)
-		decidedCurrent.sort();
-		decidedCurrent.unique(object_compare);
+		//decidedCurrent.sort();
+		//decidedCurrent.unique(object_compare);
+
+		//if(before > decidedCurrent.size())
+		//	std::cout << "FrameSize: " << frames.size() << "\n";
 
 		current->objects.clear();
 		std::copy(decidedCurrent.begin(), decidedCurrent.end(), back_inserter(current->objects));
 
-		std::cout << "objectAmount: " << current->objects.size() << "\n";
+		//std::cout << "objectAmount: " << current->objects.size() << "\n";
+
 
 	}
 

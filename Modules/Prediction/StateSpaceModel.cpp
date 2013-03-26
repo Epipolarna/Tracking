@@ -11,7 +11,9 @@ namespace Prediction
 		// y(t)   = Cx(t) + v(t),	R = var(v(t))
 
 		// The number of frames to rember for velocity smoothing
-		hist = 5;
+		smoothingHistoryAmount = 5;
+		hasConverged = false;
+		preConvergenceIteration = 1;
 		
 		float AData[] = {	1, 0, 1, 0,
 							0, 1, 0, 1,
@@ -24,7 +26,7 @@ namespace Prediction
 		C = cv::Mat(2, 4, CV_32FC1, CData).clone();
 		
 		float posCov = 10.0f;
-		float velCov = 1.0f;
+		float velCov = 5.0f;
 		float PData[] = {	posCov, 0, 0, 0,
 							0, posCov, 0, 0,
 							0, 0, velCov, 0,
@@ -34,7 +36,7 @@ namespace Prediction
 
 		//float Qvalue = 50.1f;
 		float posVar = 200.0f;
-		float velVar = 0.01f;
+		float velVar = 10.01f;
 		float QData[] = {	posVar, 0, 0, 0,
 							0, posVar, 0, 0,
 							0, 0, velVar, 0,

@@ -34,24 +34,24 @@ namespace Prediction
 			y = Mat(2, 1, CV_32FC1, yData);
 
 			// If object is not found in current frame perform only Time Update
-			if (i->isChild != true)
+			if (i->isChild != true && i->isLost != true)
 			{
 				MeasurementUpdate(i);
-				//xHat[0] = i->xHat;
-				//xHat[1] = i->yHat;
 			}
 			TimeUpdate(i);
-
 
 			xHat = i->model.xHat.ptr<float>();
 			i->xHat = xHat[0];
 			i->yHat	= xHat[1];
 
+
+
+
 			// Smooth velocity with 5 latest measurements
 			i->model.dxHist.push_front(xHat[2]);
 			i->model.dyHist.push_front(xHat[3]);
 
-			if (i->model.dxHist.size() > i->model.hist)
+			if (i->model.dxHist.size() > i->model.smoothingHistoryAmount)
 			{
 				i->model.dxHist.pop_back();
 				i->model.dyHist.pop_back();
@@ -59,6 +59,7 @@ namespace Prediction
 
 			float dxMean = 0;
 			float dyMean = 0;
+			float sampleAmount = i->model.smoothingHistoryAmount;
 			
 			for (list<float>::iterator j = i->model.dxHist.begin(); j != i->model.dxHist.end(); j++)
 			{
@@ -68,17 +69,34 @@ namespace Prediction
 			{
 				dyMean += *j;
 			}
+			/*
+			if(!i->model.hasConverged)
+			{
+				if(i->model.preConvergenceIteration < i->model.smoothingHistoryAmount)
+				{
+					sampleAmount = i->model.preConvergenceIteration;
+					i->model.preConvergenceIteration++;
+				}
+				else
+					i->model.hasConverged = true;
 
-			dxMean = dxMean/(float)i->model.hist;
-			dyMean = dyMean/(float)i->model.hist;
+				dxMean = xHat[2];
+				dyMean = xHat[3];
+				std::cout << "hasNotConverged!!!\n";
+			}
+			else
+			{
+			}*/
+				dxMean = dxMean/sampleAmount;
+				dyMean = dyMean/sampleAmount;
 
-			if (i->model.dxHist.size() == i->model.hist)
+			if (i->model.dxHist.size() == i->model.smoothingHistoryAmount)
 			{
 				i->dx = dxMean;
 				i->dy = dyMean;
 			}
 
-			if (i->isChild == true)
+			if (i->isChild == true || i->isLost == true)
 			{
 				i->x = (int)floor(i->xHat + 0.5);
 				i->y = (int)floor(i->yHat + 0.5);

@@ -16,7 +16,9 @@ namespace Prediction
 		std::list<float> dxHist, dyHist;
 		float R;
 
-		int hist;
+		int smoothingHistoryAmount;
+		bool hasConverged;
+		int preConvergenceIteration;
 	};
 }
 

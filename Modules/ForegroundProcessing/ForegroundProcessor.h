@@ -2,6 +2,7 @@
 #define _FOREGROUND_PROCESSOR_H_
 
 #include "../Frame.h"
+#include "../FrameList.h"
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/opencv.hpp>
@@ -14,6 +15,7 @@ namespace ForegroundProcessing
 	{
 		FAST = 0,
 		AREA = 1,
+		SHADOW = 2,
 		SLOW
 	};
 
@@ -33,8 +35,11 @@ namespace ForegroundProcessing
 		void segmentForegroundArea(Frame & frame, int threshval, int iterations, double minArea, double minQuotient);
 		
 		// Higher performance algorithm (Hopefully) (~650ms) 
-		// Specify threshold value and minimum consour thickness 
+		// Specify threshold value and minimum contour thickness 
 		void segmentForegroundSlow(Frame & frame, int threshval, double minDist);
+
+		//Manages shadows
+		void segmentForegroundShadow(Frame & frame, int threshval, int iterations, double minArea, double minQuotient);
 
 		void init(int threshval, int Iterations, double minDist, double minArea, double minQuotient);
 		
@@ -43,13 +48,17 @@ namespace ForegroundProcessing
 			this->algorithm = algorithm; 
 		}
 
-	private:
+	private:		
+		// The shadow pixels
+		Mat shadowModel;
 		//Finds objects in a binary image and puts them in the list.
 		void getObjects(Frame & frame);
 
 		void getObjectsArea( Frame & frame, double maxArea, double minQuotient );
 		//Same as above but also performs a cleanup using the distance transform.
 		void getObjectsDistMap(Frame & frame, double minDist);
+		//manages shadows
+		void suppressShadows(Frame & frame, double minArea, double minDist);
 	
 		//Image Processing of probabilitymap.
 		void threshMap(cv::Mat probMap, int threshval);
@@ -57,6 +66,9 @@ namespace ForegroundProcessing
 		void closingBinMap(cv::Mat probMap, int iterations = 1);
 		void erodeBinMap(cv::Mat probMap, int iterations = 1);	
 		void dilateBinMap(cv::Mat probMap, int iterations = 1);
+
+		// Framecount
+		int frameCounter;
 
 		// Settings
 		Algorithm algorithm;

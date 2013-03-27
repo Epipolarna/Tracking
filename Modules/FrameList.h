@@ -50,7 +50,6 @@ private:
 	void appendFrame(IplImage *frameImage);
 
 	//Debug
-	Mat probMap;
 	Mat infoDisplayMatrix;
 };
 

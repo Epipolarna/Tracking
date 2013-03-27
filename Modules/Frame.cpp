@@ -7,7 +7,7 @@
 using namespace cv;
 using namespace std;
 
-Frame::Frame(cv::Mat image,cv::Mat probMap) : image(image),probMap(probMap)  {}
+Frame::Frame(cv::Mat image) : image(image) {}
 
 void Frame::drawObjects(Scalar color)
 {
@@ -100,7 +100,7 @@ void Frame::showImageRaw(string windowID)
 void Frame::showImageProbMap(string windowID)
 {
 	namedWindow( windowID, CV_WINDOW_AUTOSIZE );		    // Create a window for display.
-    imshow( windowID, probMap );						// Show our image inside it.
+    imshow( windowID, foreground );						// Show our image inside it.
 }
 
 

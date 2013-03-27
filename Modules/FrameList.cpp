@@ -3,7 +3,6 @@
 FrameList::FrameList(int framesToKeep)
 {
 	maxFrames = framesToKeep;
-	//probMap = imread("starsCorner.tif", CV_8UC1);
 	infoDisplayMatrix = Mat(480,720, CV_8UC3);
 }
 
@@ -50,7 +49,7 @@ bool FrameList::queryNextFrame()
 		cout << "eof reached" << endl;
 		return false;
 	}
-	oldFrames.push_front(Frame(frameImage, probMap));
+	oldFrames.push_front(Frame(frameImage));
 	currentFrameNumber++;
 	return true;
 }
@@ -95,12 +94,12 @@ void FrameList::display(std::string windowID)
 
 void FrameList::displayProbabilityMap(std::string windowID)
 {
-	imshow( windowID.c_str(), getLatestFrame().backgroundProbMap );
+	imshow( windowID.c_str(), getLatestFrame().bgModel->pImage );
 }
 
 void FrameList::displayForeground(std::string windowID)
 {
-	imshow( windowID.c_str(), getLatestFrame().probMap );
+	imshow( windowID.c_str(), getLatestFrame().foreground );
 }
 
 #define PUTTEXT(x,y,text) putText(infoDisplayMatrix, text, Point(x, y), fontFace, fontScale, Scalar::all(0), thickness, 8);

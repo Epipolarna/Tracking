@@ -23,21 +23,22 @@ int main()
 	FrameList frameList(10);	// Keep a history of up to 100 frames (might be used by some modules)
 	
 	// Modules
-	BackgroundModelling_simple::BackgroundModel backgroundModel;
+	//BackgroundModelling_simple::BackgroundModel backgroundModel;
+	BackgroundModelling::BackgroundModel backgroundModel;
 	ForegroundProcessing::ForegroundProcessor foregroundProcessor;
 	Identification::Identifier identifier;
 	Prediction::Kalman kalmanFilter;
 	Evaluation evaluate(&frameList);
 
 	// Init
-	foregroundProcessor.setAlgortihm(ForegroundProcessing::AREA);
+	foregroundProcessor.setAlgortihm(ForegroundProcessing::SHADOW);
 	foregroundProcessor.init(50, 3, 5, 50, 3);
 	identifier.init(Identification::Ultimate);
 	evaluate.readXML2FrameList("clip1.xml");
 	
 	
 	// Load frame source
-	frameList.open("camera1.mov");
+	frameList.open("clip1.mpeg");
 	
 	// Create windows
 	namedWindow("Info",CV_WINDOW_AUTOSIZE);
@@ -65,7 +66,7 @@ int main()
 		frameList.display("Tracking");
 		frameList.displayForeground("Foreground");
 		frameList.displayProbabilityMap("Background");
-		backgroundModel.display("BackgroundModel");
+		//backgroundModel.display("BackgroundModel");
 				
 		// Give the GUI time to render
 		waitKey(1);															PROFILE("Display");

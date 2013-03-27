@@ -44,10 +44,11 @@ namespace BackgroundModelling
 		ProbabilityMap *backgroundModel = new ProbabilityMap(prevFrame,currFrame);
 		currFrame->bgModel = backgroundModel;
 
-        Mat intMat;
+        //Mat intMat;
         currFrame->bgModel->pImage = currFrame->bgModel->pImage * 255;
-        currFrame->bgModel->pImage.convertTo(intMat,CV_8UC1);
-        currFrame->probMap = intMat;
+        currFrame->bgModel->pImage.convertTo( currFrame->bgModel->pImage,CV_8UC1);
+        //currFrame->probMap = intMat;
+		cout << "Type IS: " << getImgType(currFrame->bgModel->pImage.type()) << endl;
         
 
 	}

@@ -20,7 +20,7 @@ class Frame
 {
 public:
 	Frame() {}	//Default constructor, used by Tiger for testing..
-	Frame(Mat image, Mat probMap);
+	Frame(Mat image);
 	
 	//Draws the bounding boxes and velocity vectors of the objects in object list.
 	void drawObjects(cv::Scalar color);
@@ -30,7 +30,8 @@ public:
 	//Data
 	Mat image;						 //Should be 3-channel color
 	Mat backgroundProbMap;			 //Should be 3-channel color
-	Mat probMap;					 //Should be single channel grayscale
+	//Mat probMap;					 //Should be single channel grayscale
+	Mat foreground;					 //Should be single uchar (CV_8UC1)
 	std::vector<Object> objects;
 	std::map<std::string, double> profileData;	// Time in seconds
 	ProbabilityMap * bgModel;

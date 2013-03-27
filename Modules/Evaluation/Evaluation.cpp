@@ -1,10 +1,5 @@
 #include "Evaluation.h"
-#include "rapidxml.hpp"
 
-#include <iostream>
-#include <fstream>
-#include <numeric>
-#include <functional>
 #define car first
 #define cdr second
 

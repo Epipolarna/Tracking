@@ -2,6 +2,12 @@
 #define _EALUATION_H_
 
 #include "../FrameList.h"
+#include "rapidxml.hpp"
+
+#include <iostream>
+#include <fstream>
+#include <numeric>
+#include <functional>
 #include <vector>
 
 class Evaluation

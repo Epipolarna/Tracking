@@ -1,4 +1,4 @@
-The background model uses a mixture of gaussians method, looking at all three color channels in the image. The output of the background model is a reference to a frame object containing the probability of a pixel being part of the background.
+The background model uses a mixture of gaussians method, looking at all three color channels in the image. The output of the background modeling step is a matrix with probable non-objects marked, aswell as an updated model for use in the next frame.
 
 \subsubsection{Expectation maximization}
 
@@ -24,5 +24,7 @@ If no matching distribution is found, the one with the lowest weight is replaced
 The weights of a single distribution are then normalized so they sum to one.
 
 A weight is not allowed to be lower than x, and a variance can not be lower than x, in order to imporove the stability of the model. Should a weight become to low, an update will cause the variance to become so large as to match any pixel. A to low variance will result in the distribution only matching when the pixel value is the same as the mean value for the distribution.
+
+The result of the model ends up with only small (most are just one isolated pixel) ammounts of wrongly classified pixels, that are easily handled with a few morphological operations in the segmentation step.
 
 This can be seen in figure \ref{fig:BGModeling_fig}. %Referens till figur, Ger klickbar länk i pdfen.

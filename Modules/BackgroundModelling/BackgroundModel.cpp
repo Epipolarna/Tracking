@@ -41,14 +41,14 @@ namespace BackgroundModelling
 		}
 
 		//and create the acual background model
-		ProbabilityMap *backgroundModel = new ProbabilityMap(prevFrame,currFrame);
+		ProbabilityMap backgroundModel = ProbabilityMap(prevFrame,currFrame);
 		currFrame->bgModel = backgroundModel;
 
         //Mat intMat;
-        currFrame->bgModel->pImage = currFrame->bgModel->pImage * 255;
-        currFrame->bgModel->pImage.convertTo( currFrame->bgModel->pImage,CV_8UC1);
+        currFrame->bgModel.pImage = currFrame->bgModel.pImage * 255;
+        currFrame->bgModel.pImage.convertTo( currFrame->bgModel.pImage,CV_8UC1);
         //currFrame->probMap = intMat;
-		cout << "Type IS: " << getImgType(currFrame->bgModel->pImage.type()) << endl;
+		cout << "Type IS: " << getImgType(currFrame->bgModel.pImage.type()) << endl;
         
 
 	}

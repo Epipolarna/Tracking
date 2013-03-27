@@ -1,8 +1,8 @@
 /* 
 *	frame.h
 */
-#ifndef FRAME_H
-#define FRAME_H
+#ifndef _FRAME_H_
+#define _FRAME_H_
 
 #include "Object.h"
 #include "BackgroundModelling/ProbabilityMap.h"
@@ -34,7 +34,7 @@ public:
 	Mat foreground;					 //Should be single uchar (CV_8UC1)
 	std::vector<Object> objects;
 	std::map<std::string, double> profileData;	// Time in seconds
-	ProbabilityMap * bgModel;
+	ProbabilityMap bgModel;
 
 	//For debugging/showoff
 	void showObjects();

@@ -9,7 +9,7 @@ namespace ForegroundProcessing
 	////////////////// Foreground Segmentation //////////////////////
 	void ForegroundProcessor::segmentForeground(Frame & frame)
 	{
-		frame.foreground = frame.bgModel->pImage.clone();
+		frame.foreground = frame.bgModel.pImage.clone();
 		switch(algorithm)
 		{
 		case 0:
@@ -150,6 +150,8 @@ namespace ForegroundProcessing
 		{
 			//blur( current->image, blurredImage, Size( i, i ), Point(-1,-1) );
 			GaussianBlur( shadowModel, shadowModel, Size( i, i ), 0,0 );
+			//HSV stuff
+			cvtColor(shadowModel, shadowModel, CV_BGR2HSV_FULL);
 			
 		}
 
@@ -158,7 +160,9 @@ namespace ForegroundProcessing
 
 		Vec3f newColorVec, oldColorVec, tempVec;
 		Mat lastImage = frame.image.clone();
-		GaussianBlur( lastImage, lastImage, Size( i, i ), 0,0 );
+		//GaussianBlur( lastImage, lastImage, Size( i, i ), 0,0 );
+		// HSV stuff
+		cvtColor(lastImage, lastImage, CV_BGR2HSV_FULL);
 		
 		double objArea;
 		Rect objRect;
@@ -180,17 +184,13 @@ namespace ForegroundProcessing
 						{
 							Point matPos(j,k);
 							//cout << "DERPADERPA 1" << endl;
-							normalize((Vec3f)lastImage.at<Vec3b>(matPos), newColorVec, 1, NORM_L2); // (float)norm((Vec3f)frame.image.at<uchar>(j,k));
-							//cout << "DERPADERPA 1" << endl;
-							normalize((Vec3f)shadowModel.at<Vec3b>(matPos), oldColorVec, 1, NORM_L2);
-							//cout << "DERPADERPA 2" << endl;
-							//cout << "DERPADERPA 1" << endl;
-							//cout << norm(newColorVec) << endl;
-							//cout << newColorVec << endl;
-							//cout << newColorVec.dot(oldColorVec) << endl;
-							//cout << "total rows: "<< frame.foreground.size().height << "total cols: "<< frame.foreground.size().width << endl;
-							//cout << norm(shadows.at<Vec3f>(j,k)) << " row: "<< j << " col: "<< k << endl;
-							if (newColorVec.dot(oldColorVec) > 0.995) // Parallell color vectors
+							
+							//OLD STUFF
+							//normalize((Vec3f)lastImage.at<Vec3b>(matPos), newColorVec, 1, NORM_L2); 
+							//normalize((Vec3f)shadowModel.at<Vec3b>(matPos), oldColorVec, 1, NORM_L2);
+							//if (newColorVec.dot(oldColorVec) > 0.995) // Parallell color vectors
+							
+							if ( abs(lastImage.at<Vec3b>(matPos)[0] - shadowModel.at<Vec3b>(matPos)[0]) < 40 )
 							{
 								
 								frame.foreground.at<uchar>(matPos) = 0;

@@ -94,7 +94,7 @@ void FrameList::display(std::string windowID)
 
 void FrameList::displayProbabilityMap(std::string windowID)
 {
-	imshow( windowID.c_str(), getLatestFrame().bgModel->pImage );
+	imshow( windowID.c_str(), getLatestFrame().bgModel.pImage );
 }
 
 void FrameList::displayForeground(std::string windowID)

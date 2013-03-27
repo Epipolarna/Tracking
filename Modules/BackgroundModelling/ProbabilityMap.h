@@ -5,7 +5,6 @@
 #include <math.h>
 #include <iostream>
 
-#include "../Frame.h"
 #include "PixelModel.h"
 
 class Frame;
@@ -17,10 +16,14 @@ class ProbabilityMap{
 public:
 	Mat pImage;
 	
+	ProbabilityMap() {};
+	ProbabilityMap(Frame *currFrame);
 	ProbabilityMap(Frame *prevFrame, Frame *currFrame);
 
 	//private bits
 	PixelModel *models;
 };
+
+#include "../Frame.h"
 
 #endif

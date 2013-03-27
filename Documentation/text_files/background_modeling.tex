@@ -1,7 +1,10 @@
 The background model uses a mixture of gaussians method, looking at all three color channels in the image. The output of the background model is a reference to a frame object containing the probability of a pixel being part of the background.
 
 \subsubsection{Expectation maximization}
-The normal expectaion maximation algortihm is too slow to run in real time, so we use a somewhat simplified version outlined in Wood (2007).
+
+As the background is not completely static, due to camera noise and changing conditions in the scene the model needs to be dynamic aswell, for this a mixture of gaussians is used, that is updated with a variant of expectation maximization described in \cite{wood}
+
+Some optimizations... bla bla bla
 
 See code in appendix \ref{sec:BGMod_code}. %referens till kod, ger klickbar länk.
 
@@ -13,7 +16,13 @@ See code in appendix \ref{sec:BGMod_code}. %referens till kod, ger klickbar län
 \end{figure}
 
 \subsubsection{Solution}
-A pixel that belongs to the background is static over time, as the background does not move. Each pixel is assigned a model for its variance over time, that is updated with each frame. With each frame, each pixel’s intensity is compared to the model and the deviation from the modeled intensity is the probability that the pixel belongs to an object not occluding the background.
 
-Pixels determined to belong to the background in the previous frame will not have their probability models updated to prevent them from bleeding over into the background model.
+Each pixel has x different distributions, each one representing a different object that can cause the pixel to have a particular color and intensity. For each frame each pixel checks which one of the x distributions best match the current pixel value, the best match is then considered to be the correct distribution. The matched pixel has its weight in updated aswell. 
+
+If no matching distribution is found, the one with the lowest weight is replaced by a new distribution with a mean matching the current pixel value, a low weight and a relatively large variance
+
+The weights of a single distribution are then normalized so they sum to one.
+
+A weight is not allowed to be lower than x, and a variance can not be lower than x, in order to imporove the stability of the model. Should a weight become to low, an update will cause the variance to become so large as to match any pixel. A to low variance will result in the distribution only matching when the pixel value is the same as the mean value for the distribution.
+
 This can be seen in figure \ref{fig:BGModeling_fig}. %Referens till figur, Ger klickbar länk i pdfen.

@@ -1,7 +1,9 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2013.1.31)  19 MAR 2013 09:08
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (MiKTeX 2.9 64-bit) (preloaded format=pdflatex 2013.1.31)  28 MAR 2013 00:50
 entering extended mode
 **cover.tex
-(C:\Users\Marsve\Desktop\Kurser\TSBB15\Projekt\dox\Cover\cover.tex
+
+(C:\Users\Marsve\Desktop\Kurser\TSBB15\Projekt\Sven\Documentation\Cover\cover.t
+ex
 LaTeX2e <2011/06/27>
 Babel <v3.8m> and hyphenation patterns for english, afrikaans, ancientgreek, ar
 abic, armenian, assamese, basque, bengali, bokmal, bulgarian, catalan, coptic, 
@@ -384,7 +386,8 @@ Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
 \Urlmuskip=\muskip10
 Package: url 2006/04/12  ver 3.3  Verb mode for urls, etc.
 )
-(C:\Users\Marsve\Desktop\Kurser\TSBB15\Projekt\dox\Cover\cover.aux)
+(C:\Users\Marsve\Desktop\Kurser\TSBB15\Projekt\Sven\Documentation\Cover\cover.a
+ux)
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 10.
 LaTeX Font Info:    ... okay on input line 10.
 LaTeX Font Info:    Checking defaults for T1/cmr/m/n on input line 10.
@@ -459,22 +462,22 @@ LaTeX Font Info:    External font `cmex10' loaded for size
 
 
 {C:/ProgramData/MiKTeX/2.9/pdftex/config/pdftex.map} <C:/Users/Marsve/Desktop/K
-urser/TSBB15/Projekt/dox/Cover/lith_sigill_col.jpg>] (C:\Users\Marsve\Desktop\K
-urser\TSBB15\Projekt\dox\Cover\cover.aux) ) 
+urser/TSBB15/Projekt/Sven/Documentation/Cover/lith_sigill_col.jpg>]
+(C:\Users\Marsve\Desktop\Kurser\TSBB15\Projekt\Sven\Documentation\Cover\cover.a
+ux) ) 
 Here is how much of TeX's memory you used:
  3021 strings out of 493921
- 43812 string characters out of 3147279
+ 43917 string characters out of 3147279
  129965 words of memory out of 3000000
  6311 multiletter control sequences out of 15000+200000
  5161 words of font info for 19 fonts, out of 3000000 for 9000
  841 hyphenation exceptions out of 8191
  39i,8n,56p,239b,243s stack positions out of 5000i,500n,10000p,200000b,50000s
-<C:/Program Files/MiKTeX 2.9/fonts/t
-ype1/public/amsfonts/cm/cmbx10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/pub
-lic/amsfonts/cm/cmbx12.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsf
-onts/cm/cmr10.pfb><C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/c
-mr12.pfb>
-Output written on cover.pdf (1 page, 166287 bytes).
+<C:/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx10.pfb><C:
+/Program Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmbx12.pfb><C:/Program
+ Files/MiKTeX 2.9/fonts/type1/public/amsfonts/cm/cmr10.pfb><C:/Program Files/Mi
+KTeX 2.9/fonts/type1/public/amsfonts/cm/cmr12.pfb>
+Output written on cover.pdf (1 page, 166213 bytes).
 PDF statistics:
  23 PDF objects out of 1000 (max. 8388607)
  0 named destinations out of 1000 (max. 500000)

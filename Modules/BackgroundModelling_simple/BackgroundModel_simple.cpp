@@ -44,6 +44,7 @@ namespace BackgroundModelling_simple
 													    std::abs(probabilityMap.at<Vec3b>(row, col)[2] - current->image.at<Vec3b>(row, col)[2]));
 
 			*/
+		current->bgModel.estimatedBackground = probabilityMap;
 		current->bgModel.pImage = Mat::zeros(probabilityMap.size(), CV_8UC1);
 		for(int row = 4; row < probabilityMap.size().height-1; row += 3)
 			for(int col = 4; col < probabilityMap.size().width-1; col += 3)

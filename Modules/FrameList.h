@@ -31,7 +31,9 @@ public:
 
 	//Visualisation
 	void display(std::string windowID);
-	void displayProbabilityMap(std::string windowID);
+	void displayBackground(std::string windowID);
+	void displayBackgroundEstimate(std::string windowID);
+	void displayBackgroundCertainty(std::string windowID);
 	void displayForeground(std::string windowID);
 
 	void displayInfo(std::string windowID);

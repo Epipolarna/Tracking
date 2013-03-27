@@ -14,6 +14,8 @@
 #define PROFILE_TOTALTIME() frameList.setTime("Total Time", c.getTotalTime());
 #define PROFILE_TOTALFPS() frameList.setTime("Total FPS", c.getTotalFPS());
 
+void sampleDown(Mat & source, Mat & destination);
+
 int main()
 {
 	// Profiler init
@@ -31,14 +33,14 @@ int main()
 	Evaluation evaluate(&frameList);
 
 	// Init
-	foregroundProcessor.setAlgortihm(ForegroundProcessing::SHADOW);
+	foregroundProcessor.setAlgortihm(ForegroundProcessing::AREA);
 	foregroundProcessor.init(50, 3, 5, 50, 3);
 	identifier.init(Identification::Ultimate);
 	evaluate.readXML2FrameList("clip1.xml");
 	
 	
 	// Load frame source
-	frameList.open("clip1.mpeg");
+	frameList.open("camera1.mov");
 	
 	// Create windows
 	namedWindow("Info",CV_WINDOW_AUTOSIZE);
@@ -54,6 +56,8 @@ int main()
 		// Reset profiler
 		PROFILER_RESET();
 
+		sampleDown(frameList.getLatestFrame().image, frameList.getLatestFrame().image);
+		
 		// Do the nessecary processing
 		backgroundModel.update(frameList.getFrames());						PROFILE("BackgroundModel");
 		foregroundProcessor.segmentForeground(frameList.getLatestFrame());	PROFILE("ForegroundSeg.");
@@ -65,8 +69,9 @@ int main()
 		// Display result
 		frameList.display("Tracking");
 		frameList.displayForeground("Foreground");
-		frameList.displayProbabilityMap("Background");
-		//backgroundModel.display("BackgroundModel");
+		frameList.displayBackground("Background");
+		frameList.displayBackgroundEstimate("BackgroundModel");
+		//frameList.displayBackgroundCertainty("BackgroundCertainty");
 				
 		// Give the GUI time to render
 		waitKey(1);															PROFILE("Display");
@@ -90,4 +95,16 @@ int main()
 	waitKey(0);
 
 	return 0;
+}
+
+void sampleDown(Mat & source, Mat & destination)
+{
+	int stepSize = 1;
+	Mat temp = source.clone();
+	destination = Mat(temp.size().height/stepSize, temp.size().width/stepSize, CV_8UC3);		
+	for(int r1=0, r2=0; r1 < temp.size().height; r1+=stepSize, r2++){
+		for(int c1=0, c2=0; c1 < temp.size().width; c1+=stepSize, c2++){
+			destination.at<Vec3b>(r2, c2) = temp.at<Vec3b>(r1, c1);
+		}
+	}
 }

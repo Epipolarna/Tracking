@@ -11,9 +11,6 @@ namespace Identification
 	{
 		switch(algorithmName)
 		{
-		case Naive:
-			algorithm = &Identifier::algorithm_naive;
-			break;
 		case Ultimate:
 			algorithm = &Identifier::algorithm_ultimate;
 			break;
@@ -37,16 +34,6 @@ namespace Identification
 			(this->*algorithm)(frames);
 		}
 	}
-
-	void Identifier::algorithm_naive(std::list<Frame> & frames)
-	{
-		Frame * current = &frames.front();
-		Frame * previous = &(*(++frames.begin()));
-		
-		
-		
-	}
-
 	
 	bool operator<(const std::list<Error> & l, const std::list<Error> & r) { return !l.empty() && !r.empty() && l.front().error < r.front().error; }
 
@@ -121,16 +108,16 @@ namespace Identification
 		Frame * current = &frames.front();
 		Frame * previous = &(*(++frames.begin()));
 				
+		// Debug frame counters
 		static int i = 0;
-
 		i++;
-		//if(i == 294)
-		//	std::cout << "ojo\n";
+		if(i < 15)	// Start at the 15th frame
+			return;
 
+		// Debug
 		std::cout << std::to_string(i) << " ------------------\n";
 
 		static std::list<Object> decidedPrevious, decidedCurrent;
-
 		static std::list<Object*> parents, children;
 		static std::list<Object*> undecidedPrevObject, undecidedCurrObject;
 		static std::list<std::list<Error>> errorMap;
@@ -140,6 +127,7 @@ namespace Identification
 		float error, distanceError, areaError;
 		int pIndex;
 
+		// Clear all datastructures
 		decidedPrevious.clear();
 		decidedCurrent.clear();
 		parents.clear();
@@ -147,6 +135,7 @@ namespace Identification
 		undecidedPrevObject.clear();
 		undecidedCurrObject.clear();
 		errorMap.clear();
+
 		/*
 		for(std::vector<Object>::iterator i = current->objects.begin(); i != current->objects.end(); i++)
 		{

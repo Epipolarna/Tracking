@@ -13,8 +13,7 @@ namespace Identification
 	class ProbabilityContainer;
 	enum Algorithm
 	{
-		Naive = 0,
-		NearestFit,
+		NearestFit = 0,
 		Ultimate
 	};
 
@@ -29,19 +28,18 @@ namespace Identification
 	class Identifier
 	{
 	public:
-		Identifier() {uniqueIDPool = 1; algorithm = &Identifier::algorithm_naive;}
+		Identifier() {uniqueIDPool = 1; algorithm = &Identifier::algorithm_nearestFit;}
 		void identify(std::list<Frame> & frames);
-
+		
 		void init(Algorithm algorithmName);
-
+		
 	private:
 		Algorithm algorithmName;
 		void (Identifier::*algorithm)(std::list<Frame> & frames);
-
+		
 		int uniqueIDPool;
 		int newID() {return uniqueIDPool++;}
 		
-		void algorithm_naive(std::list<Frame> & frames);
 		void algorithm_nearestFit(std::list<Frame> & frames);
 		void algorithm_ultimate(std::list<Frame> & frames);
 	};

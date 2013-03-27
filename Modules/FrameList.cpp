@@ -92,10 +92,21 @@ void FrameList::display(std::string windowID)
 	imshow( windowID.c_str(), getLatestFrame().image );
 }
 
-void FrameList::displayProbabilityMap(std::string windowID)
+void FrameList::displayBackground(std::string windowID)
 {
 	imshow( windowID.c_str(), getLatestFrame().bgModel.pImage );
 }
+
+void FrameList::displayBackgroundEstimate(std::string windowID)
+{
+	imshow( windowID.c_str(), getLatestFrame().bgModel.estimatedBackground );
+}
+
+void FrameList::displayBackgroundCertainty(std::string windowID)
+{
+	imshow( windowID.c_str(), getLatestFrame().bgModel.backgroundCertainty );
+}
+
 
 void FrameList::displayForeground(std::string windowID)
 {

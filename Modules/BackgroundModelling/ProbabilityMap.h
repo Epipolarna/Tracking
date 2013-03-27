@@ -15,6 +15,8 @@ using namespace std;
 class ProbabilityMap{
 public:
 	Mat pImage;
+	Mat estimatedBackground;
+	Mat backgroundCertainty;
 	
 	ProbabilityMap() {};
 	ProbabilityMap(Frame *currFrame);

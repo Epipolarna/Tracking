@@ -34,32 +34,21 @@ namespace BackgroundModelling
 		Frame * currFrame = &frames.front();
 		Frame * prevFrame;
 		
-		if(frames.size() > 2)
+		if(frames.size() > 1){
 			prevFrame = &(*(++frames.begin()));
-		else
+		}else{
 			prevFrame = NULL;
+		}
 
 		//and create the acual background model
 		ProbabilityMap *backgroundModel = new ProbabilityMap(prevFrame,currFrame);
-		currFrame->probMap = backgroundModel->pImage;
 		currFrame->bgModel = backgroundModel;
 
-		cout << "first few positions are:";
-		cout << currFrame->probMap.at<float>(1,0) << ", ";
-		cout << currFrame->probMap.at<float>(2,0) << ", ";
-		cout << currFrame->probMap.at<float>(3,0) << endl;
-
-		cout << "first few w is: ";
-		cout << currFrame->bgModel->biggestW[0] << ", ";
-		cout << currFrame->bgModel->biggestW[4] << ", ";
-		cout << currFrame->bgModel->biggestW[20] << ", ";
-		cout << endl;
-
-		cout << "the first gauss has sigma:";
-		cout << (int)currFrame->bgModel->distributions[0].sigma[0] << ", ";
-		cout << (int)currFrame->bgModel->distributions[1].sigma[0] << ", ";
-		cout << (int)currFrame->bgModel->distributions[2].sigma[0] << ", ";
-		cout << endl << endl << endl;
+        Mat intMat;
+        currFrame->bgModel->pImage = currFrame->bgModel->pImage * 255;
+        currFrame->bgModel->pImage.convertTo(intMat,CV_8UC1);
+        currFrame->probMap = intMat;
+        
 
 	}
 	// Additional function-/methodimplementations here

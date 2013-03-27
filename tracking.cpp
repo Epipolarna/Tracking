@@ -70,7 +70,7 @@ int main()
 		frameList.display("Tracking");
 		frameList.displayForeground("Foreground");
 		frameList.displayBackground("Background");
-		frameList.displayBackgroundEstimate("BackgroundModel");
+		//frameList.displayBackgroundEstimate("BackgroundModel");
 		//frameList.displayBackgroundCertainty("BackgroundCertainty");
 				
 		// Give the GUI time to render

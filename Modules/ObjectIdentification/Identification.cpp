@@ -112,7 +112,10 @@ namespace Identification
 		static int i = 0;
 		i++;
 		if(i < 15)	// Start at the 15th frame
+		{
+			current->objects.clear();
 			return;
+		}
 
 		// Debug
 		std::cout << std::to_string(i) << " ------------------\n";

@@ -62,8 +62,8 @@ namespace ForegroundProcessing
 	{
 		threshMap(frame.foreground, threshval);
 
-		erodeBinMap(frame.foreground, 2);
-		//closingBinMap(frame.foreground, iterations);
+		//erodeBinMap(frame.foreground, 2);
+		closingBinMap(frame.foreground, iterations);
 
 		suppressShadows(frame, minArea, minQuotient);
 		cout << "DERPADERPA 1337" << endl;
@@ -160,7 +160,7 @@ namespace ForegroundProcessing
 
 		Vec3f newColorVec, oldColorVec, tempVec;
 		Mat lastImage = frame.image.clone();
-		//GaussianBlur( lastImage, lastImage, Size( i, i ), 0,0 );
+		GaussianBlur( lastImage, lastImage, Size( i, i ), 0,0 );
 		// HSV stuff
 		cvtColor(lastImage, lastImage, CV_BGR2HSV_FULL);
 		
@@ -183,49 +183,13 @@ namespace ForegroundProcessing
 						if (pointPolygonTest(contour, Point(j, k), false) >= 0) 
 						{
 							Point matPos(j,k);
-							//cout << "DERPADERPA 1" << endl;
-							
-							//OLD STUFF
 							//normalize((Vec3f)lastImage.at<Vec3b>(matPos), newColorVec, 1, NORM_L2); 
 							//normalize((Vec3f)shadowModel.at<Vec3b>(matPos), oldColorVec, 1, NORM_L2);
 							//if (newColorVec.dot(oldColorVec) > 0.995) // Parallell color vectors
-							
-							if ( abs(lastImage.at<Vec3b>(matPos)[0] - shadowModel.at<Vec3b>(matPos)[0]) < 40 )
+							//cout << abs(lastImage.at<Vec3b>(matPos)[0] - shadowModel.at<Vec3b>(matPos)[0]) << endl;
+							if ( abs(lastImage.at<Vec3b>(matPos)[0] - shadowModel.at<Vec3b>(matPos)[0]) < 50 )
 							{
-								
 								frame.foreground.at<uchar>(matPos) = 0;
-								/*
-								//cout << "DERPADERPA 2" << endl;
-								oldColorVec = (Vec3f)lastImage.at<uchar>(matPos);
-								//cout << "DERPADERPA 3" << endl;
-								oldColorVec = oldColorVec / (float)norm(oldColorVec);
-								cout << newColorVec - oldColorVec << endl;
-								//tempVec = newColorVec.cross(tempVec);
-								//cout << "DERPADERPA 5" << endl;
-								//SHADOW DETECTED
-								if ( newColorVec.dot(oldColorVec) > 0.99) 
-								{
-									//cout << "DERPADERPA 6" << endl;
-									shadows.at<Vec3f>(matPos) = oldColorVec;
-									//cout << "DERPADERPA 7" << endl;
-									frame.foreground.at<uchar>(matPos) = 128;
-									//cout << "DERPADERPA 5" << endl;
-								}
-							} 
-							else
-							{
-								//cout << "DERPADERPA 8" << endl;
-								tempVec = shadows.at<Vec3f>(matPos);
-								//cout << "DERPADERPA 9" << endl;
-								//tempVec = newColorVec.cross(tempVec);
-								//cvCrossProduct(&newColorVec, &tempVec, &tempVec);
-								//cout << "DERPADERPA 10" << endl;
-								if ( newColorVec.dot(tempVec) > 0.99 )
-								{
-									//cout << "DERPADERPA 12" << endl;
-									frame.foreground.at<uchar>(matPos) = 128;
-								}*/
-													
 							}
 						} 
 					}		

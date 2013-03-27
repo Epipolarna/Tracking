@@ -91,7 +91,7 @@ void Evaluation::readXML2FrameList(char* fileName)
 	
 	for (vector<vector<Object>>::iterator i = groundTruth.begin(); i != groundTruth.end(); i++)
 	{
-		numberOfObjects.push_back( i->size() );
+		numberOfObjects.push_back( (int)i->size() );
 	}
 	
 	cout << "Done!" << endl;
@@ -222,9 +222,9 @@ void Evaluation::currentFrame()
 	
 		//cout << "Alg part 4" << endl;
 		// Push frame variables to corresponding vector
-		matches.push_back(correspondance.at(frameCounter).size());
-		misses.push_back(groundTruth.at(frameCounter).size());
-		falsePositive.push_back(hypothesisList.size());
+		matches.push_back((int)correspondance.at(frameCounter).size());
+		misses.push_back((int)groundTruth.at(frameCounter).size());
+		falsePositive.push_back((int)hypothesisList.size());
 		mismatches.push_back(frameMismatches);
 		distance.push_back(frameDistance);
 
@@ -292,7 +292,7 @@ void Evaluation::displayInfo(string windowID)
 
 	infoDisplayMatrix = Scalar::all(200);
 	string text;
-	int baseline;
+	//int baseline;
 
 	PUTTEXT(5,25,"Evaluation info:");
 	int l = 60;

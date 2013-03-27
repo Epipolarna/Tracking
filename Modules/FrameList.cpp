@@ -16,6 +16,7 @@ void FrameList::open(std::string path)
 		frameRate = (int)source.get(CV_CAP_PROP_FPS);
 		cout << "FPS: " << frameRate << endl;
 		currentFrameNumber = 0;
+		movieSize = Size(source.get(CV_CAP_PROP_FRAME_WIDTH), source.get(CV_CAP_PROP_FRAME_HEIGHT));
 
 	}
 	else

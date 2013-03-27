@@ -217,10 +217,7 @@ namespace Identification
 				parentError.clear();
 				for(std::list<Object*>::iterator p = (*child)->parents.begin(); p != (*child)->parents.end(); p++)
 				{
-					distanceError = std::pow((*child)->x - (*p)->x - (*p)->dx, 2) + std::pow((*child)->y - (*p)->y - (*p)->dy, 2);
-					areaError = std::pow(std::abs((*child)->width - (*p)->width) + std::abs((*child)->width - (*p)->width), 2);
-					error = distanceError + areaError;
-
+					error = errorFunction(*child, *p);
 					parentError.push_back(Error(0, *p, 0, error));
 				}
 				parentError.sort();
@@ -298,26 +295,26 @@ namespace Identification
 					*/
 
 					// Adjust width & height of child to fit inside of the parent
-					float widthDiff =  (*child)->width - (*parent)->width;
-					float heightDiff = (*child)->height - (*parent)->height;
+					int widthDiff =  (int)std::floor((*child)->width - (*parent)->width);
+					int heightDiff = (int)std::floor((*child)->height - (*parent)->height);
 					if(widthDiff > 0)
 						(*child)->width -= widthDiff;
 					if(heightDiff > 0)
 						(*child)->height -= heightDiff;
 
 					// Adjust position of child to fit inside of parent
-					float leftDiff   = ((*parent)->x-(*parent)->width/2)  - ((*child)->x-(*child)->width/2);
-					float rightDiff  = ((*child)->x+(*child)->width/2)    - ((*parent)->x+(*parent)->width/2);
-					float topDiff    = ((*parent)->y-(*parent)->height/2) - ((*child)->y-(*child)->height/2);
-					float bottomDiff = ((*child)->y+(*child)->height/2)   - ((*parent)->y+(*parent)->height/2);
+					int leftDiff   = (int)std::floor(((*parent)->x-(*parent)->width/2)  - ((*child)->x-(*child)->width/2));
+					int rightDiff  = (int)std::floor(((*child)->x+(*child)->width/2)    - ((*parent)->x+(*parent)->width/2));
+					int topDiff    = (int)std::floor(((*parent)->y-(*parent)->height/2) - ((*child)->y-(*child)->height/2));
+					int bottomDiff = (int)std::floor(((*child)->y+(*child)->height/2)   - ((*parent)->y+(*parent)->height/2));
 					if(leftDiff > 0)
-						{(*child)->x += leftDiff;	(*child)->xHat += leftDiff; (*child)->model.xHat.ptr<float>()[0] += leftDiff; }
+						{(*child)->x += leftDiff;	(*child)->xHat += leftDiff; (*child)->model.xHat.ptr<float>()[0] += float(leftDiff); }
 					if(rightDiff > 0)
-						{(*child)->x -= rightDiff;	(*child)->xHat -= rightDiff; (*child)->model.xHat.ptr<float>()[0] -= rightDiff; }
+						{(*child)->x -= rightDiff;	(*child)->xHat -= rightDiff; (*child)->model.xHat.ptr<float>()[0] -= float(rightDiff); }
 					if(topDiff > 0)
-						{(*child)->y+= topDiff;		(*child)->yHat += topDiff; (*child)->model.xHat.ptr<float>()[1] += topDiff; }
+						{(*child)->y+= topDiff;		(*child)->yHat += topDiff; (*child)->model.xHat.ptr<float>()[1] += float(topDiff); }
 					if(bottomDiff > 0)
-						{(*child)->y-= bottomDiff;	(*child)->yHat -= bottomDiff; (*child)->model.xHat.ptr<float>()[1] -= bottomDiff; }
+						{(*child)->y-= bottomDiff;	(*child)->yHat -= bottomDiff; (*child)->model.xHat.ptr<float>()[1] -= float(bottomDiff); }
 					
 					// Add child as decided 'current'.
 					decidedCurrent.push_back(**child);
@@ -346,10 +343,7 @@ namespace Identification
 			pIndex = 0;
 			for(std::list<Object*>::iterator p = undecidedPrevObject.begin(); p != undecidedPrevObject.end(); p++)
 			{
-				distanceError = std::pow((*c)->x - (*p)->x - (*p)->dx, 2) + std::pow((*c)->y - (*p)->y - (*p)->dy, 2);
-				areaError = std::pow(std::abs((*c)->width - (*p)->width) + std::abs((*c)->width - (*p)->width), 2);
-				error = distanceError + areaError;
-
+				error = errorFunction(*c, *p);
 				errorMap.back().push_back(Error(*c, *p, pIndex, error));
 				pIndex++;
 			}
@@ -480,7 +474,7 @@ namespace Identification
 	const int cTEST_FRAME_HEIGHT = 360;
 
 	#define NEW_FRAME() frameList.push_back(Frame(cv::Mat(cTEST_FRAME_HEIGHT, cTEST_FRAME_WIDTH, CV_8UC3))); frameList.back().image = Scalar(0,0,0);
-	#define INSERT_OBJECT(x,y,dx,dy) frameList.back().objects.push_back(Object(x, y, dx, dy, 0, 0, 20, 60));
+	#define INSERT_OBJECT(x,y,dx,dy) frameList.back().objects.push_back(Object((int)x, (int)y, (float)dx, (float)dy, 0.0f, 0.0f, 20, 60));
 	//#define INSERT_OBJECT(x,y) frameList.back().objects.push_back(Object(x, y, 0, 0, 20, 60));
 
 	void generate_testdata(std::list<Frame> & frameList, std::string test)
@@ -488,7 +482,7 @@ namespace Identification
 		if(test == "simple1")
 		{
 			int stepLength = 10;
-			float var = 10;	// Variance
+			int var = 10;	// Variance
 			for(int i = 0; i < cTEST_FRAME_WIDTH; i+=stepLength)
 			{
 				NEW_FRAME();
@@ -520,7 +514,15 @@ namespace Identification
 
 	float randf()
 	{
-		return (float(rand()) - float(RAND_MAX)/2.0)/RAND_MAX;
+		return (float)(rand() - RAND_MAX/2.0)/RAND_MAX;
+	}
+
+	
+	float errorFunction(Object * a, Object * b)
+	{
+		float distanceError = std::pow(a->x - b->x - b->dx, 2) + std::pow(a->y - b->y - b->dy, 2);
+		float areaError = (float)std::pow(std::abs(a->width - b->width) + std::abs(a->width - b->width), 2);
+		return distanceError + areaError;
 	}
 
 };

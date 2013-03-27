@@ -59,7 +59,7 @@ namespace Prediction
 
 			float dxMean = 0;
 			float dyMean = 0;
-			float sampleAmount = i->model.smoothingHistoryAmount;
+			int sampleAmount = i->model.smoothingHistoryAmount;
 			
 			for (list<float>::iterator j = i->model.dxHist.begin(); j != i->model.dxHist.end(); j++)
 			{

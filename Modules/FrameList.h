@@ -26,6 +26,8 @@ public:
 	int getFrameRate();
 	int getCurrentFrameNumber();
 
+	Size movieSize;
+
 	//Profiling
 	void setTime(std::string name, double time);
 

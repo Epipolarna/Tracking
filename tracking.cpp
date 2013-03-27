@@ -16,6 +16,7 @@
 
 void sampleDown(Mat & source, Mat & destination);
 
+
 int main()
 {
 	// Profiler init
@@ -42,6 +43,8 @@ int main()
 	// Load frame source
 	frameList.open("camera1.mov");
 	
+	VideoWriter demo("trackingDemo.mpeg", CV_FOURCC('P','I','M','1'), 20, frameList.movieSize);
+
 	// Create windows
 	namedWindow("Info",CV_WINDOW_AUTOSIZE);
 	namedWindow("Background",CV_WINDOW_AUTOSIZE);
@@ -76,6 +79,9 @@ int main()
 		// Give the GUI time to render
 		waitKey(1);															PROFILE("Display");
 
+		// Write stuff to demo
+		demo << frameList.getLatestFrame().image;
+		
 		// Optional pause between each frame
 		// waitKey(0);
 						

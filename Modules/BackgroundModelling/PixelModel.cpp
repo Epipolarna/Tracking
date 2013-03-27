@@ -7,7 +7,7 @@ PixelModel::PixelModel(int maxRow, int maxCol){
 	rows = maxRow;
 	cols = maxCol;
 	lambda = 10;
-	alpha = 0.05;
+	alpha = 0.05f;
 	backgroundThreshold = 0.75;
 	dists = new PixelModelData[maxRow * maxCol];
 	initModel();
@@ -199,8 +199,8 @@ bool PixelModel::compare(Gauss *g1, Gauss *g2){
 	int norm2 = 0;
 
 	for(int c=0; c < NUM_CHANNELS;c++){
-		norm1 = norm1 + (g1->sigma[c] * g1->sigma[c]);
-		norm2 = norm2 + (g2->sigma[c] * g2->sigma[c]);
+		norm1 = norm1 + int(g1->sigma[c] * g1->sigma[c]);
+		norm2 = norm2 + int(g2->sigma[c] * g2->sigma[c]);
 	}
 
 	return (g1->w / sqrt(norm1)) > (g2->w / sqrt(norm2));

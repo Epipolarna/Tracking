@@ -124,16 +124,19 @@ namespace Identification
 		static int i = 0;
 
 		i++;
-		if(i == 294)
-			std::cout << "ojo\n";
+		//if(i == 294)
+		//	std::cout << "ojo\n";
+
+		std::cout << std::to_string(i) << " ------------------\n";
 
 		static std::list<Object> decidedPrevious, decidedCurrent;
 
 		static std::list<Object*> parents, children;
-		static std::vector<Object*> undecidedPrevObject, undecidedCurrObject;
+		static std::list<Object*> undecidedPrevObject, undecidedCurrObject;
 		static std::list<std::list<Error>> errorMap;
 		static std::list<Error> parentError;
 		static int acceptedSizeChange = 10;
+		static int maxError = 5000;
 		float error, distanceError, areaError;
 		int pIndex;
 
@@ -154,8 +157,6 @@ namespace Identification
 		{
 			undecidedPrevObject.push_back(&(*i));
 		}*/
-
-		std::cout << "---\n";
 		
 		for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
 		{
@@ -165,21 +166,14 @@ namespace Identification
 			p->isDecided = false;
 			p->children.clear();
 			p->parents.clear();
-			//undecidedPrevObject.push_back(&(*p));
 		}
-		/*
-		for(std::vector<Object>::iterator c = current->objects.begin(); c != current->objects.end(); c++)
-		{
-			undecidedCurrObject.push_back(&(*c));
-		}
-		*/
-
+		
 		// Find parents and children
 		for(std::vector<Object>::iterator c = current->objects.begin(); c != current->objects.end(); c++)
 		{
 			for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
 			{
-				if(p->containedAreaQuotient(*c) > 0.2)	// p (previous object) is a child of c (current object)
+				if(!p->isLost && p->containedAreaQuotient(*c) > 0.2)	// p (previous object) is a child of c (current object)
 				{
 					parents.push_back(&(*c));
 					children.push_back(&(*p));
@@ -188,14 +182,14 @@ namespace Identification
 					c->isParent = true;
 					p->isChild = true;
 
-					if(c->children.size() > 2)
-						std::cout << "ohnoes\n";
+					//if(c->children.size() > 2)
+						//std::cout << "ohnoes\n";
 
-					std::cout << ">Parent with " << c->children.size() << " children\n";
+					//std::cout << ">Parent with " << c->children.size() << " children\n";
 					int index = 1;
 					for(std::list<Object*>::iterator child = c->children.begin(); child != c->children.end(); child++)
 					{
-						std::cout << "\t Child " << std::to_string(index++) << ": " << (*child)->id << "\n";
+						//std::cout << "\t Child " << std::to_string(index++) << ": " << (*child)->id << "\n";
 					}
 				}
 			}
@@ -203,7 +197,7 @@ namespace Identification
 				undecidedCurrObject.push_back(&(*c));
 		}
 
-		// Remove duplicates in parent list
+		// Remove duplicates in parent list (possible speed up: Use bool array for check and dynamic range of memset:false before anything)
 		parents.sort();
 		parents.unique();
 
@@ -225,8 +219,9 @@ namespace Identification
 			}
 			else
 			{
-				std::cout << ">>A child has multiple parents<<\n";
-				// Which parent is the most likely? <TODO>
+				//std::cout << ">>A child has multiple parents<<\n";
+
+				// Which parent is the most likely?
 				parentError.clear();
 				for(std::list<Object*>::iterator p = (*child)->parents.begin(); p != (*child)->parents.end(); p++)
 				{
@@ -264,9 +259,6 @@ namespace Identification
 					}
 				}
 			}
-			
-			// The child is now decided, remove it from undecidedPrevObjects
-			// ...
 		}
 
 
@@ -295,8 +287,8 @@ namespace Identification
 			else
 			{
 				// Debug
-				std::cout << "Parent with " << (*parent)->children.size() << " children\n";
-				std::cout << "\t Child 1: " << (*parent)->children.front()->id << "\n";
+				//std::cout << "Parent with " << (*parent)->children.size() << " children\n";
+				//std::cout << "\t Child 1: " << (*parent)->children.front()->id << "\n";
 				
 				// Visualise Parent
 				std::string objectText = "Parent (";
@@ -343,24 +335,24 @@ namespace Identification
 				}
 
 				// Visualise Parent
-				objectText[objectText.size()-2] = ')';
+				objectText[objectText.size()-1] = ')';
 				rectangle(current->image, Point((*parent)->x-(*parent)->width/2, (*parent)->y-(*parent)->height/2), 
 											Point((*parent)->x+(*parent)->width/2,   (*parent)->y+(*parent)->height/2), 
 											Scalar(250, 0, 250), 1, 8);
 				int fontFace = CV_FONT_HERSHEY_COMPLEX;
 				double fontScale = 0.3;
 				int thickness = (int)0.3;
-				putText(current->image, objectText, Point((*parent)->x+(*parent)->width/2, (*parent)->y-(*parent)->height+10), fontFace, fontScale, Scalar::all(255), thickness, 8);
+				putText(current->image, objectText, Point((*parent)->x+(*parent)->width/2, (*parent)->y-(*parent)->height/2+10), fontFace, fontScale, Scalar::all(255), thickness, 8);
 			}
 		}
 		
 		
 		// Calculate the error between each previous object and each current object
-		for(std::vector<Object*>::iterator c = undecidedCurrObject.begin(); c != undecidedCurrObject.end(); c++)
+		for(std::list<Object*>::iterator c = undecidedCurrObject.begin(); c != undecidedCurrObject.end(); c++)
 		{
 			errorMap.push_back(std::list<Error>());
 			pIndex = 0;
-			for(std::vector<Object*>::iterator p = undecidedPrevObject.begin(); p != undecidedPrevObject.end(); p++)
+			for(std::list<Object*>::iterator p = undecidedPrevObject.begin(); p != undecidedPrevObject.end(); p++)
 			{
 				distanceError = std::pow((*c)->x - (*p)->x - (*p)->dx, 2) + std::pow((*c)->y - (*p)->y - (*p)->dy, 2);
 				areaError = std::pow(std::abs((*c)->width - (*p)->width) + std::abs((*c)->width - (*p)->width), 2);
@@ -376,21 +368,33 @@ namespace Identification
 		for(int i = 0; i < std::min(undecidedCurrObject.size(), undecidedPrevObject.size()); i++)
 		{
 			errorMap.sort();
-			errorMap.front().front().current->id = errorMap.front().front().previous->id;
-			errorMap.front().front().current->model = errorMap.front().front().previous->model;
-			errorMap.front().front().current->isDecided = true;
-						
-			// Force slow width/height changes
+									
+			if(errorMap.front().front().error > maxError)
+				break;
+			
 			Object * c = errorMap.front().front().current;
 			Object * p = errorMap.front().front().previous;
+			c->id = p->id;
+			c->model = p->model;
+			c->isDecided = true;
+			c->isLost = false;
+						
+			// Force slow width/height changes
 			if(std::abs(c->width - p->width) > acceptedSizeChange)
 				c->width = p->width + sign(c->width - p->width)*acceptedSizeChange;
 			if(std::abs(c->height - p->height) > acceptedSizeChange)
 				c->height = p->height + sign(c->height - p->height)*acceptedSizeChange;
 
-			decidedCurrent.push_back(*errorMap.front().front().current);
-			decidedCurrent.back().model = errorMap.front().front().previous->model;
+			decidedCurrent.push_back(*c);
+			decidedCurrent.back().model = p->model;
 
+			// Remove from undecidedPrevious
+			for(std::list<Object*>::iterator up = undecidedPrevObject.begin(); up != undecidedPrevObject.end(); up++)
+				if((*up)->id == p->id)
+				{
+					undecidedPrevObject.erase(up);
+					break;
+				}
 
 			// Remove all occurances of this currentObject
 			for(std::list<std::list<Error>>::iterator errorMapI = ++(errorMap.begin()); errorMapI != errorMap.end(); errorMapI++)
@@ -398,7 +402,7 @@ namespace Identification
 				std::list<Error>::iterator errorI = errorMapI->begin();
 				while(errorI != errorMapI->end())
 				{
-					if(errorI->current == errorMap.front().front().current)
+					if(errorI->current == c)
 					{
 						errorMapI->erase(errorI);
 						break;
@@ -412,7 +416,7 @@ namespace Identification
 		}
 
 		// Any current object not decided is assumed to be a new object
-		for(std::vector<Object*>::iterator c = undecidedCurrObject.begin(); c != undecidedCurrObject.end(); c++)
+		for(std::list<Object*>::iterator c = undecidedCurrObject.begin(); c != undecidedCurrObject.end(); c++)
 		{
 			if(!(*c)->isDecided)
 			{
@@ -421,33 +425,58 @@ namespace Identification
 			}
 		}
 
-		/*
+		
 		// Any previous object not decided is assumed to be lost
-		for(std::vector<Object*>::iterator c = undecidedPrevObject.begin(); c != undecidedPrevObject.end(); c++)
+		for(std::list<Object*>::iterator c = undecidedPrevObject.begin(); c != undecidedPrevObject.end(); c++)
 		{
 			if(!(*c)->isDecided)
 			{
 				(*c)->isLost = true;
 				decidedCurrent.push_back(**c);
 			}
-		}*/
+		}
+
+		// Any object outside of the image or on their way out should be removed!
+		if(!decidedCurrent.empty())
+		{
+			std::list<Object>::iterator c = decidedCurrent.begin();
+			while(c != decidedCurrent.end())
+			{
+				if(c->x - c->width/2 + c->dx*2 < 0 || c->x + c->width/2 + c->dx*2 > current->image.size().width || c->y - c->height/2 + c->dy*2 < 0 || c->y + c->height/2 + c->dy*2 > current->image.size().height)
+					decidedCurrent.erase(c++);
+				else if(c->x - c->width/2 < 0 || c->x + c->width/2 > current->image.size().width || c->y - c->height/2 < 0 || c->y + c->height/2 > current->image.size().height)
+					decidedCurrent.erase(c++);
+				else
+					c++;
+			}
+		}
+
+
+		// Duplicates can still occure, why?
+		decidedCurrent.sort();
+		decidedCurrent.unique();
 		
-
-		int before = decidedCurrent.size();
-
-		// Remove duplicates (why tho??? :/U)
-		//decidedCurrent.sort();
-		//decidedCurrent.unique(object_compare);
-
-		//if(before > decidedCurrent.size())
-		//	std::cout << "FrameSize: " << frames.size() << "\n";
-
+		// Set which the actual current objects are
 		current->objects.clear();
 		std::copy(decidedCurrent.begin(), decidedCurrent.end(), back_inserter(current->objects));
 
-		//std::cout << "objectAmount: " << current->objects.size() << "\n";
-
-
+		//Debug: print all objects and their status
+		int n;
+		for(std::list<Object>::iterator c = decidedCurrent.begin(); c != decidedCurrent.end(); c++)
+		{
+			std::cout << "Object " << std::to_string(c->id) << ": ";
+			if(c->isLost) std::cout << "LOST";
+			if(c->isChild) std::cout << "CHILD";
+			if(c->isParent) std::cout << "PARENT";
+			std::cout << "\n";
+			n = 0;
+			if(c->isParent)
+				for(std::list<Object*>::iterator child = c->children.begin(); child != c->children.end(); c++, n++)
+					std::cout << "\tChild " << std::to_string(n) << ": " << std::to_string((*child)->id) << "\n";
+		}
+		std::cout << std::to_string(decidedCurrent.size()) << " Objects in total\n";
+				
+		
 	}
 
 

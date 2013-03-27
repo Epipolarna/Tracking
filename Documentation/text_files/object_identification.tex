@@ -18,21 +18,27 @@ $$
 $$
   Error_{total} = Error_{distance} + Error_{area}
 $$
-If the error is larger than 5000 the error is considered to large and two objects separated by such high error are considered not possibly the same.
-\\\\
-An error of 5000 equals approximatly
+If the error is larger than 5000 the error is considered to large and two objects separated by such high error are considered not possibly the same.\\
+\newline
+An error of 5000 equals approximately
 \begin{easylist}
-&Approximatly 70 pixels in x- and y-direction apart and having the exact same width/height.
-&Approximatly 70 pixels in x- and y-direction apart and having the exact same width/height.
+& 70 pixels in x- and y-direction apart and having the exact same width/height.
 \end{easylist}
 
 
 \subsubsection{Algorithms}
+\textbf{Nearest Fit} \\
+The 'Nearest Fit' algorithm matches previous and current objects by minimizing the total error above (global optimum). No occlusion is handled. \\
+\newline
+\textbf{Ultimate}\\
+The 'Ultimate' algorithm concentrates on solving the occlusion situations described in that section. It focus on parent-child relationships between previous objects and new objects. It minimizes the total error above when deciding which the best parent is for a child (if it seems to have multiple), or when to pair up previous-current objects not overlapping. See the flow chart below. \\
+\newline
 See code in appendix \ref{sec:ObjID_code}. %referens till kod, ger klickbar länk.
 
+\newpage
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=\linewidth]{images/data_flow_identification.png}
-	\caption{\textit{Object Identification flowchart.}}
+	\includegraphics[width=116mm]{images/data_flow_identification.png}
+	\caption{\textit{Object Identification flowchart (The 'Ultimate' algorithm).}}
 	\label{fig:ObjID_fig} %Skapar referens till figuren
 \end{figure}

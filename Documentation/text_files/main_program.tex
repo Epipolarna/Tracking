@@ -2,12 +2,7 @@ The main program is composed of two parts. The first one is initiation part, whe
 
 
 \subsubsection{Main loop}
-After the background model has been updated, the foreground processing module is called upon to perform some noise removal and to detect all the interesting regions in the image (the regions considered to be foreground by the background model)
-
-Once all the interesting regions are labeled, the identification module takes all the created objects in the current frame and associates them with the proper ID. This is done by comparison with the objects in the previous frame.
-
-To help in the labeling process we use a Kalman predictor, that predicts the position of the each object in the next frame. The Prediction module is called upon after the identification is done.
-
+The separate modules are called in the order described above.
 Once all the processing in the module is finished the objects in the current frame are drawn in the current frame as bounding boxes with velocity vectors, position in pixel coordinates and ID numbers.
 
 
@@ -15,8 +10,8 @@ See code in appendix \ref*{sec:Main_code}. %referens till kod, ger klickbar länk
 
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=\linewidth]{images/acatisfinetoo}
-	\caption{\textit{Some flowchart of main program.}}
+%	\includegraphics[width=\linewidth]{images/acatisfinetoo}
+	\caption{\textit{Flowchart of main program.}}
 	\label{fig:MainProgram_fig} %Skapar referens till figuren
 \end{figure}
 

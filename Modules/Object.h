@@ -19,6 +19,8 @@ public:
 	float xHat, yHat;
 	float dx, dy;
 
+	float error;
+
 	Prediction::StateSpaceModel model;
 
 	std::list<Object*> children, parents;

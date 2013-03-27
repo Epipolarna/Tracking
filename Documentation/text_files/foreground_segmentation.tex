@@ -1,21 +1,9 @@
-The Foreground segmentation is performed by the foreground processor module. The purpose of the foreground processor is to, 
-from the probability map, decide which regions are interesting and create an object for each interesting region, and add 
-these to the object vector of the frame. \\
+The Foreground segmentation is performed by the foreground processor module. The purpose of the foreground processor is to, from the probability map, decide which regions are interesting and create an object for each interesting region, and add these to the object vector of the frame. The shadow suppression is a part of the foreground processing. \\
 \newline
-The foreground processing is done by the foreground processor and there are two different algorithms implemented at the 
-moment, one for real-time processing and the other for off-line processing. Which one of these that is to be used is 
-specified by the algorithm enumerator during the initiation of the foreground processor object. \\
-\newline
-The foreground processor is initiated by picking one algorithm and setting appropriate parameter values using the 
-\emph{init} command. After being initiated, the foreground processor is called using the \emph{segmentForeground} 
-command, which takes the current frame as an input. For more info, see appendix \ref{sec:ForeGroundSeg_code}.
+The foreground processor is initiated by setting appropriate parameter values using the \emph{init} command. After being initiated, the foreground processor is called using the \emph{segmentForeground} command, which takes the current frame as an input. For more info, see appendix \ref{sec:ForeGroundSeg_code}.
 
 \subsubsection{Morphological cleanup}
-The first step in the foreground segmentation process is to threshold the probability map at some appropriate value 
-and create a binary image where everything but the foreground objects are set to zero. By performing some simple 
-morphological erode/dilate iterations at least some of the noise is removed, after which, in case the fast algorithm 
-is selected, the object detection algorithm is used. If off-line processing is chosen a distance transform of each 
-detected region is a calculated, and objects that are not "thick" enough are assumed to be garbage, and are ignored.
+The first step in the foreground segmentation is to perform an initial simple cleanup of the background using one erode iteration. This performs a very good cleanup since most of the noise in the backround model is in form of single pixels, all of which are removed by the erode operation. After the first erode the shadow suppression algorithm is called to get rid of shadows, which the background model can't handle (see section 2.5). The output of the shadow suppression algorithm is then subject to several more steps of erode/dilate operations before the actual object detection.
 
 %\begin{figure}[htb]
 %	\centering
@@ -25,6 +13,4 @@ detected region is a calculated, and objects that are not "thick" enough are ass
 %\end{figure}
 
 \subsubsection{Object detection}
-To detect the regions the OpenCV command \emph{findContours} is used. This will extract all contours in the image. The shadow handling function is the called with the extracted contours so detect what part od the contour that is made up from shadows. For each detected contour a bounding rectangle of the type \emph{cv::Rect} is created and, from this rectangle an 
-\emph{object} is created. All of the detected objects are then put into the Frame's object vector, 
-and the foreground processing is complete.
+To detect the regions the OpenCV command \emph{findContours} is used. For each detected contour, if it is large enough (to remove more garbage), a bounding rectangle of the type \emph{cv::Rect} is created and, from this rectangle an \emph{object} is created. All of the detected objects are then put into the Frame's object vector, and the foreground processing is complete.

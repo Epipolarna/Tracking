@@ -1,14 +1,17 @@
 #include "PixelModel.h"
 
-//TODO Det blir ett segfault
-//TODO sort gausses at the end, and remove the linear search
-
 PixelModel::PixelModel(int maxRow, int maxCol){
-	rows = maxRow;
-	cols = maxCol;
+
+    //Parameters, tunable
 	lambda = 10;
 	alpha = 0.05f;
 	backgroundThreshold = 0.75;
+    minSigma = 10;
+    maxW = 0.8;
+    
+    
+    rows = maxRow;
+	cols = maxCol;
 	dists = new PixelModelData[maxRow * maxCol];
 	initModel();
 }
@@ -99,8 +102,8 @@ void PixelModel::updatePixelGauss(int row,int col,int k, Mat image){
 		g->w = (1 - alpha)*g->w + alpha;
 		roh = alpha / g->w;
 
-		if(g->w > 0.8){
-			g->w = 0.8;
+		if(g->w > maxW){
+			g->w = maxW;
 		}
 
 
@@ -114,8 +117,8 @@ void PixelModel::updatePixelGauss(int row,int col,int k, Mat image){
 			g->mean[c] = fMean;
 			g->sigma[c] = fSig;
 
-			if(g->sigma[c] < 10){
-				g->sigma[c] = 10;
+			if(g->sigma[c] < minSigma){
+				g->sigma[c] = minSigma;
 			}
 		}
 	}

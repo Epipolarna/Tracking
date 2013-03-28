@@ -34,11 +34,12 @@ void Frame::drawObjects(Scalar color)
 		rectangle(image, Point(x-it->widthUncertanty/2, y-it->heightUncertanty/2), 
 						 Point(x_w+it->widthUncertanty/2, y_h+it->heightUncertanty/2), 
 						 certaintyColor, 1, 8);
+		/*
 		ellipse(image, Point(it->x, it->y), 
 					   Size(it->positionUncertantyX, it->positionUncertantyY),
 					   0, 0, 360,
 					   certaintyColor, 1, 8);
-
+					   */
 		// Display Boundry box and velocities
 		rectangle(image, Point(x, y), 
 						 Point(x_w, y_h), 

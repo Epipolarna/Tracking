@@ -62,18 +62,17 @@ namespace ForegroundProcessing
 	{
 		threshMap(frame.foreground, threshval);
 
-		//erodeBinMap(frame.foreground, 2);
-		closingBinMap(frame.foreground, iterations);
+		erodeBinMap(frame.foreground, 2);
+		//closingBinMap(frame.foreground, iterations);
 
 		suppressShadows(frame, minArea, minQuotient);
-		cout << "DERPADERPA 1337" << endl;
 		Mat herp = frame.foreground;
-		imshow( "ASDFASF", herp );
+		imshow( "Shadow Debug", herp );
 
 		//openingBinMap(frame.foreground, iterations);
-		//dilateBinMap(frame.foreground, 3);
-		//erodeBinMap(frame.foreground, 5);
-		//dilateBinMap(frame.foreground, 4);
+		dilateBinMap(frame.foreground, 3);
+		erodeBinMap(frame.foreground, 5);
+		dilateBinMap(frame.foreground, 4);
 		getObjectsArea(frame, minArea, minQuotient);
 				
 		//herp.convertTo(herp, CV_32FC1, 1, 0);
@@ -187,7 +186,11 @@ namespace ForegroundProcessing
 							//normalize((Vec3f)shadowModel.at<Vec3b>(matPos), oldColorVec, 1, NORM_L2);
 							//if (newColorVec.dot(oldColorVec) > 0.995) // Parallell color vectors
 							//cout << abs(lastImage.at<Vec3b>(matPos)[0] - shadowModel.at<Vec3b>(matPos)[0]) << endl;
-							if ( abs(lastImage.at<Vec3b>(matPos)[0] - shadowModel.at<Vec3b>(matPos)[0]) < 50 )
+							if ( (abs((double)lastImage.at<Vec3b>(matPos)[0] - (double)shadowModel.at<Vec3b>(matPos)[0]) < 60) 
+								&& ((double)lastImage.at<Vec3b>(matPos)[1] - (double)shadowModel.at<Vec3b>(matPos)[1] < 150)	  
+								//&& ( 0.3 < (double)lastImage.at<Vec3b>(matPos)[2]/(double)shadowModel.at<Vec3b>(matPos)[2] < 0.9)
+								)
+
 							{
 								frame.foreground.at<uchar>(matPos) = 0;
 							}

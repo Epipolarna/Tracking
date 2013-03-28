@@ -9,7 +9,7 @@ ProbabilityMap::ProbabilityMap(Frame* currFrame){
 
 ProbabilityMap::ProbabilityMap(Frame *prevFrame, Frame *currFrame){	
 	
-
+	static int counter = 0;
 
 	if(prevFrame == NULL){
 
@@ -17,9 +17,11 @@ ProbabilityMap::ProbabilityMap(Frame *prevFrame, Frame *currFrame){
 	}else{
 
 		this->models = prevFrame->bgModel.models;
-		this->models->updateModel(currFrame->image);
+		if(counter < 50){
+			this->models->updateModel(currFrame->image);
+		}
 	}
 
 	pImage = models->getPmat(currFrame->image);
-
+	counter = counter + 1;
 }

@@ -31,8 +31,10 @@ class PixelModel{
 public:
 	PixelModel(int maxRow, int maxCol);
 
-	uchar lambda;
-	float alpha;
+	double lambda;
+	double alpha;
+    double minSigma;
+    double maxW;
 //private:
 	int rows,cols;
 	double backgroundThreshold;

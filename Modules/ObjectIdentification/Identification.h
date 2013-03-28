@@ -11,6 +11,7 @@ namespace Identification
 {
 	
 	class ProbabilityContainer;
+	class Error;
 	enum Algorithm
 	{
 		NearestFit = 0,

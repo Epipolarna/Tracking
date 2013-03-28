@@ -1,8 +1,22 @@
-How do i Evaluate system?? How do i Evaluate system?? How do i Evaluate system?? How do i Evaluate system?? How do i Evaluate system?? How do i Evaluate system?? How do i Evaluate system?? How do i Evaluate system?? How do i Evaluate system?? How do i Evaluate system?? How do i Evaluate system?? How do i Evaluate system?? How do i Evaluate system?? 
+One of the most important parts of a project is the ability to evaluate it. Without it there is no way to compare results and grade your success. There exist no established evaluation method for multiple object tracking, but there are several candidates available. It was however decided to use two measures called MOTA, multiple object tracking accuracy, and MOTP, multiple object tracking precision. These are easy to grasp, implement and compare. The other group carrying out the same project uses the same measures which makes comparison between the groups easy.
 
-\subsection{Evaluation setup}
-How do i setup evaluation? How do i setup evaluation? How do i setup evaluation? How do i setup evaluation? How do i setup evaluation? How do i setup evaluation? How do i setup evaluation? How do i setup evaluation? How do i setup evaluation? How do i setup evaluation? How do i setup evaluation? 
-See code in appendix \ref{sec:Main_code}. %referens till kod, ger klickbar länk.
+\subsection{Ground Truth}
+The evaluation needs access to some sort of ground truth which is defined as the best possible achievable tracking output. Through out this part of the document an object is defined as a position by the ground truth and a hypothesis as the output from the tracker. The method only allows one-to-one correspondence between objects and hypothesis and in case of conflict the combination yielding the lowest total distance error is chosen.
+
+\subsection{MOTA}
+MOTA is measure of accuracy with respect to how many mistakes are made by the tracker. It consists of four variables: misses, false positive, mismatches and number of objects. A miss is when no hypothesis is suggested close enough to an object. Close enough is defined by a threshold, T. This is the only design parameter in this method. If the distance between an object and the closest hypothesis is larger than T, the object yields a miss. If a hypothesis has no object within the threshold it results in a false positive error. One important feature of a tracker is the ability to keep objects identities correct. If this is not the case and an object is changing identity between frames one mismatch error is added for every change. The number of objects variable is defined as the total number of objects trackable according to the ground truth in the current frame. Finally to gain the MOTA calculate:
+$$
+1 - sum(misses +false positive+mismatches)/sum(number of objects)
+$$
+
+\subsection{MOTP}
+The MOTP is a measure of how well the correct matches fit the ground truth objects. It only uses two variables: distance and matches. The distance is calculated between a hypothesis and its corresponding object. Matches is the number of hypothesis within the 
+threshold, T, of an object. To gain MOTP calculate:
+
+$$
+sum(distance)/sum(matches)
+$$
+
 
 
 \begin{figure}[htb]
@@ -12,10 +26,5 @@ See code in appendix \ref{sec:Main_code}. %referens till kod, ger klickbar länk
 	\label{fig:system_evaluation_fig} %Skapar referens till figuren
 \end{figure}
 
-\subsection{Results and stuff}
-Why no result?? Why no result?? Why no result?? Why no result?? Why no result?? Why no result?? Why no result?? 
-Why no result?? Why no result?? Why no result?? Why no result?? Why no result?? Why no result?? Why no result?? Why no result?? Why no result?? 
-Why no result?? Why no result?? Why no result?? 
-No result because: \ref{fig:system_evaluation_fig}. % Länka till figuren 
 
 

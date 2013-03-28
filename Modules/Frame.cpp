@@ -11,24 +11,40 @@ Frame::Frame(cv::Mat image) : image(image) {}
 
 void Frame::drawObjects(Scalar color)
 {
+	Scalar defaultColor = color;
+	Scalar certaintyColor = Scalar(0, 0, 250);
 	for (std::vector<Object>::iterator it = objects.begin(); it != objects.end(); ++it)
 	{
 		if(it->isParent)
 			color = Scalar(0, 255, 0);
-		if(it->isChild)
+		else if(it->isChild)
 			color = Scalar(0, 255, 255);
-		if(it->isLost)
+		else if(it->isLost)
 			color = Scalar(255, 255, 0);
+		else
+			color = defaultColor;
 
 		int x = it->x - it->width/2;
 		int y = it->y - it->height/2;
 		int x_w = it->x + it->width/2;
 		int y_h = it->y + it->height/2;
 
+		
+		// Display uncertainty
+		rectangle(image, Point(x-it->widthUncertanty/2, y-it->heightUncertanty/2), 
+						 Point(x_w+it->widthUncertanty/2, y_h+it->heightUncertanty/2), 
+						 certaintyColor, 1, 8);
+		ellipse(image, Point(it->x, it->y), 
+					   Size(it->positionUncertantyX, it->positionUncertantyY),
+					   0, 0, 360,
+					   certaintyColor, 1, 8);
+
+		// Display Boundry box and velocities
 		rectangle(image, Point(x, y), 
 						 Point(x_w, y_h), 
 						 color, 1, 8);
 		line(image, Point(it->x, it->y), Point(it->x + (int)(it->dx*30), it->y + (int)(it->dy*30)), color, 2 ,8);
+
 
 		std::string objectText = "("+std::to_string(it->x)+","+std::to_string(it->y)+") id:"+std::to_string(it->id);
 		int fontFace = CV_FONT_HERSHEY_COMPLEX;

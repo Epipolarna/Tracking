@@ -40,6 +40,11 @@ namespace Prediction
 			}
 			TimeUpdate(i);
 
+			// Add uncertainty to object
+			i->addPositionUncertainty(i->model.P.at<float>(1,1)/100, i->model.P.at<float>(2,2)/100);	// <TODO: ska inte vara dividerat med 100, men wtf för cp-hög!!!>
+			i->positionUncertantyX = std::min(i->positionUncertantyX, 1000000.0f);
+			i->positionUncertantyY = std::min(i->positionUncertantyY, 1000000.0f);
+
 			xHat = i->model.xHat.ptr<float>();
 			i->xHat = xHat[0];
 			i->yHat	= xHat[1];

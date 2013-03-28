@@ -43,7 +43,7 @@ int main()
 	// Load frame source
 	frameList.open("camera1.mov");
 	
-	VideoWriter demo("trackingDemo.mpeg", CV_FOURCC('P','I','M','1'), 20, frameList.movieSize);
+	//VideoWriter demo("trackingDemo.mpeg", CV_FOURCC('P','I','M','1'), 20, frameList.movieSize);
 
 	// Create windows
 	namedWindow("Info",CV_WINDOW_AUTOSIZE);
@@ -80,7 +80,7 @@ int main()
 		waitKey(1);															PROFILE("Display");
 
 		// Write stuff to demo
-		demo << frameList.getLatestFrame().image;
+		//demo << frameList.getLatestFrame().image;
 		
 		// Optional pause between each frame
 		// waitKey(0);

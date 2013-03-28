@@ -19,7 +19,7 @@ public:
 	float xHat, yHat;
 	float dx, dy;
 
-	float error;
+	float positionUncertantyX, positionUncertantyY, widthUncertanty, heightUncertanty;
 
 	Prediction::StateSpaceModel model;
 
@@ -36,5 +36,8 @@ public:
 
 	float containedAreaQuotient(Object & other);
 	float intervalOverlap(float x1, float x2, float y1, float y2);
+
+	void addPositionUncertainty(float positionErrorX, float positionErrorY) { this->positionUncertantyX += positionErrorX; this->positionUncertantyY += positionErrorY; }
+	void addSizeUncertainty(float widthError, float heightError) { this->widthUncertanty += widthError; this->heightUncertanty += heightError; }
 };
 #endif

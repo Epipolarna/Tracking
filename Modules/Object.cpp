@@ -15,6 +15,8 @@ Object::Object(int x, int y, float dx, float dy, float xHat, float yHat, int wid
 	isLost = isHidden = isParent = isChild = isDecided = false;
 	xHat = (float)x;
 	yHat = (float)y;
+
+	positionUncertantyX = positionUncertantyY = widthUncertanty = heightUncertanty = 0;
 }
 
 Object::Object(cv::Rect boundingBox, float dx, float dy, float xHat, float yHat, int id)
@@ -27,6 +29,7 @@ Object::Object(cv::Rect boundingBox, float dx, float dy, float xHat, float yHat,
 	width = boundingBox.width;
 	height = boundingBox.height;
 	isLost = isHidden = isParent = isChild = isDecided = false;
+	positionUncertantyX = positionUncertantyY = widthUncertanty = heightUncertanty = 0;
 }
 
 std::ostream & operator<< (std::ostream & o, Object & object)

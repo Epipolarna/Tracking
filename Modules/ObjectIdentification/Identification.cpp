@@ -42,11 +42,10 @@ namespace Identification
 		Frame * current = &frames.front();
 		Frame * previous = &(*(++frames.begin()));
 
-		static std::list<std::list<Error>> errorMap;
-		errorMap.clear();
-		
-		float error, distanceError;
+		float error;
 		int pIndex;
+		
+		errorMap.clear();
 
 		// Calculate the error between each previous object and each current object
 		for(std::vector<Object>::iterator c = current->objects.begin(); c != current->objects.end(); c++)
@@ -55,8 +54,7 @@ namespace Identification
 			pIndex = 0;
 			for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
 			{
-				distanceError = std::pow(c->x - p->x - p->dx, 2) + std::pow(c->y - p->y - p->dy, 2);
-				error = distanceError;
+				error = errorFunction(&(*c), &(*p));
 
 				errorMap.back().push_back(Error(&(*c), &(*p), pIndex, error));
 				pIndex++;
@@ -120,14 +118,7 @@ namespace Identification
 		// Debug
 		std::cout << std::to_string(i) << " ------------------\n";
 
-		static std::list<Object> decidedPrevious, decidedCurrent;
-		static std::list<Object*> parents, children;
-		static std::list<Object*> undecidedPrevObject, undecidedCurrObject;
-		static std::list<std::list<Error>> errorMap;
-		static std::list<Error> parentError;
-		static int acceptedSizeChange = 10;
-		static int maxError = 5000;
-		float error, distanceError, areaError;
+		float error;
 		int pIndex;
 
 		// Clear all datastructures
@@ -266,10 +257,21 @@ namespace Identification
 				// Force slow width/height changes
 				Object * c = (*parent);
 				Object * p = (*parent)->children.front();
+				float widthChange = 0;
+				float heightChange = 0;
 				if(std::abs(c->width - p->width) > acceptedSizeChange)
-					c->width = p->width + sign(c->width - p->width)*acceptedSizeChange;
+				{
+					widthChange = sign(c->width - p->width)*acceptedSizeChange;
+					c->width = p->width + widthChange;
+				}
 				if(std::abs(c->height - p->height) > acceptedSizeChange)
-					c->height = p->height + sign(c->height - p->height)*acceptedSizeChange;
+				{
+					heightChange = sign(c->height - p->height)*acceptedSizeChange;
+					c->height = p->height + heightChange;
+				}
+
+				c->addPositionUncertainty(std::abs(c->x - p->x), std::abs(c->y - p->y));
+				c->addSizeUncertainty(widthChange, heightChange);
 
 				decidedCurrent.push_back(**parent);
 			}
@@ -316,6 +318,10 @@ namespace Identification
 					if(bottomDiff > 0)
 						{(*child)->y-= bottomDiff;	(*child)->yHat -= bottomDiff; (*child)->model.xHat.ptr<float>()[1] -= float(bottomDiff); }
 					
+					// Add uncertainty
+					(*child)->addPositionUncertainty(std::min(std::abs(leftDiff) + std::abs(rightDiff), (*parent)->width), std::min(std::abs(topDiff) + std::abs(bottomDiff), (*parent)->height));
+					(*child)->addSizeUncertainty(std::max(widthDiff, 0), std::max(heightDiff, 0));
+
 					// Add child as decided 'current'.
 					decidedCurrent.push_back(**child);
 
@@ -370,6 +376,8 @@ namespace Identification
 				c->width = p->width + sign(c->width - p->width)*acceptedSizeChange;
 			if(std::abs(c->height - p->height) > acceptedSizeChange)
 				c->height = p->height + sign(c->height - p->height)*acceptedSizeChange;
+
+			c->addPositionUncertainty(std::abs(c->x - p->x), std::abs(c->y - p->y));
 
 			decidedCurrent.push_back(*c);
 			decidedCurrent.back().model = p->model;

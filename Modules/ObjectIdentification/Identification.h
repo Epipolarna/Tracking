@@ -29,7 +29,7 @@ namespace Identification
 	class Identifier
 	{
 	public:
-		Identifier() {uniqueIDPool = 1; algorithm = &Identifier::algorithm_nearestFit;}
+		Identifier() {uniqueIDPool = 1; algorithm = &Identifier::algorithm_nearestFit; acceptedSizeChange = 10; maxError = 5000;}
 		void identify(std::list<Frame> & frames);
 		
 		void init(Algorithm algorithmName);
@@ -43,6 +43,14 @@ namespace Identification
 		
 		void algorithm_nearestFit(std::list<Frame> & frames);
 		void algorithm_ultimate(std::list<Frame> & frames);
+
+		std::list<Object> decidedPrevious, decidedCurrent;
+		std::list<Object*> parents, children;
+		std::list<Object*> undecidedPrevObject, undecidedCurrObject;
+		std::list<std::list<Error>> errorMap;
+		std::list<Error> parentError;
+		int acceptedSizeChange;
+		int maxError;
 	};
 	
 

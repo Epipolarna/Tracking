@@ -3,11 +3,14 @@
 PixelModel::PixelModel(int maxRow, int maxCol){
 
     //Parameters, tunable
-	lambda = 10;
-	alpha = 0.05f;
-	backgroundThreshold = 0.75;
-    minSigma = 10;
-    maxW = 0.8;
+    //lambda and sigma for sensitivity
+    //alpha for update speed
+    //others are probably fine.
+	lambda = 10; //limit to decide how close something should be to belong to a distribution
+	alpha = 0.05f; //learning rate, how fast the model changes
+	backgroundThreshold = 0.75; //total sum of of w needed to be background
+    minSigma = 10; //minimal sigma
+    maxW = 0.8; //maximum weight for a gauss
     
     
     rows = maxRow;

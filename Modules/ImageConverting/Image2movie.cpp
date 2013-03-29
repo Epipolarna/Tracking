@@ -1,29 +1,30 @@
-#include "Modules/FrameList.h"
-#include "Modules/BackgroundModelling/BackgroundModel.h"
-#include "Modules/BackgroundModelling_simple/BackgroundModel_simple.h"
-#include "Modules/ForegroundProcessing/ForegroundProcessor.h"
-#include "Modules/ObjectIdentification/Identification.h"
-#include "Modules/Prediction/Kalman.h"
-#include "Modules/Evaluation/Evaluation.h"
 
-#include "Modules/Profiler.h"
+#include <opencv2/core/core.hpp>
+#include <opencv2/imgproc/imgproc.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <opencv2/opencv.hpp>
 
+#include <string>
+#include <iostream>
+
+
+
+using namespace std;
+using namespace cv;
 
 int main()
 {
-	CvVideoWriter *writer = 0;
+
     int isColor = 1;
     int fps     = 20;  // or 30
-    IplImage* img = 0; 
-	
-	// Get format
-    img=cvLoadImage("SVN/images/Renova_20080618_083045_Cam10_0002_00001.jpg");
-    int frameW  = img->width; //640; // 744 for firewire cameras
-    int frameH  = img->height; //480; // 480 for firewire cameras
+    Mat img;
+	Size imgSize;
 
-    writer=cvCreateVideoWriter("out.avi",-1, fps,cvSize(frameW,frameH),1);
+	img = imread("Renova_20080420_083025_Cam10_0000/dataRenova_20080420_083025_Cam10_0000_00001.jpg");
+	imgSize = img.size();
+	VideoWriter video("out.mpeg", CV_FOURCC('P','I','M','1'), fps, imgSize);
 
-    cvWriteFrame(writer, img);      // add the frame to the file
+	video << img;
 
 	string fileName, fileNumber;
 	int zeros = 0;
@@ -42,14 +43,13 @@ int main()
 		
 		cout << "Image number: " << fileNumber << endl;
 
-		fileName = "SVN/images/Renova_20080618_083045_Cam10_0002_" + fileNumber + ".jpg";
+		fileName = "Renova_20080420_083025_Cam10_0000/dataRenova_20080420_083025_Cam10_0000_" + fileNumber + ".jpg";
 
-        img=cvLoadImage((char*)fileName.c_str());
+		img = imread(fileName);
 
-        cvWriteFrame(writer, img);
+		video << img;
 
     }
-    cvReleaseVideoWriter(&writer);
 
 	return 0;
 }

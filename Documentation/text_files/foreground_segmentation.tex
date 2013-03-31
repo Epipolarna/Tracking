@@ -3,7 +3,9 @@ The Foreground segmentation is performed by the foreground processor module. The
 The foreground processor is initiated by setting appropriate parameter values using the \emph{init} command. After being initiated, the foreground processor is called using the \emph{segmentForeground} command, which takes the current frame as an input. For more info, see appendix \ref{sec:ForeGroundSeg_code}.
 
 \subsubsection{Morphological cleanup}
-The first step in the foreground segmentation is to perform an initial simple cleanup of the background using one erode iteration. This performs a very good cleanup since most of the noise in the backround model is in form of single pixels, all of which are removed by the erode operation. After the first erode the shadow suppression algorithm is called to get rid of shadows, which the background model can't handle (see section 2.5 of this document). The output of the shadow suppression algorithm is then subject to several more steps of erode/dilate operations before the actual object detection.
+The first step in the foreground segmentation is to perform an initial simple cleanup of the background using one erode iteration. This performs a very good cleanup since most of the noise in the backround model is in form of single pixels, all of which are removed by the erode operation. After the first erode the 
+
+The first step in the foreground segmentation is to call the shadow suppression algorithm to get rid of shadows, which the background model can't handle (see section 2.5 of this document). The output of the shadow suppression algorithm is then subject to a couple of iterations of morphological erode and dilate. For example in the figure below, a 2 iteration opening was performed, followed by a 4 iteration closing. both with a 3-by-3 cross kernel. The number of iterations required in each step and the combination of operations depend on the current application. for more info, see the parameter tables and figures.
 
 %\begin{figure}[htb]
 %	\centering
@@ -13,4 +15,4 @@ The first step in the foreground segmentation is to perform an initial simple cl
 %\end{figure}
 
 \subsubsection{Object detection}
-To detect the regions the OpenCV command \emph{findContours} is used. For each detected contour, if it is large enough (to remove more garbage), a bounding rectangle of the type \emph{cv::Rect} is created and, from this rectangle an \emph{object} is created. All of the detected objects are then put into the Frame's object vector, and the foreground processing is complete.
+To detect the regions the OpenCV command \emph{findContours} is used. For each detected contour, if it is large enough (to remove more noise), a bounding rectangle of the type \emph{cv::Rect} is created and, from this rectangle an \emph{object} is created. All of the detected objects are then put into the Frame's object vector, and the foreground processing is complete.

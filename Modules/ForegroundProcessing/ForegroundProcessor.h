@@ -28,20 +28,20 @@ namespace ForegroundProcessing
 
 		// Fast algorithm (>30ms)
 		// Specify threshold value and number of iterations
-		void segmentForegroundFast(Frame & frame, int threshval, int iterations); 
+		void segmentForegroundFast(Frame & frame); 
 		
 		// Higher performance algorithm (Hopefully) (~650ms) 
 		// Specify threshold value and minimum consour thickness 
-		void segmentForegroundArea(Frame & frame, int threshval, int iterations, double minArea, double minQuotient);
+		void segmentForegroundArea(Frame & frame);
 		
 		// Higher performance algorithm (Hopefully) (~650ms) 
 		// Specify threshold value and minimum contour thickness 
-		void segmentForegroundSlow(Frame & frame, int threshval, double minDist);
+		void segmentForegroundSlow(Frame & frame);
 
 		//Manages shadows
-		void segmentForegroundShadow(Frame & frame, int threshval, int iterations, double minArea, double minQuotient);
+		void segmentForegroundShadow(Frame & frame);
 
-		void init(int threshval, int Iterations, double minDist, double minArea, double minQuotient);
+		void init(int iterations, double minDist, double minArea, double minQuotient);
 		
 		void ForegroundProcessor::setAlgortihm(Algorithm algorithm)
 		{

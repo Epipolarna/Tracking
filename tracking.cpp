@@ -35,44 +35,60 @@ int main()
 
 	// Init
 	foregroundProcessor.setAlgortihm(ForegroundProcessing::SHADOW);
-	foregroundProcessor.init(50, 3, 5, 50, 3);
+	foregroundProcessor.init(5, 5, 125, 4);
 	identifier.init(Identification::Ultimate);
 	evaluate.readXML2FrameList("clip1.xml");
+	//evaluate.readXML2FrameList("CAVIAR1/feecp2gt.xml");
 	
 	
 	// Load frame source
+	//frameList.open("CAVIAR1/EnterExitCrossingPaths2front.mpg");
 	frameList.open("clip1.mpeg");
+	//frameList.open("Renova_20080420_083025_Cam10_0000.mpeg");
 	
-	//VideoWriter demo("trackingDemo.mpeg", CV_FOURCC('P','I','M','1'), 20, frameList.movieSize);
+	//Record
+	VideoWriter demo("trackingDemo.mpeg", CV_FOURCC('P','I','M','1'), 20, frameList.movieSize);
 
 	// Create windows
 	namedWindow("Info",CV_WINDOW_AUTOSIZE);
 	namedWindow("Background",CV_WINDOW_AUTOSIZE);
 	namedWindow("Foreground",CV_WINDOW_AUTOSIZE);
 	namedWindow("Tracking",CV_WINDOW_AUTOSIZE);
-	namedWindow("BackgroundModel",CV_WINDOW_AUTOSIZE);
+	namedWindow("Raw image", CV_WINDOW_AUTOSIZE);
+	//namedWindow("BackgroundModel",CV_WINDOW_AUTOSIZE);
 
 	// Track objects through all frames, as long as there are frames to query
 	while (frameList.queryNextFrame())
 	{
 		
+		// display raw image
+		imshow("Raw image", frameList.getLatestFrame().image);
 		// Reset profiler
 		PROFILER_RESET();
 
 		sampleDown(frameList.getLatestFrame().image, frameList.getLatestFrame().image);
+		//frameList.getLatestFrame().foreground = Mat::zeros(frameList.getLatestFrame().image.size(), CV_8UC1);
 		
 		// Do the nessecary processing
 		backgroundModel.update(frameList.getFrames());						PROFILE("BackgroundModel");
-		foregroundProcessor.segmentForeground(frameList.getLatestFrame());	PROFILE("ForegroundSeg.");
+		//Wait for convergence
+		if (frameList.getCurrentFrameNumber() > 125)
+		{
+			foregroundProcessor.segmentForeground(frameList.getLatestFrame());	PROFILE("ForegroundSeg.");
+		}
 		identifier.identify(frameList.getFrames());							PROFILE("Identification");	
 		kalmanFilter.predict(frameList.getLatestFrame());					PROFILE("Kalman Prediction");
-		//evaluate.currentFrame();											PROFILE("Evaluation");
+		evaluate.currentFrame();											PROFILE("Evaluation");
 
 		
 		// Display result
 		frameList.display("Tracking");
-		frameList.displayForeground("Foreground");
 		frameList.displayBackground("Background");
+		//Wait for convergence
+		if (frameList.getCurrentFrameNumber() > 125)
+		{	
+			frameList.displayForeground("Foreground");
+		}
 		//frameList.displayBackgroundEstimate("BackgroundModel");
 		//frameList.displayBackgroundCertainty("BackgroundCertainty");
 				
@@ -80,26 +96,27 @@ int main()
 		waitKey(1);															PROFILE("Display");
 
 		// Write stuff to demo
-		//demo << frameList.getLatestFrame().image;
+		demo << frameList.getLatestFrame().image;
 		
 		// Optional pause between each frame
-		// waitKey(0);
-						
-		// Read next frame from source
-		//frameList.queryNextFrame();											
+		
+		if (frameList.getCurrentFrameNumber() > 9999999)
+		{
+			waitKey(0);
+		}				
+											
 																			PROFILE("QueryNextFrame");										
 																			PROFILE_TOTALTIME();
 																			PROFILE("Total FPS");
 																			PROFILE_TOTALFPS();
-
-				
 
 		// Display info
 		frameList.displayInfo("Info");
 
 	} 
 	waitKey(0);
-
+	evaluate.MOTA();
+	evaluate.MOTP();
 	return 0;
 }
 

@@ -13,20 +13,30 @@ namespace ForegroundProcessing
 		switch(algorithm)
 		{
 		case 0:
-			segmentForegroundFast(frame, threshval, iterations);
+			segmentForegroundFast(frame);
 			break;
 		case 1:
-			segmentForegroundArea(frame, threshval, iterations, minArea, minQuotient);
+			segmentForegroundArea(frame);
 			break;
 		case 2:
-			segmentForegroundShadow(frame, threshval, iterations, minArea, minQuotient);
+			segmentForegroundShadow(frame);
 		case 3:
-			segmentForegroundSlow(frame, threshval, minDist);
+			segmentForegroundSlow(frame);
 			break;
 		}
 	}
 
-	void ForegroundProcessor::segmentForegroundFast(Frame & frame, int threshval, int iterations)
+	void ForegroundProcessor::init(int iterations, double minDist, double minArea, double minQuotient)
+	{
+		this->threshval = 192;
+		this->iterations = iterations;
+		this->minDist = minDist;
+		this->minArea = minArea; 
+		this->minQuotient =	minQuotient;
+		this->frameCounter = 0;
+	}
+
+	void ForegroundProcessor::segmentForegroundFast(Frame & frame)
 	{
 		threshMap(frame.foreground, threshval); //Threshold at threshval
 	
@@ -37,7 +47,7 @@ namespace ForegroundProcessing
 		return;
 	}
 
-	void ForegroundProcessor::segmentForegroundSlow(Frame & frame, int threshval, double minDist)
+	void ForegroundProcessor::segmentForegroundSlow(Frame & frame)
 	{
 		threshMap(frame.foreground, threshval); //Threshold at threshval
 	
@@ -46,53 +56,58 @@ namespace ForegroundProcessing
 		return;
 	}
 
-	void ForegroundProcessor::segmentForegroundArea(Frame & frame, int threshval, int Iterations, double minArea, double minQuotient)
+	void ForegroundProcessor::segmentForegroundArea(Frame & frame)
 	{
-		threshMap(frame.foreground, threshval); //Threshold at threshval
-	
-		closingBinMap(frame.foreground, iterations); 
+		threshMap(frame.foreground, threshval); //Threshold to create binary image.
+		openingBinMap(frame.foreground, iterations);
+		dilateBinMap(frame.foreground, iterations);
+		closingBinMap(frame.foreground, iterations);
+		//openingBinMap(frame.foreground, 2);
+		//closingBinMap(frame.foreground, iterations); 
 
 		getObjectsArea(frame, minArea, minQuotient);
 	
 		return;
 	}
+	
 
-
-	void ForegroundProcessor::segmentForegroundShadow(Frame & frame, int threshval, int iterations, double minQuotient, double minArea)
+	void ForegroundProcessor::segmentForegroundShadow(Frame & frame)
 	{
-		threshMap(frame.foreground, threshval);
-
-		erodeBinMap(frame.foreground, 2);
-		//closingBinMap(frame.foreground, iterations);
-
-		suppressShadows(frame, minArea, minQuotient);
-		Mat herp = frame.foreground;
-		imshow( "Shadow Debug", herp );
-
-		//openingBinMap(frame.foreground, iterations);
-		dilateBinMap(frame.foreground, 3);
-		erodeBinMap(frame.foreground, 5);
-		dilateBinMap(frame.foreground, 4);
-		getObjectsArea(frame, minArea, minQuotient);
-				
-		//herp.convertTo(herp, CV_32FC1, 1, 0);
 		
+		threshMap(frame.foreground, threshval);
+		suppressShadows(frame, minArea, minQuotient);
+		
+		//Debug
+		Mat debug = frame.foreground;
+		imshow( "Shadow Debug", debug );
+		
+		//Remove the gray debug pixels
+		threshMap(frame.foreground, 170);
+		
+		openingBinMap(frame.foreground, iterations);
+		dilateBinMap(frame.foreground, iterations);
+		closingBinMap(frame.foreground, iterations);
 
+		getObjectsArea(frame, minArea, minQuotient);
+		
+		//Debug (removes everything the getObjectsArea method ignores)
+		vector<vector<Point>> contours;
+		findContours( frame.foreground.clone(), contours, CV_RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+		double objArea;
+		Rect objRect;
+		
+		for(unsigned int i = 0; i < contours.size(); i++)
+		{		
+			objArea = contourArea(contours[i]);
+			if (objArea < minArea && (objArea > (objRect.width * objRect.height)/minQuotient))
+			{
+				drawContours(frame.foreground, contours, i, Scalar(0), CV_FILLED); 
+			}
+		}	
+		
 		return;
-
 	}
 
-
-	void ForegroundProcessor::init(int threshval, int iterations, double minDist, double minArea, double minQuotient)
-	{
-		this->algorithm = algorithm;
-		this->threshval = threshval;
-		this->iterations = iterations;
-		this->minDist = minDist;
-		this->minArea = minArea; 
-		this->minQuotient =	minQuotient;
-		this->frameCounter = 0;
-	}
 
 	////////////////// Private Functions //////////////////////
 	///////////////////////////////////////////////////////////
@@ -126,10 +141,7 @@ namespace ForegroundProcessing
 			{
 				//Create an object for every countour using the boundingRect command
 				frame.objects.push_back(Object(objRect));	
-			}
-			
-			//
-			//frame.objects.push_back(Object(boundingRect(contours[i])));	
+			}	
 		}
 	}
 
@@ -140,18 +152,28 @@ namespace ForegroundProcessing
 		frameCounter++;
 		if (frameCounter < 10)
 		{
-			shadowModel = (frame.image / 9);
-			cout << "AAAAHHH: " << frameCounter << endl;
+			shadowModel += (frame.image / 10);
 			return;
 		}
-		int i = 11;
+		int i = 7;
 		if (frameCounter == 10)
 		{
-			//blur( current->image, blurredImage, Size( i, i ), Point(-1,-1) );
-			GaussianBlur( shadowModel, shadowModel, Size( i, i ), 0,0 );
-			//HSV stuff
-			cvtColor(shadowModel, shadowModel, CV_BGR2HSV_FULL);
+			//Show "most probable background"
+			//imshow( "ShadowModel", shadowModel );
+			//cvtColor(shadowModel, shadowModel, CV_BGR2HSV_FULL);
 			
+			// Debug
+			/*
+			Mat hue(shadowModel.size(), CV_8UC1);
+			Mat saturation(shadowModel.size(), CV_8UC1);
+			Mat value(shadowModel.size(), CV_8UC1);
+			Mat derp[] = {hue, saturation, value};
+			int from_to[] = { 0,0, 1,1, 2,2 };
+			mixChannels(&shadowModel, 1, derp, 3, from_to, 3);
+			imshow( "ShadowModel, hue", hue );
+			imshow( "ShadowModel, saturation", saturation );
+			imshow( "ShadowModel, value", value);
+			*/
 		}
 
 		vector<vector<Point>> contours;
@@ -159,8 +181,6 @@ namespace ForegroundProcessing
 
 		Vec3f newColorVec, oldColorVec, tempVec;
 		Mat lastImage = frame.image.clone();
-		GaussianBlur( lastImage, lastImage, Size( i, i ), 0,0 );
-		// HSV stuff
 		cvtColor(lastImage, lastImage, CV_BGR2HSV_FULL);
 		
 		double objArea;
@@ -172,31 +192,33 @@ namespace ForegroundProcessing
 			objArea = contourArea(contours[i]);
 			objRect = boundingRect(contours[i]);
 			vector<Point> contour = contours[i];
-			//cout << "total cols: "<< frame.foreground.size().width << "total rows: "<< frame.foreground.size().height  << endl;
-			//cout << "max X "<< objRect.x + objRect.width - 1 << "max Y: "<< objRect.y + objRect.height - 1 << endl;
-			//check the interior of all contours to see wich pixels have a uniform decrease over all color channels.
-			for( int j = objRect.x; j < objRect.x + objRect.width; j++)
-				{ for( int k = objRect.y; k < objRect.y + objRect.height; k++) 
-					{ 
-						//If object is not outside the contour
-						if (pointPolygonTest(contour, Point(j, k), false) >= 0) 
-						{
-							Point matPos(j,k);
-							//normalize((Vec3f)lastImage.at<Vec3b>(matPos), newColorVec, 1, NORM_L2); 
-							//normalize((Vec3f)shadowModel.at<Vec3b>(matPos), oldColorVec, 1, NORM_L2);
-							//if (newColorVec.dot(oldColorVec) > 0.995) // Parallell color vectors
-							//cout << abs(lastImage.at<Vec3b>(matPos)[0] - shadowModel.at<Vec3b>(matPos)[0]) << endl;
-							if ( (abs((double)lastImage.at<Vec3b>(matPos)[0] - (double)shadowModel.at<Vec3b>(matPos)[0]) < 60) 
-								&& ((double)lastImage.at<Vec3b>(matPos)[1] - (double)shadowModel.at<Vec3b>(matPos)[1] < 150)	  
-								//&& ( 0.3 < (double)lastImage.at<Vec3b>(matPos)[2]/(double)shadowModel.at<Vec3b>(matPos)[2] < 0.9)
-								)
 
-							{
-								frame.foreground.at<uchar>(matPos) = 0;
-							}
-						} 
-					}		
-				}
+			for( int j = objRect.x; j < objRect.x + objRect.width; j++)
+			{ 
+				for( int k = objRect.y; k < objRect.y + objRect.height; k++) 
+				{ 
+					Point matPos(j,k);
+					//If object is not outside the contour
+					if (pointPolygonTest(contour, matPos, false) >= 0) 
+					{
+						// Parameters for detecting cars in the RenovA clips
+						/*if ( (((abs((double)lastImage.at<Vec3b>(matPos)[0] - (double)shadowModel.at<Vec3b>(matPos)[0])/255 < 0.2) ) || ( (double)shadowModel.at<Vec3b>(matPos)[1]/255 < 0.05) )
+							&& ( ((double)lastImage.at<Vec3b>(matPos)[1] - (double)shadowModel.at<Vec3b>(matPos)[1])/255 < 0.3)	
+							&& ( ((double)lastImage.at<Vec3b>(matPos)[2] / ((double)shadowModel.at<Vec3b>(matPos)[2])  + 0.0001) > 0.15)
+							&& ( ((double)lastImage.at<Vec3b>(matPos)[2] / ((double)shadowModel.at<Vec3b>(matPos)[2]) + 0.0001) < 1.1)
+							)*/
+						// Parameters for the shopping mall (uber shitty)
+						if ( (((abs((double)lastImage.at<Vec3b>(matPos)[0] - (double)shadowModel.at<Vec3b>(matPos)[0])/255 < 0.1) ) )//|| ( (double)shadowModel.at<Vec3b>(matPos)[1]/255 < 0.1) )
+							&& ( ((double)lastImage.at<Vec3b>(matPos)[1] - (double)shadowModel.at<Vec3b>(matPos)[1])/255 < 0.3)	
+							&& ( ((double)lastImage.at<Vec3b>(matPos)[2] / (double)shadowModel.at<Vec3b>(matPos)[2]) > 0.5)
+							&& ( ((double)lastImage.at<Vec3b>(matPos)[2] / (double)shadowModel.at<Vec3b>(matPos)[2]) < 0.95)
+							)
+						{
+							frame.foreground.at<uchar>(matPos) = 128;
+						}
+					} 
+				}		
+			}
 		}
 	}
 	
@@ -243,7 +265,7 @@ namespace ForegroundProcessing
 	void ForegroundProcessor::openingBinMap(Mat foreground, int iterations)
 	{
 		cv::Mat kernel;
-		kernel = getStructuringElement( MORPH_RECT, Size(3, 3));
+		kernel = getStructuringElement( MORPH_CROSS, Size(3, 3));
 		erode(foreground, foreground, kernel, cv::Point(-1,-1), iterations);
 		dilate(foreground, foreground, kernel, cv::Point(-1,-1), iterations);
 	}
@@ -251,7 +273,7 @@ namespace ForegroundProcessing
 	void ForegroundProcessor::closingBinMap(Mat foreground, int iterations)
 	{
 		cv::Mat kernel;
-		kernel = getStructuringElement( MORPH_RECT, Size(3, 3));
+		kernel = getStructuringElement( MORPH_CROSS, Size(3, 3));
 		dilate(foreground, foreground, kernel, cv::Point(-1,-1), iterations);
 		erode(foreground, foreground, kernel, cv::Point(-1,-1), iterations);
 	}
@@ -259,14 +281,14 @@ namespace ForegroundProcessing
 	void ForegroundProcessor::erodeBinMap(Mat foreground, int iterations)
 	{
 		cv::Mat kernel;
-		kernel = getStructuringElement( MORPH_RECT, Size(3, 3));
+		kernel = getStructuringElement( MORPH_CROSS, Size(3, 3));
 		erode(foreground, foreground, kernel, cv::Point(-1,-1), iterations);
 	}
 
 	void ForegroundProcessor::dilateBinMap(Mat foreground, int iterations)
 	{
 		cv::Mat kernel;
-		kernel = getStructuringElement( MORPH_RECT, Size(3, 3));
+		kernel = getStructuringElement( MORPH_CROSS, Size(3, 3));
 		dilate(foreground, foreground, kernel, cv::Point(-1,-1), iterations);
 	}
 

@@ -5,7 +5,7 @@ The foreground processor is initiated by setting appropriate parameter values us
 \subsubsection{Morphological cleanup}
 The first step in the foreground segmentation is to perform an initial simple cleanup of the background using one erode iteration. This performs a very good cleanup since most of the noise in the backround model is in form of single pixels, all of which are removed by the erode operation. After the first erode the 
 
-The first step in the foreground segmentation is to call the shadow suppression algorithm to get rid of shadows, which the background model can't handle (see section 2.5 of this document). The output of the shadow suppression algorithm is then subject to a couple of iterations of morphological erode and dilate. For example in the figure below, a 2 iteration opening was performed, followed by a 4 iteration closing. both with a 3-by-3 cross kernel. The number of iterations required in each step and the combination of operations depend on the current application. for more info, see the parameter tables and figures.
+The first step in the foreground segmentation is to call the shadow suppression algorithm to get rid of shadows, which the background model can't handle (see section 2.5 of this document). The output of the shadow suppression algorithm is then subject to a couple of iterations of morphological erode and dilate. For example in the figure below, a 2 iteration opening was performed, followed by a 4 iteration closing. both with a 3-by-3 cross kernel. The number of iterations required in each step and the combination of operations depend on the current application.
 
 %\begin{figure}[htb]
 %	\centering

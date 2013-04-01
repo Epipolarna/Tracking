@@ -20,6 +20,7 @@ public:
 	void MOTP();
 	void MOTA();
 	void displayInfo(string windowID);
+	void displaySequenceInfo(string windowID);
 
 	// GroundTruth
 	vector<vector<Object>> groundTruth;
@@ -31,7 +32,8 @@ private:
 	int frameCounter, numberOfFrames, frameMismatches;
 	int T, obID, hypID, obX, obY, hypX, hypY;
 	float frameDistance, motpValue, motaValue;
-	float sumDistance, sumMisses, sumMatches, sumFalsePositive, sumMismatches, sumNumberOfObjects;
+	float sumDistance;
+	int sumMisses, sumMatches, sumFalsePositive, sumMismatches, sumNumberOfObjects;
 	vector<int> numberOfObjects, matches, misses, falsePositive, mismatches;
 	vector<float> distance;
 	vector<map<int, int>> correspondance;

@@ -253,13 +253,19 @@ void Evaluation::currentFrame()
 void Evaluation::MOTP()
 {
 	// Sum distance
-	float sumDistance = (float)accumulate(distance.begin(), distance.end(), 0);
+	//sumDistance = (float)accumulate(distance.begin(), distance.end(), 0);
+	sumDistance = 0;
+	for  (vector<float>::iterator i = distance.begin(); i != distance.end(); i++)
+	{
+		sumDistance += *i;
+	}
+
 	// Sum number of matches
-	float sumMatches = (float)accumulate(matches.begin(), matches.end(), 0);
+	sumMatches = accumulate(matches.begin(), matches.end(), 0);
 	// Calculate quote
 	if (sumMatches > 0)
 	{
-		motpValue = sumDistance/sumMatches;
+		motpValue = (float)sumDistance/sumMatches;
 	}
 	//cout << "MOTP:\t\t" << motpValue << endl;
 }
@@ -267,17 +273,17 @@ void Evaluation::MOTP()
 void Evaluation::MOTA()
 {
 	// Sum misses
-	float sumMisses = (float)accumulate(misses.begin(), misses.end(), 0);
+	sumMisses = accumulate(misses.begin(), misses.end(), 0);
 	// Sum false positive
-	float sumFalsePositive = (float)accumulate(falsePositive.begin(), falsePositive.end(), 0);
+	sumFalsePositive = accumulate(falsePositive.begin(), falsePositive.end(), 0);
 	// Sum mismatches
-	float sumMismatches = (float)accumulate(mismatches.begin(), mismatches.end(), 0);
+	sumMismatches = accumulate(mismatches.begin(), mismatches.end(), 0);
 	// Sum total number of objets
-	float sumNumberOfObjects = (float)accumulate(numberOfObjects.begin(), numberOfObjects.end(), 0);
+	sumNumberOfObjects = accumulate(numberOfObjects.begin(), numberOfObjects.end(), 0);
 	// Calculate quote
 	if (sumNumberOfObjects > 0)
 	{
-		motaValue = 1 - (sumMisses + sumFalsePositive + sumMismatches)/sumNumberOfObjects;
+		motaValue = 1 - (float)(sumMisses + sumFalsePositive + sumMismatches)/sumNumberOfObjects;
 	}
 	//cout << "MOTA:\t\t" << motaValue << endl;
 }
@@ -306,11 +312,42 @@ void Evaluation::displayInfo(string windowID)
 	PUTTEXT(leftTab, l, "MOTA:");			PUTTEXT(rightTab, l, to_string(motaValue));					l += 35;	
 	PUTTEXT(leftTab, l, "MOTP:");			PUTTEXT(rightTab, l, to_string(motpValue));					l += 35;
 	l += 35;
-	PUTTEXT(leftTab, l, "Matches:");		PUTTEXT(rightTab, l, to_string(matches.back()));					l += 35;	
-	PUTTEXT(leftTab, l, "Misses:");			PUTTEXT(rightTab, l, to_string(misses.back()));			l += 35;	
+	PUTTEXT(leftTab, l, "Matches:");		PUTTEXT(rightTab, l, to_string(matches.back()));			l += 35;	
+	PUTTEXT(leftTab, l, "Misses:");			PUTTEXT(rightTab, l, to_string(misses.back()));				l += 35;	
 	PUTTEXT(leftTab, l, "False Positive:");	PUTTEXT(rightTab, l, to_string(falsePositive.back()));		l += 35;	
-	PUTTEXT(leftTab, l, "Mismatches:");		PUTTEXT(rightTab, l, to_string(mismatches.back()));		l += 35;	
-	PUTTEXT(leftTab, l, "Precision:");		PUTTEXT(rightTab, l, to_string(distance.back()));				l += 35;	
+	PUTTEXT(leftTab, l, "Mismatches:");		PUTTEXT(rightTab, l, to_string(mismatches.back()));			l += 35;	
+	PUTTEXT(leftTab, l, "Distance:");		PUTTEXT(rightTab, l, to_string(distance.back()));			l += 35;	
+
+	imshow( windowID.c_str(), infoDisplayMatrix);
+}
+
+void Evaluation::displaySequenceInfo(string windowID)
+{
+	int fontFace = CV_FONT_HERSHEY_COMPLEX;
+	double fontScale = 1;
+	int thickness = 1;
+
+	infoDisplayMatrix = Scalar::all(200);
+	string text;
+	//int baseline;
+
+	PUTTEXT(5,25,"Sequence info:");
+	int l = 60;
+
+	int leftTab = 50;
+	int rightTab = 360;
+
+	l += 35;
+	PUTTEXT(leftTab, l, "Frames:");			PUTTEXT(rightTab, l, to_string(frameCounter));			l += 35;
+	l += 35;
+	PUTTEXT(leftTab, l, "MOTA:");			PUTTEXT(rightTab, l, to_string(motaValue));				l += 35;	
+	PUTTEXT(leftTab, l, "MOTP:");			PUTTEXT(rightTab, l, to_string(motpValue));				l += 35;
+	l += 35;
+	PUTTEXT(leftTab, l, "Matches:");		PUTTEXT(rightTab, l, to_string(sumMatches));			l += 35;	
+	PUTTEXT(leftTab, l, "Misses:");			PUTTEXT(rightTab, l, to_string(sumMisses));				l += 35;	
+	PUTTEXT(leftTab, l, "False Positive:");	PUTTEXT(rightTab, l, to_string(sumFalsePositive));		l += 35;	
+	PUTTEXT(leftTab, l, "Mismatches:");		PUTTEXT(rightTab, l, to_string(sumMismatches));			l += 35;	
+	PUTTEXT(leftTab, l, "Distance:");		PUTTEXT(rightTab, l, to_string(sumDistance));			l += 35;	
 
 	imshow( windowID.c_str(), infoDisplayMatrix);
 }

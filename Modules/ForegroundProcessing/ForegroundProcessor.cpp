@@ -50,7 +50,7 @@ namespace ForegroundProcessing
 	void ForegroundProcessor::segmentForegroundSlow(Frame & frame)
 	{
 		threshMap(frame.foreground, threshval); //Threshold at threshval
-	
+		suppressShadows(frame, minArea, minQuotient);
 		getObjectsDistMap(frame, minDist);
 	
 		return;
@@ -208,10 +208,10 @@ namespace ForegroundProcessing
 							&& ( ((double)lastImage.at<Vec3b>(matPos)[2] / ((double)shadowModel.at<Vec3b>(matPos)[2]) + 0.0001) < 1.1)
 							)*/
 						// Parameters for the shopping mall (uber shitty)
-						if ( (((abs((double)lastImage.at<Vec3b>(matPos)[0] - (double)shadowModel.at<Vec3b>(matPos)[0])/255 < 0.1) ) )//|| ( (double)shadowModel.at<Vec3b>(matPos)[1]/255 < 0.1) )
-							&& ( ((double)lastImage.at<Vec3b>(matPos)[1] - (double)shadowModel.at<Vec3b>(matPos)[1])/255 < 0.3)	
-							&& ( ((double)lastImage.at<Vec3b>(matPos)[2] / (double)shadowModel.at<Vec3b>(matPos)[2]) > 0.5)
-							&& ( ((double)lastImage.at<Vec3b>(matPos)[2] / (double)shadowModel.at<Vec3b>(matPos)[2]) < 0.95)
+						if ( (((abs((double)lastImage.at<Vec3b>(matPos)[0] - (double)shadowModel.at<Vec3b>(matPos)[0])/255 < 0.1) ) )//|| ( (double)shadowModel.at<Vec3b>(matPos)[1]/255 < 0.1) ) //HUE
+							&& ( ((double)lastImage.at<Vec3b>(matPos)[1] - (double)shadowModel.at<Vec3b>(matPos)[1])/255 < 0.3)	 // SATURATION
+							&& ( ((double)lastImage.at<Vec3b>(matPos)[2] / (double)shadowModel.at<Vec3b>(matPos)[2]) > 0.2)	//VALUE (ALPHA)
+							&& ( ((double)lastImage.at<Vec3b>(matPos)[2] / (double)shadowModel.at<Vec3b>(matPos)[2]) < 0.95) //VALUE (BETA)
 							)
 						{
 							frame.foreground.at<uchar>(matPos) = 128;

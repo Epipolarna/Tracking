@@ -43,7 +43,7 @@ int main()
 	
 	// Load frame source
 	//frameList.open("CAVIAR1/EnterExitCrossingPaths2front.mpg");
-	frameList.open("clip1.mpeg");
+	frameList.open("camera1.mov");
 	//frameList.open("Renova_20080420_083025_Cam10_0000.mpeg");
 	
 	//Record

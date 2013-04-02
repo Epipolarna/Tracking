@@ -172,7 +172,9 @@ void Evaluation::currentFrame()
 				//cout << "Alg part 2.3" << endl;
 				double distance = sqrt((truObj->x - hypObj->x)^2 + (truObj->y - hypObj->y)^2); 
 					if (distance < T)
+					{
 						distMap.emplace(distance, make_pair(truObj->id, hypObj->id));
+					}
 			}
 		}
 	
@@ -185,10 +187,13 @@ void Evaluation::currentFrame()
 			hypID = distMap.begin()->second.second;
 
 			//cout << "Alg part 3.2" << endl;
-			if (correspondance.at(frameCounter - 1)[obID] != hypID)
+			if (correspondance.at(frameCounter - 1).size() > 0)
 			{
-				//cout << "Alg part 3.3" << endl;
-				frameMismatches += 1;
+				if (correspondance.at(frameCounter - 1)[obID] != hypID)
+				{
+					//cout << "Alg part 3.3" << endl;
+					frameMismatches += 1;
+				}
 			}
 
 			//cout << "Alg part 3.4.1" << endl;
@@ -231,11 +236,11 @@ void Evaluation::currentFrame()
 		
 		cout << "FrameCounter:\t" << frameCounter << endl << endl;;
 
-		cout << "Matches:\t" << matches.back() << endl;
-		cout << "Misses:\t\t" << misses.back() << endl;
-		cout << "False Positive:\t" << falsePositive.back() << endl;
-		cout << "Mismatches:\t" << mismatches.back() << endl;
-		cout << "Distance:\t" << distance.back()	<< endl;
+		//cout << "Matches:\t" << matches.back() << endl;
+		//cout << "Misses:\t\t" << misses.back() << endl;
+		//cout << "False Positive:\t" << falsePositive.back() << endl;
+		//cout << "Mismatches:\t" << mismatches.back() << endl;
+		//cout << "Distance:\t" << distance.back()	<< endl;
 		
 		frameCounter++;
 
@@ -396,7 +401,7 @@ bool Evaluation::isCorr(int truID, int hypID)
 	obY = ob->y;
 	hypX = hyp->x;
 	hypY = hyp->y;
-	float dist = (float)sqrt((obX - hypX)^2 + (obY - hypY)^2);
+	float dist = sqrt(pow(obX - hypX, 2) + pow(obY - hypY, 2));
  
 	if (dist < T)
 	{

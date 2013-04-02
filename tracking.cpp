@@ -34,20 +34,22 @@ int main()
 	Evaluation evaluate(&frameList);
 
 	// Init
-	foregroundProcessor.setAlgortihm(ForegroundProcessing::SHADOW);
-	foregroundProcessor.init(5, 5, 125, 4);
+	//Use slow, toggle shadows in the init command
+	foregroundProcessor.setAlgortihm(ForegroundProcessing::SLOW);
+	foregroundProcessor.init(3, 4, 125, 4, true);
+	foregroundProcessor.initShadow(0.1, 1.0, 0.8, 0.99);
 	identifier.init(Identification::Ultimate);
-	evaluate.readXML2FrameList("clip1.xml");
-	//evaluate.readXML2FrameList("CAVIAR1/feecp2gt.xml");
+	//evaluate.readXML2FrameList("clip1.xml");
+	evaluate.readXML2FrameList("CAVIAR1/fosne2gt.xml");
 	
 	
 	// Load frame source
-	//frameList.open("CAVIAR1/EnterExitCrossingPaths2front.mpg");
-	frameList.open("camera1.mov");
+	frameList.open("CAVIAR1/OneStopNoEnter2front.mpg");
+	//frameList.open("clip1.mpeg");
 	//frameList.open("Renova_20080420_083025_Cam10_0000.mpeg");
 	
 	//Record
-	VideoWriter demo("trackingDemo.mpeg", CV_FOURCC('P','I','M','1'), 20, frameList.movieSize);
+	VideoWriter demo("trackingDemo.mpeg", CV_FOURCC('P','I','M','1'), 20, frameList.movieSize*2);
 
 	// Create windows
 	namedWindow("Info",CV_WINDOW_AUTOSIZE);
@@ -72,7 +74,7 @@ int main()
 		// Do the nessecary processing
 		backgroundModel.update(frameList.getFrames());						PROFILE("BackgroundModel");
 		//Wait for convergence
-		if (frameList.getCurrentFrameNumber() > 125)
+		if (frameList.getCurrentFrameNumber() > 200)
 		{
 			foregroundProcessor.segmentForeground(frameList.getLatestFrame());	PROFILE("ForegroundSeg.");
 		}
@@ -85,7 +87,7 @@ int main()
 		frameList.display("Tracking");
 		frameList.displayBackground("Background");
 		//Wait for convergence
-		if (frameList.getCurrentFrameNumber() > 125)
+		if (frameList.getCurrentFrameNumber() > 200)
 		{	
 			frameList.displayForeground("Foreground");
 		}
@@ -96,13 +98,13 @@ int main()
 		waitKey(1);															PROFILE("Display");
 
 		// Write stuff to demo
-		demo << frameList.getLatestFrame().image;
+		demo << frameList.getLatestFrame().demoImage;
 		
 		// Optional pause between each frame
 		
-		if (frameList.getCurrentFrameNumber() > 9999999)
+		if (frameList.getCurrentFrameNumber() > 125)
 		{
-			waitKey(0);
+		//	waitKey(0);
 		}				
 											
 																			PROFILE("QueryNextFrame");										
@@ -112,11 +114,11 @@ int main()
 
 		// Display info
 		frameList.displayInfo("Info");
-
+		evaluate.MOTA();
+		evaluate.MOTP();
 	} 
 	waitKey(0);
-	evaluate.MOTA();
-	evaluate.MOTP();
+
 	return 0;
 }
 

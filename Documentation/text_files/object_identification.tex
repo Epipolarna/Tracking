@@ -18,13 +18,7 @@ The error $\epsilon$ is minimized greedy w.r.t. pairs of objects:
 \begin{equation}
   \epsilon = \epsilon_{distance} + \epsilon_{area}
 \end{equation}
-If $\epsilon$ is larger than 5000 the error is considered to large and two objects separated by such high error are considered not possibly the same.\\
-\newline
-An error of 5000 equals approximately
-\begin{easylist}
-& 70 pixels in x- and y-direction apart and having the exact same width/height.
-\end{easylist}
-
+If $\epsilon$ is larger than 5000 the error is considered to large and two objects separated by such high error are considered not possibly the same. An error of 5000 equals approximately 70 pixels in x- and y-direction apart and having the exact same width/height.
 
 \subsubsection{Algorithms}
 \textbf{Nearest Fit} \\
@@ -39,8 +33,8 @@ See source code in appendix \ref{sec:ObjID_code} for further details. %referens 
 \newpage
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=116mm]{images/data_flow_identification.png}
-	\caption{\textit{Object Identification flowchart (The 'Ultimate' algorithm).}}
+	\includegraphics[width=123.5mm]{images/data_flow_identification.png}
+	\caption{\textit{Flow chart of the 'Ultimate' algorithm. Each rectangular box may contains additional branches and loops leaving this figure to provide the reader with a overview of the occlusion handling progress and identification).}}
 	\label{fig:ObjID_fig} %Skapar referens till figuren
 \end{figure}
 

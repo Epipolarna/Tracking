@@ -18,7 +18,7 @@ Frame::Frame(cv::Mat image) : image(image) {
 	//cout << "colrange "  <<  image.cols << " " << image.cols*2 << endl;
 	//Mat temp(demoImage, Range(image.rows, image.rows*2 - 1), Range(image.cols, image.cols*2 - 1));
 	
-	displayUncertainty = false;
+	displayUncertainty = true;
 }
 
 void Frame::init(bool displayUncertainty)

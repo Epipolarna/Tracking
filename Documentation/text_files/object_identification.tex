@@ -8,7 +8,7 @@ Let Object 1 have position and velocity
 \begin{equation}
 (dx_1, dy_1)
 \end{equation}
-The error $\epsilon$ is minimized w.r.t. pairs of objects:
+The error $\epsilon$ is minimized greedy w.r.t. pairs of objects:
 \begin{equation}
   \epsilon_{distance} = (x_1 - x_2 - dx_2)^2 + (y_1 - y_2 - dy_2)^2
 \end{equation}
@@ -28,11 +28,11 @@ An error of 5000 equals approximately
 
 \subsubsection{Algorithms}
 \textbf{Nearest Fit} \\
-The 'Nearest Fit' algorithm matches previous and current objects by minimizing the total error above (global optimum). This means that the pair of objects with the lowest $\epsilon$ is considered to be the same. They are removed from the candidating previous and current object lists and the next pair with lowest $\epsilon$ is considered until no more pairs are left. Any left previous objects are considered to be new objects and any left current objects are considered to be lost. \\
+The 'Nearest Fit' algorithm matches previous and current objects by minimizing $\epsilon$. This means that the pair of objects with the lowest $\epsilon$ is considered to be the same. They are removed from the candidating previous and current object lists and the next pair with lowest $\epsilon$ is considered until no more pairs are left. Any left previous objects are considered to be new objects and any left current objects are considered to be lost. \\
 No occlusion is handled. \\
 \newline
 \textbf{Ultimate}\\
-The 'Ultimate' algorithm concentrates on solving the occlusion situations described in that section. It focus on parent-child relationships between previous objects and new objects. If a current object overlaps previous objects these are seen as children to the current object, which is seen as a parent. It minimizes the total error above when deciding which the best parent is for a child (if it seems to have multiple), or when to pair up previous-current objects not overlapping. See the flow chart below. \\
+The 'Ultimate' algorithm concentrates on solving the occlusion situations described in that section. It focus on parent-child relationships between previous objects and new objects. If a current object overlaps previous objects these are seen as children to the current object, which is seen as a parent. It minimizes $\epsilon$ when deciding which the best parent is for a child (if it seems to have multiple), or when to pair up previous-current objects not overlapping. See the flow chart in figure 2.7. \\
 \newline
 See source code in appendix \ref{sec:ObjID_code} for further details. %referens till kod, ger klickbar länk.
 
@@ -45,5 +45,4 @@ See source code in appendix \ref{sec:ObjID_code} for further details. %referens 
 \end{figure}
 
 \subsubsection{Unsolved problems and possible improvements}
-When objects are lost for too long and without any velocity, which would otherwise indicate that the object might temporary be behind a hinder, it should probably be removed in order ot compensate for ghost objects let through by the background modelling and the foreground segmentation.
-
+When objects are lost for too long and without any velocity, which would otherwise indicate that the object might temporary be behind a hinder, it should probably be removed in order ot compensate for ghost objects let through by the background modelling and the foreground segmentation. Another indication for removal could be when the uncertainty grows much larger than the entire frame.

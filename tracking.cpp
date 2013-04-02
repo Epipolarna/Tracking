@@ -37,7 +37,7 @@ int main()
 	//Use slow, toggle shadows in the init command
 	foregroundProcessor.setAlgortihm(ForegroundProcessing::SLOW);
 	foregroundProcessor.init(3, 4, 125, 4, true);
-	foregroundProcessor.initShadow(0.1, 1.0, 0.8, 0.99);
+	foregroundProcessor.initShadow(0.5, 1.0, 0.8, 0.99);
 	identifier.init(Identification::Ultimate);
 	//evaluate.readXML2FrameList("clip1.xml");
 	evaluate.readXML2FrameList("CAVIAR1/fosne2gt.xml");

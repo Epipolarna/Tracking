@@ -26,20 +26,17 @@ namespace ForegroundProcessing
 
 		void segmentForeground(Frame & frame);
 
-		// Fast algorithm (>30ms)
-		// Specify threshold value and number of iterations
+		// Fast, single opening/closing + detection
 		void segmentForegroundFast(Frame & frame); 
 		
-		// Higher performance algorithm (Hopefully) (~650ms) 
-		// Specify threshold value and minimum consour thickness 
+		// Discard too small objects. 
 		void segmentForegroundArea(Frame & frame);
-		
-		// Higher performance algorithm (Hopefully) (~650ms) 
-		// Specify threshold value and minimum contour thickness 
-		void segmentForegroundSlow(Frame & frame);
 
-		//Manages shadows
+		//Manages shadows, if shaduwsuppression is true, otherwise, same as area
 		void segmentForegroundShadow(Frame & frame);
+
+		// Uses distance transform for garbage cleanup, with shadow suppression 
+		void segmentForegroundSlow(Frame & frame);
 
 		void init(int iterations, double minDist, double minArea, double minQuotient, bool suppressShadows);
 		void initShadow(double tau_H, double tau_S, double alpha, double beta);

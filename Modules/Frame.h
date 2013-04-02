@@ -37,7 +37,10 @@ public:
 	std::map<std::string, double> profileData;	// Time in seconds
 	ProbabilityMap bgModel;
 
+	bool displayUncertainty;
+
 	//For debugging/showoff
+	void init(bool displayUncertainty);
 	void showObjects();
 	void showImageRaw(std::string windowID);
 	void showImageProbMap(std::string windowID);

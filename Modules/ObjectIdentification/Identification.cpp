@@ -105,19 +105,6 @@ namespace Identification
 	{
 		Frame * current = &frames.front();
 		Frame * previous = &(*(++frames.begin()));
-				
-		// Debug frame counters
-		static int i = 0;
-		i++;
-		if(i < 15)	// Start at the 15th frame
-		{
-			current->objects.clear();
-			return;
-		}
-
-		// Debug
-		std::cout << std::to_string(i) << " ------------------\n";
-
 		float error;
 		int pIndex;
 
@@ -129,23 +116,11 @@ namespace Identification
 		undecidedPrevObject.clear();
 		undecidedCurrObject.clear();
 		errorMap.clear();
-
-		/*
-		for(std::vector<Object>::iterator i = current->objects.begin(); i != current->objects.end(); i++)
-		{
-			undecidedCurrObject.push_back(&(*i));
-		}
-		
-		for(std::vector<Object>::iterator i = previous->objects.begin(); i != previous->objects.end(); i++)
-		{
-			undecidedPrevObject.push_back(&(*i));
-		}*/
-		
+				
 		for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
 		{
 			p->isChild = false;
 			p->isParent = false;
-			//p->isLost = false;
 			p->isDecided = false;
 			p->children.clear();
 			p->parents.clear();
@@ -164,16 +139,6 @@ namespace Identification
 					p->parents.push_back(&(*c));
 					c->isParent = true;
 					p->isChild = true;
-
-					//if(c->children.size() > 2)
-						//std::cout << "ohnoes\n";
-
-					//std::cout << ">Parent with " << c->children.size() << " children\n";
-					int index = 1;
-					for(std::list<Object*>::iterator child = c->children.begin(); child != c->children.end(); child++)
-					{
-						//std::cout << "\t Child " << std::to_string(index++) << ": " << (*child)->id << "\n";
-					}
 				}
 			}
 			if(!c->isParent)
@@ -202,8 +167,6 @@ namespace Identification
 			}
 			else
 			{
-				//std::cout << ">>A child has multiple parents<<\n";
-
 				// Which parent is the most likely?
 				parentError.clear();
 				for(std::list<Object*>::iterator p = (*child)->parents.begin(); p != (*child)->parents.end(); p++)
@@ -276,11 +239,7 @@ namespace Identification
 				decidedCurrent.push_back(**parent);
 			}
 			else
-			{
-				// Debug
-				//std::cout << "Parent with " << (*parent)->children.size() << " children\n";
-				//std::cout << "\t Child 1: " << (*parent)->children.front()->id << "\n";
-				
+			{				
 				// Visualise Parent
 				std::string objectText = "Parent (";
 
@@ -418,8 +377,7 @@ namespace Identification
 				decidedCurrent.push_back(**c);
 			}
 		}
-
-		
+				
 		// Any previous object not decided is assumed to be lost
 		for(std::list<Object*>::iterator c = undecidedPrevObject.begin(); c != undecidedPrevObject.end(); c++)
 		{
@@ -446,7 +404,7 @@ namespace Identification
 		}
 
 
-		// Duplicates can still occure, why? <TODO: WHY?>
+		// Duplicates can still occure...
 		decidedCurrent.sort();
 		decidedCurrent.unique();
 		
@@ -454,7 +412,9 @@ namespace Identification
 		current->objects.clear();
 		std::copy(decidedCurrent.begin(), decidedCurrent.end(), back_inserter(current->objects));
 
-		//Debug: print all objects and their status
+		// Debug: print all objects and their status
+		static int i = 0;	// Frame counter
+		std::cout << std::to_string(i++) << " ------------------\n";
 		int n;
 		for(std::list<Object>::iterator c = decidedCurrent.begin(); c != decidedCurrent.end(); c++)
 		{
@@ -469,8 +429,6 @@ namespace Identification
 					std::cout << "\tChild " << std::to_string(n) << ": " << std::to_string((*child)->id) << "\n";
 		}
 		std::cout << std::to_string(decidedCurrent.size()) << " Objects in total\n";
-				
-		
 	}
 
 

@@ -14,10 +14,16 @@ Frame::Frame(cv::Mat image) : image(image) {
 							  image.cols*2 - 1, 
 							  image.rows*2 - 1));*/
 	//cout << "demosize " << demoImage.size() << endl;
-	//cout << "¨rowrange " << image.rows << " " << image.rows*2 << endl;
+	//cout << "rowrange " << image.rows << " " << image.rows*2 << endl;
 	//cout << "colrange "  <<  image.cols << " " << image.cols*2 << endl;
 	//Mat temp(demoImage, Range(image.rows, image.rows*2 - 1), Range(image.cols, image.cols*2 - 1));
 	
+	displayUncertainty = false;
+}
+
+void Frame::init(bool displayUncertainty)
+{
+	this->displayUncertainty = displayUncertainty;
 }
 
 void Frame::drawObjects(Scalar color)
@@ -40,17 +46,19 @@ void Frame::drawObjects(Scalar color)
 		int x_w = it->x + it->width/2;
 		int y_h = it->y + it->height/2;
 
-		
 		// Display uncertainty
-		rectangle(image, Point(x-it->widthUncertanty/2, y-it->heightUncertanty/2), 
-						 Point(x_w+it->widthUncertanty/2, y_h+it->heightUncertanty/2), 
-						 certaintyColor, 1, 8);
-		/*
-		ellipse(image, Point(it->x, it->y), 
-					   Size(it->positionUncertantyX, it->positionUncertantyY),
-					   0, 0, 360,
-					   certaintyColor, 1, 8);
-					   */
+		if(displayUncertainty)
+		{
+			rectangle(image, Point(x-it->widthUncertanty/2, y-it->heightUncertanty/2), 
+							 Point(x_w+it->widthUncertanty/2, y_h+it->heightUncertanty/2), 
+							 certaintyColor, 1, 8);
+		
+			ellipse(image, Point(it->x, it->y), 
+						   Size(it->positionUncertantyX, it->positionUncertantyY),
+						   0, 0, 360,
+						   certaintyColor, 1, 8);
+		}
+
 		// Display Boundry box and velocities
 		rectangle(image, Point(x, y), 
 						 Point(x_w, y_h), 

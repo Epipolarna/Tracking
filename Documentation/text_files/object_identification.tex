@@ -1,4 +1,4 @@
-The purpose of \emph{Object identification} is to assign id's to object's discovered in the current frame based on what was known previous frames and using predictions from the Kalman filter. The aim is to assign a previously detected objects id to the most probable current object, or to none if the previous objects was moving out of the frame. New objects must be given new id's. 
+The purpose of \emph{Object identification} is to assign id's to objects discovered in the current frame, based on what is known from previous frames and using predictions from the Kalman filter. The aim is to assign a previously detected objects' id to the most probable current object, or to none if the previous objects was moving out of the frame. New objects must be also be given new id's. 
 
 \subsubsection{Error measurement}
 Let Object 1 have position and velocity
@@ -22,11 +22,11 @@ If $\epsilon$ is larger than 5000 the error is considered to large and two objec
 
 \subsubsection{Algorithms}
 \textbf{Nearest Fit} \\
-The 'Nearest Fit' algorithm matches previous and current objects by minimizing $\epsilon$. This means that the pair of objects with the lowest $\epsilon$ is considered to be the same. They are removed from the candidating previous and current object lists and the next pair with lowest $\epsilon$ is considered until no more pairs are left. Any left previous objects are considered to be new objects and any left current objects are considered to be lost. \\
+The 'Nearest Fit' algorithm matches previous and current objects by minimizing $\epsilon$. This means that the pair of objects with the lowest $\epsilon$ are assumed to be the same. They are removed from the candidating previous and current object lists and the next pair with lowest $\epsilon$ is considered until no more pairs are left. Any left previous objects are assumed to have disappeared and any left current objects are considered new objects. \\
 No occlusion is handled. \\
 \newline
 \textbf{Ultimate}\\
-The 'Ultimate' algorithm concentrates on solving the occlusion situations described in that section. It focus on parent-child relationships between previous objects and new objects. If a current object overlaps previous objects these are seen as children to the current object, which is seen as a parent. It minimizes $\epsilon$ when deciding which the best parent is for a child (if it seems to have multiple), or when to pair up previous-current objects not overlapping. See the flow chart in figure 2.7. \\
+The 'Ultimate' algorithm concentrates on solving the occlusion situations described in that section \ref{sec:Occlusion}. It focus on parent-child relationships between previous objects and new objects. If a current object overlaps previous objects these are seen as children to the current object, which is seen as a parent. It minimizes $\epsilon$ when deciding which the best parent is for a child (if it seems to have multiple), or when pairing up previous-current objects not overlapping. See the flow chart in figure \ref{fig:ObjID_fig}. \\
 \newline
 See source code in appendix \ref{sec:ObjID_code} for further details. %referens till kod, ger klickbar länk.
 
@@ -39,6 +39,6 @@ See source code in appendix \ref{sec:ObjID_code} for further details. %referens 
 \end{figure}
 
 \subsubsection{Unsolved problems and possible improvements}
-When objects are lost for too long and without any velocity, which would otherwise indicate that the object might temporary be behind a hinder, it should probably be removed in order ot compensate for ghost objects let through by the background modelling and the foreground segmentation. Another indication for removal could be when the uncertainty grows much larger than the entire frame.
+When objects are lost for too long and without any velocity, which would otherwise indicate that the object might temporary be behind a hinder, it should probably be removed in order ot compensate for ghost objects let through by the background modeling and the foreground segmentation. Another indication for removal could be when the uncertainty grows much larger than the entire frame.
 
 Objects could also be forced to change width/height very slowly, both when moving freely and when entering/exiting parent objects. This was partly implemented but was discarded due to lack of time.

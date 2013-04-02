@@ -8,9 +8,9 @@ Occlusion should be handled and objects that disappears by entering something or
 && The objects should be within the border of the parent object.
 && The objects should only be as wide and high as the parent object, as a maximum restriction.
 
-& A object is moving when it suddenly moves behind a hinder from the background and thus suddenly disappear, then it pop out on the other side of the hinder at a distance from its disappearance.
+& An object is moving when it suddenly moves behind a hinder from the background and thus suddenly disappear, then it pop out on the other side of the hinder at a distance from its disappearance.
 && When the object disappear it is marked as lost and is updated according to its speed vector value of the moment of disappearance using the predictor (no measurement update, only time update) until the original object appears close to the estimation. The estimation and the 'new' object is considered the same object.
 
-& A object move in the scene and suddenly stop.
-&& The object is marked as lost and kept. When a newly discovered close enough it is considered to be the same object.
+& An object move in the scene and suddenly stop.
+&& The object is marked as lost and kept. When a newly discovered object is close enough it is considered to be the same object.
 \end{easylist}

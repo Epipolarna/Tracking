@@ -244,10 +244,10 @@ namespace ForegroundProcessing
 					if (pointPolygonTest(contour, matPos, false) >= 0) 
 					{
 						// Parameters for shadow detection
-						if (  ((abs((double)lastImage.at<Vec3b>(matPos)[0] - (double)shadowModel.at<Vec3b>(matPos)[0])/255 < 0.5) )		// HUE
-							&& ( ((double)lastImage.at<Vec3b>(matPos)[1] - (double)shadowModel.at<Vec3b>(matPos)[1])/255 < 0.5)			// SATURATION
-							&& ( (double)lastImage.at<Vec3b>(matPos)[2] / ((double)shadowModel.at<Vec3b>(matPos)[2] + 0.0001) > 0.8)	// VALUE (ALPHA)
-							&& ( (double)lastImage.at<Vec3b>(matPos)[2] / ((double)shadowModel.at<Vec3b>(matPos)[2] + 0.0001) < 0.99)	// VALUE (BETA)
+						if (  ((abs((double)lastImage.at<Vec3b>(matPos)[0] - (double)shadowModel.at<Vec3b>(matPos)[0])/255 < tau_H) )		// HUE
+							&& ( ((double)lastImage.at<Vec3b>(matPos)[1] - (double)shadowModel.at<Vec3b>(matPos)[1])/255 < tau_S)			// SATURATION
+							&& ( (double)lastImage.at<Vec3b>(matPos)[2] / ((double)shadowModel.at<Vec3b>(matPos)[2] + 0.0001) > alpha)	// VALUE (ALPHA)
+							&& ( (double)lastImage.at<Vec3b>(matPos)[2] / ((double)shadowModel.at<Vec3b>(matPos)[2] + 0.0001) < beta)	// VALUE (BETA)
 							)
 						{
 							//Color gray for visualisation

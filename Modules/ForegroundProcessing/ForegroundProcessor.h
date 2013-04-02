@@ -41,8 +41,9 @@ namespace ForegroundProcessing
 		//Manages shadows
 		void segmentForegroundShadow(Frame & frame);
 
-		void init(int iterations, double minDist, double minArea, double minQuotient);
-		
+		void init(int iterations, double minDist, double minArea, double minQuotient, bool suppressShadows);
+		void initShadow(double tau_H, double tau_S, double alpha, double beta);
+
 		void ForegroundProcessor::setAlgortihm(Algorithm algorithm)
 		{
 			this->algorithm = algorithm; 
@@ -53,27 +54,28 @@ namespace ForegroundProcessing
 		Mat shadowModel;
 		//Finds objects in a binary image and puts them in the list.
 		void getObjects(Frame & frame);
-
+		//Finds objects that are large and convex enough
 		void getObjectsArea( Frame & frame, double maxArea, double minQuotient );
-		//Same as above but also performs a cleanup using the distance transform.
-		void getObjectsDistMap(Frame & frame, double minDist);
-		//manages shadows
+		//Manages shadows
 		void suppressShadows(Frame & frame, double minArea, double minDist);
 	
-		//Image Processing of probabilitymap.
-		void threshMap(cv::Mat probMap, int threshval);
-		void openingBinMap(cv::Mat probMap, int iterations = 1);
-		void closingBinMap(cv::Mat probMap, int iterations = 1);
-		void erodeBinMap(cv::Mat probMap, int iterations = 1);	
-		void dilateBinMap(cv::Mat probMap, int iterations = 1);
+		//Image Processing of foreground.
+		void distanceFilter(Frame & frame, double minDist);
+		void threshMap(cv::Mat foreground, int threshval);
+		void openingBinMap(cv::Mat foreground, int iterations = 1);
+		void closingBinMap(cv::Mat foreground, int iterations = 1);
+		void erodeBinMap(cv::Mat foreground, int iterations = 1);	
+		void dilateBinMap(cv::Mat foreground, int iterations = 1);
 
-		// Framecount
+		// Internal framecounter
 		int frameCounter;
 
 		// Settings
 		Algorithm algorithm;
+		bool shadows;
 		int threshval, iterations;
-		double minArea, minDist, minQuotient;
+		double minArea, minDist, minQuotient, tau_H, tau_S, alpha, beta;
+		
 
 	};
 }

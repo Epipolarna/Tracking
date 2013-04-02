@@ -26,7 +26,7 @@ namespace ForegroundProcessing
 		}
 	}
 
-	void ForegroundProcessor::init(int iterations, double minDist, double minArea, double minQuotient)
+	void ForegroundProcessor::init(int iterations, double minDist, double minArea, double minQuotient, bool shadowSuppression)
 	{
 		this->threshval = 192;
 		this->iterations = iterations;
@@ -34,6 +34,15 @@ namespace ForegroundProcessing
 		this->minArea = minArea; 
 		this->minQuotient =	minQuotient;
 		this->frameCounter = 0;
+		this->shadows = shadowSuppression;
+	}
+
+	void ForegroundProcessor::initShadow(double tau_H = 0.1, double tau_S = 1, double alpha = 0.5, double beta = 0.99)
+	{
+		this->tau_H = tau_H;
+		this->tau_S = tau_S;
+		this->alpha = alpha;
+		this->beta = beta;
 	}
 
 	void ForegroundProcessor::segmentForegroundFast(Frame & frame)
@@ -50,20 +59,48 @@ namespace ForegroundProcessing
 	void ForegroundProcessor::segmentForegroundSlow(Frame & frame)
 	{
 		threshMap(frame.foreground, threshval); //Threshold at threshval
-		suppressShadows(frame, minArea, minQuotient);
-		getObjectsDistMap(frame, minDist);
+		
+		//Demo recording
+		Mat demoTemp;
+		cvtColor(frame.foreground, demoTemp, CV_GRAY2BGR, 3);
+		demoTemp.copyTo(frame.demoImage(Range(0, frame.image.rows), 
+										Range(0, frame.image.cols)));
+		
+		if (shadows)
+		{
+			suppressShadows(frame, minArea, minQuotient);
+		}
+		//Demo Recording
+		cvtColor(frame.foreground, demoTemp, CV_GRAY2BGR, 3);
+		demoTemp.copyTo(frame.demoImage(Range(0, frame.image.rows), 
+										Range(frame.image.cols, frame.image.cols*2)));
+
+		//Debug
+		imshow( "Shadow Debug", frame.foreground );
+		
+		//Remove gray pixels
+		threshMap(frame.foreground, threshval);
+
+		distanceFilter(frame, minDist);
+		dilateBinMap(frame.foreground, iterations);
+		
+		//Demo recording
+		cvtColor(frame.foreground, demoTemp, CV_GRAY2BGR, 3);
+		demoTemp.copyTo(frame.demoImage(Range(frame.image.rows, frame.image.rows*2), 
+										Range(0, frame.image.cols)));		
+		
+		getObjects(frame);
 	
 		return;
 	}
 
 	void ForegroundProcessor::segmentForegroundArea(Frame & frame)
 	{
-		threshMap(frame.foreground, threshval); //Threshold to create binary image.
+		threshMap(frame.foreground, threshval);
+		
 		openingBinMap(frame.foreground, iterations);
 		dilateBinMap(frame.foreground, iterations);
 		closingBinMap(frame.foreground, iterations);
-		//openingBinMap(frame.foreground, 2);
-		//closingBinMap(frame.foreground, iterations); 
 
 		getObjectsArea(frame, minArea, minQuotient);
 	
@@ -75,7 +112,11 @@ namespace ForegroundProcessing
 	{
 		
 		threshMap(frame.foreground, threshval);
-		suppressShadows(frame, minArea, minQuotient);
+		
+		if (shadows)
+		{
+			suppressShadows(frame, minArea, minQuotient);
+		}
 		
 		//Debug
 		Mat debug = frame.foreground;
@@ -145,8 +186,11 @@ namespace ForegroundProcessing
 		}
 	}
 
+	////////////////// Shadow Suppression ////////////////////////
 	void ForegroundProcessor::suppressShadows(Frame & frame, double minArea, double minDist)
 	{
+		
+		//Create "most probable background"
 		if (shadowModel.empty())
 			shadowModel =  Mat::zeros(frame.image.size(), CV_8UC3);
 		frameCounter++;
@@ -155,13 +199,11 @@ namespace ForegroundProcessing
 			shadowModel += (frame.image / 10);
 			return;
 		}
-		int i = 7;
 		if (frameCounter == 10)
 		{
 			//Show "most probable background"
 			//imshow( "ShadowModel", shadowModel );
 			//cvtColor(shadowModel, shadowModel, CV_BGR2HSV_FULL);
-			
 			// Debug
 			/*
 			Mat hue(shadowModel.size(), CV_8UC1);
@@ -174,12 +216,12 @@ namespace ForegroundProcessing
 			imshow( "ShadowModel, saturation", saturation );
 			imshow( "ShadowModel, value", value);
 			*/
+
 		}
 
 		vector<vector<Point>> contours;
 		findContours( frame.foreground.clone(), contours, CV_RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
 
-		Vec3f newColorVec, oldColorVec, tempVec;
 		Mat lastImage = frame.image.clone();
 		cvtColor(lastImage, lastImage, CV_BGR2HSV_FULL);
 		
@@ -201,19 +243,14 @@ namespace ForegroundProcessing
 					//If object is not outside the contour
 					if (pointPolygonTest(contour, matPos, false) >= 0) 
 					{
-						// Parameters for detecting cars in the RenovA clips
-						/*if ( (((abs((double)lastImage.at<Vec3b>(matPos)[0] - (double)shadowModel.at<Vec3b>(matPos)[0])/255 < 0.2) ) || ( (double)shadowModel.at<Vec3b>(matPos)[1]/255 < 0.05) )
-							&& ( ((double)lastImage.at<Vec3b>(matPos)[1] - (double)shadowModel.at<Vec3b>(matPos)[1])/255 < 0.3)	
-							&& ( ((double)lastImage.at<Vec3b>(matPos)[2] / ((double)shadowModel.at<Vec3b>(matPos)[2])  + 0.0001) > 0.15)
-							&& ( ((double)lastImage.at<Vec3b>(matPos)[2] / ((double)shadowModel.at<Vec3b>(matPos)[2]) + 0.0001) < 1.1)
-							)*/
-						// Parameters for the shopping mall (uber shitty)
-						if ( (((abs((double)lastImage.at<Vec3b>(matPos)[0] - (double)shadowModel.at<Vec3b>(matPos)[0])/255 < 0.1) ) )//|| ( (double)shadowModel.at<Vec3b>(matPos)[1]/255 < 0.1) ) //HUE
-							&& ( ((double)lastImage.at<Vec3b>(matPos)[1] - (double)shadowModel.at<Vec3b>(matPos)[1])/255 < 0.3)	 // SATURATION
-							&& ( ((double)lastImage.at<Vec3b>(matPos)[2] / (double)shadowModel.at<Vec3b>(matPos)[2]) > 0.2)	//VALUE (ALPHA)
-							&& ( ((double)lastImage.at<Vec3b>(matPos)[2] / (double)shadowModel.at<Vec3b>(matPos)[2]) < 0.95) //VALUE (BETA)
+						// Parameters for shadow detection
+						if (  ((abs((double)lastImage.at<Vec3b>(matPos)[0] - (double)shadowModel.at<Vec3b>(matPos)[0])/255 < 0.5) )		// HUE
+							&& ( ((double)lastImage.at<Vec3b>(matPos)[1] - (double)shadowModel.at<Vec3b>(matPos)[1])/255 < 0.5)			// SATURATION
+							&& ( (double)lastImage.at<Vec3b>(matPos)[2] / ((double)shadowModel.at<Vec3b>(matPos)[2] + 0.0001) > 0.8)	// VALUE (ALPHA)
+							&& ( (double)lastImage.at<Vec3b>(matPos)[2] / ((double)shadowModel.at<Vec3b>(matPos)[2] + 0.0001) < 0.99)	// VALUE (BETA)
 							)
 						{
+							//Color gray for visualisation
 							frame.foreground.at<uchar>(matPos) = 128;
 						}
 					} 
@@ -222,12 +259,14 @@ namespace ForegroundProcessing
 		}
 	}
 	
-	
-	
-	void ForegroundProcessor::getObjectsDistMap(Frame & frame, double minDist)
+
+	////////////////// Image Processing //////////////////////
+	void ForegroundProcessor::distanceFilter(Frame & frame, double minDist)
 	{
+		Mat temp = Mat::zeros(frame.foreground.size(), frame.foreground.type());
 		vector<vector<Point>> contours;
 		findContours( frame.foreground.clone(), contours, CV_RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
+
 
 		Rect objRect;
 		double dist = 0;
@@ -247,15 +286,18 @@ namespace ForegroundProcessing
 						} 
 					}		
 				}
-			if (dist > minDist) //Create object only if distance is great enough.
+			if (dist > minDist) //Draw contour only if distance is great enough.
 			{		
-				frame.objects.push_back(Object(objRect));	
+				drawContours(temp, contours, i, Scalar(255), CV_FILLED); 	
 			}
 			dist = 0;
 		}
+		
+		frame.foreground = temp;
+		imshow( "Temp", frame.foreground );
+		
 	}
-
-	////////////////// Image Processing //////////////////////
+	
 	void ForegroundProcessor::threshMap(Mat foreground, int threshval)
 	{
 		int maxVal = 255;

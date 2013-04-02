@@ -28,6 +28,7 @@ public:
 	void drawObjectsPrediction(Scalar color);
 		
 	//Data
+	Mat demoImage;
 	Mat image;						 //Should be 3-channel color
 	Mat backgroundProbMap;			 //Should be 3-channel color
 	//Mat probMap;					 //Should be single channel grayscale

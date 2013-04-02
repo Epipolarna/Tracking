@@ -91,6 +91,9 @@ void FrameList::display(std::string windowID)
 	getLatestFrame().drawObjects(cv::Scalar(250, 0, 0, 255));
 	putText(getLatestFrame().image, text, Point(5, 15), fontFace, fontScale, Scalar::all(0), thickness, 8);
 	imshow( windowID.c_str(), getLatestFrame().image );
+	// Record Demo
+	getLatestFrame().image.copyTo(getLatestFrame().demoImage(Range(getLatestFrame().image.rows, getLatestFrame().image.rows*2), 
+															 Range(getLatestFrame().image.cols, getLatestFrame().image.cols*2)));
 }
 
 void FrameList::displayBackground(std::string windowID)

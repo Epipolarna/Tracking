@@ -7,7 +7,18 @@
 using namespace cv;
 using namespace std;
 
-Frame::Frame(cv::Mat image) : image(image) {}
+Frame::Frame(cv::Mat image) : image(image) {
+	demoImage = Mat::zeros(image.rows*2, image.cols*2, image.type());
+	/*Mat temp = demoImage(Rect(image.cols,
+							  image.rows, 		  
+							  image.cols*2 - 1, 
+							  image.rows*2 - 1));*/
+	//cout << "demosize " << demoImage.size() << endl;
+	//cout << "¨rowrange " << image.rows << " " << image.rows*2 << endl;
+	//cout << "colrange "  <<  image.cols << " " << image.cols*2 << endl;
+	//Mat temp(demoImage, Range(image.rows, image.rows*2 - 1), Range(image.cols, image.cols*2 - 1));
+	
+}
 
 void Frame::drawObjects(Scalar color)
 {

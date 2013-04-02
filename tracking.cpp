@@ -31,18 +31,18 @@ int main()
 
 	// Init
 	foregroundProcessor.setAlgortihm(ForegroundProcessing::SLOW); //Use slow, toggle shadows in the init command
-	foregroundProcessor.init(3, 4, 125, 4, true);
+	foregroundProcessor.init(3, 2, 125, 4, false);
 	foregroundProcessor.initShadow(0.5, 0.5, 0.3, 0.99);
 	identifier.init(Identification::Ultimate);
-	//evaluate.readXML2FrameList("clip1.xml");
-	evaluate.readXML2FrameList("CAVIAR1/fosne2gt.xml");
+	evaluate.readXML2FrameList("clip1.xml");
+	//evaluate.readXML2FrameList("CAVIAR1/fosne2gt.xml");
 	
 	
 	// Load frame source
 	//frameList.open("CAVIAR1/OneStopNoEnter2front.mpg");
 	//frameList.open("clip1.mpeg");
-	//frameList.open("camera1.mov");
-	frameList.open("Renova_20080420_083025_Cam10_0000.mpeg");
+	frameList.open("camera1.mov");
+	//frameList.open("Renova_20080420_083025_Cam10_0000.mpeg");
 	
 	//Record video
 	VideoWriter demo("trackingDemo.mpeg", CV_FOURCC('P','I','M','1'), 20, frameList.movieSize*2);

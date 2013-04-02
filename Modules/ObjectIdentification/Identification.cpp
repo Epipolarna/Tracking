@@ -16,7 +16,7 @@ namespace Identification
 			break;
 		case NearestFit:
 			algorithm = &Identifier::algorithm_nearestFit;
-			break;			
+			break;
 		}
 		this->maxError = maxError;
 		this->acceptedSizeChange = acceptedSizeChange;
@@ -177,26 +177,12 @@ namespace Identification
 
 				for(std::list<Error>::iterator errorI = ++(parentError.begin()); errorI != parentError.end(); errorI++)
 				{
-					for(std::list<Object*>::iterator pI = (errorI->previous)->children.begin(); pI != (errorI->previous)->children.end(); pI++)
-					{
-						if(*pI == *child)
-						{
-							(errorI->previous)->children.erase(pI);
-							break;
-						}
-					}
+					(errorI->previous)->children.remove(*child);
 
 				    // If the parent that isn't most likely only had one child, remove it from parents and add it to undecidedPrevObjects
 					if((errorI->previous)->children.empty())
 					{
-						for(std::list<Object*>::iterator pI = parents.begin(); pI != parents.end(); pI++)
-						{
-							if(errorI->previous == *pI)
-							{
-								parents.erase(pI);
-								break;
-							}
-						}
+						parents.remove(errorI->previous);
 					}
 				}
 			}

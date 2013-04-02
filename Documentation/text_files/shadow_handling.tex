@@ -16,11 +16,11 @@ The parameters that need to be specified in the shadow suppression are the thres
 	\label{eq:S}
 \end{equation}
 \begin{equation}
-	\alpha_V < \frac{V_i}{V_m} < \beta_V
+	\alpha < \frac{V_i}{V_m} < \beta
 	\label{eq:V}
 \end{equation}
 
-The parameter setting depend on the scene that is being observed. For example in figure \ref{fig:shadow_suppression_R0002_fig} where most of the shadows are cast on a gray road (hue $\approx 0$), a rather large $\tau_H$ is required. Also, since the shadows are not so profound, alpha can be raised, causing lower false positives for dark objects. There are big problems with false positives from the shadow suppression on dark objects, for example the car windows in the Renova 0000 sequence (figure \ref{fig:shadow_suppression_R0000_fig}). This can also be seen to some extent in figure \ref{fig:shadow_suppression_R0002_fig}, from the Renova 0002 sequence. These two figures illustrate how the parameters have to be changed, especially alpha, when the lighting conditions vary over time. Even though alpha is significantly lower in figure \ref{fig:shadow_suppression_R0000_fig}, we still get shadow pixel labeled as foreground near the upper car.
+The parameter setting depend on the scene that is being observed. For example in figure \ref{fig:shadow_suppression_R0002_fig} where most of the shadows are cast on a gray road (hue $\approx 0$), a rather large $\tau_H$ is required. Also, since the shadows are not so profound, alpha can be raised, causing lower false positives for dark objects. There are big problems with false positives from the shadow suppression on dark objects, for example the car windows in the Renova 0000 sequence (figure \ref{fig:shadow_suppression_R0000_fig}). This can also be seen to some extent in figure \ref{fig:shadow_suppression_R0002_fig}, from the Renova 0002 sequence. These two figures illustrate how the parameters have to be changed, especially $\alpha$, when the lighting conditions vary over time. Even though $\alpha$ is significantly lower in figure \ref{fig:shadow_suppression_R0000_fig}, we still get shadow pixel labeled as foreground near the upper car.
 
 \newpage
 \begin{figure}[htb]

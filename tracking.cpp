@@ -31,26 +31,25 @@ int main()
 	ForegroundProcessing::ForegroundProcessor foregroundProcessor;
 	Identification::Identifier identifier;
 	Prediction::Kalman kalmanFilter;
-	Evaluation evaluate(&frameList);
+	Evaluation evaluate(&frameList, 20);
 
 	// Init
 	//Use slow, toggle shadows in the init command
 	foregroundProcessor.setAlgortihm(ForegroundProcessing::SLOW);
-	foregroundProcessor.init(3, 3, 50, 4, false);
-	//foregroundProcessor.initShadow(0.5, 1.0, 0.8, 0.99);
+	foregroundProcessor.init(3, 4, 125, 4, true);
+	foregroundProcessor.initShadow(0.5, 0.5, 0.3, 0.99);
 	identifier.init(Identification::Ultimate);
 	//evaluate.readXML2FrameList("clip1.xml");
-	//evaluate.readXML2FrameList("CAVIAR1/fosne2gt.xml");
+	evaluate.readXML2FrameList("CAVIAR1/fosne2gt.xml");
 	
 	
 	// Load frame source
-	frameList.open("camera1.mov");
 	//frameList.open("CAVIAR1/OneStopNoEnter2front.mpg");
 	//frameList.open("clip1.mpeg");
-	//frameList.open("Renova_20080420_083025_Cam10_0000.mpeg");
+	frameList.open("Renova_20080420_083025_Cam10_0000.mpeg");
 	
 	//Record
-	VideoWriter demo("trackingOcclusion2Demo.mpeg", CV_FOURCC('P','I','M','1'), 20, frameList.movieSize*2);
+	VideoWriter demo("trackingDemo.mpeg", CV_FOURCC('P','I','M','1'), 20, frameList.movieSize*2);
 
 	// Create windows
 	namedWindow("Info",CV_WINDOW_AUTOSIZE);
@@ -75,22 +74,24 @@ int main()
 		// Do the nessecary processing
 		backgroundModel.update(frameList.getFrames());						PROFILE("BackgroundModel");
 		//Wait for convergence
-		if (frameList.getCurrentFrameNumber() > 30)
+		if (frameList.getCurrentFrameNumber() > 60)
 		{
 			foregroundProcessor.segmentForeground(frameList.getLatestFrame());	PROFILE("ForegroundSeg.");
 		}
 		identifier.identify(frameList.getFrames());							PROFILE("Identification");	
 		kalmanFilter.predict(frameList.getLatestFrame());					PROFILE("Kalman Prediction");
 		evaluate.currentFrame();											PROFILE("Evaluation");
-				
+
+		
 		// Display result
 		frameList.display("Tracking");
 		frameList.displayBackground("Background");
 		//Wait for convergence
-		if (frameList.getCurrentFrameNumber() > 30)
+		if (frameList.getCurrentFrameNumber() > 60)
 		{	
 			frameList.displayForeground("Foreground");
 		}
+		evaluate.displayInfo("Evaluation");
 		//frameList.displayBackgroundEstimate("BackgroundModel");
 		//frameList.displayBackgroundCertainty("BackgroundCertainty");
 				
@@ -101,12 +102,10 @@ int main()
 		demo << frameList.getLatestFrame().demoImage;
 		
 		// Optional pause between each frame
-		
-		if (frameList.getCurrentFrameNumber() > 125)
-		{
-		//	waitKey(0);
-		}				
-											
+		if (frameList.getCurrentFrameNumber() > 55)
+			waitKey(0);
+
+						
 																			PROFILE("QueryNextFrame");										
 																			PROFILE_TOTALTIME();
 																			PROFILE("Total FPS");

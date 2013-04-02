@@ -4,16 +4,8 @@ The background model uses a mixture of gaussians method, looking at all three co
 
 As the background is not completely static, due to camera noise and changing conditions in the scene the model needs to be dynamic aswell, for this a mixture of gaussians is used, that is updated with a variant of expectation maximization described in \cite{wood}
 
-Some optimizations... bla bla bla
 
 See code in appendix \ref{sec:BGMod_code}. %referens till kod, ger klickbar länk.
-
-\begin{figure}[htb]
-	\centering
-%	\includegraphics[width=\linewidth]{images/acatisfinetoo}
-	\caption{\textit{Background modeling figure.}}
-	\label{fig:BGModeling_fig} %Skapar referens till figuren
-\end{figure}
 
 \subsubsection{Solution}
 
@@ -23,8 +15,6 @@ If no matching distribution is found, the one with the lowest weight is replaced
 
 The weights of a single distribution are then normalized so they sum to one.
 
-A weight is not allowed to be lower than x, and a variance can not be lower than x, in order to imporove the stability of the model. Should a weight become to low, an update will cause the variance to become so large as to match any pixel. A to low variance will result in the distribution only matching when the pixel value is the same as the mean value for the distribution.
+In order to improve the stability of the model, a maximum weight and a minimum variance is used. Should a weight become to low an update will cause the variance of the pixel to become so large as to match anything. Without a minimum variance the the variance will quickly become to small, and cause the model to report pixels as foreground incorrectly.
 
 The result of the model ends up with only small (most are just one isolated pixel) ammounts of wrongly classified pixels, that are easily handled with a few morphological operations in the segmentation step.
-
-This can be seen in figure \ref{fig:BGModeling_fig}. %Referens till figur, Ger klickbar länk i pdfen.

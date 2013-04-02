@@ -20,7 +20,7 @@ The parameters that need to be specified in the shadow suppression are the thres
 	\label{eq:V}
 \end{equation}
 
-The parameter setting depend on the scene that is being observed. For example in figure \ref{fig:shadow_suppression_fig} where most of the shadows are cast on a gray road (hue $\approx 0$), a rather large $\tau_H$ is required. Also, since the shadows are not so profound, alpha can be raised, causing lower false positives (non shadow pixels labeled as shadow pixels) for dark objects. There are big problems with false positives from the shadow suppression on dark objects in, for example, the Renova 0000 sequence. This is also seen to some extent in figure \ref{fig:shadow_suppression_fig}, from the Renova 0002 sequence.
+The parameter setting depend on the scene that is being observed. For example in figure \ref{fig:shadow_suppression_R0002_fig} where most of the shadows are cast on a gray road (hue $\approx 0$), a rather large $\tau_H$ is required. Also, since the shadows are not so profound, alpha can be raised, causing lower false positives (non shadow pixels labeled as shadow pixels) for dark objects. There are big problems with false positives from the shadow suppression on dark objects, for example the car windows in the Renova 0000 sequence (figure \ref{fig:shadow_suppression_R0000_fig}). This can also be seen to some extent in figure \ref{fig:shadow_suppression_R0002_fig}, from the Renova 0002 sequence. These two figures illustrate how the parameters have to be changed, especially alpha, when the lighting conditions vary over time. Even though alpha is significantly lower in figure \ref{fig:shadow_suppression_R0000_fig}, we still get shadow pixel labeled as foreground near the upper car.
 
 \newpage
 \begin{figure}[htb]
@@ -30,10 +30,10 @@ The parameter setting depend on the scene that is being observed. For example in
 	\newline
 	Top row: Background model output, model output with marked shadow pixels (gray) \newline
 	Bottom row; final foreground image, actual video frame.}}
-	\label{fig:shadow_suppression_fig}  %Skapar referens till figuren
+	\label{fig:shadow_suppression_R0002_fig}  %Skapar referens till figuren
 \end{figure}
 
-The parameters used to create the images in figure \ref{fig:shadow_suppression_fig} above were:
+The parameters used to create the images in figure \ref{fig:shadow_suppression_R0002_fig} above were:
 
 \begin{table}[htb]
 \centering
@@ -51,6 +51,40 @@ The parameters used to create the images in figure \ref{fig:shadow_suppression_f
 	\hline
 \end{tabular}
 
-\caption{\textit{Parameters used to create figure \ref{fig:shadow_suppression_fig}.}}
-\label{tab:shadow_parameters}
+\caption{\textit{Parameters used to create figure \ref{fig:shadow_suppression_R0002_fig}.}}
+\label{tab:shadow_parameters_R0002_fig}
+\end{table}
+
+
+\newpage
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=\linewidth]{images/ShadowRenova0000.png}
+	\caption{\textit{Renova image sequence 0000, frame 209. 
+	\newline
+	Top row: Background model output, model output with marked shadow pixels (gray) \newline
+	Bottom row; final foreground image, actual video frame.}}
+	\label{fig:shadow_suppression_R0000_fig}  %Skapar referens till figuren
+\end{figure}
+
+The parameters used to create the images in figure \ref{fig:shadow_suppression_R0000_fig} above were:
+
+\begin{table}[htb]
+\centering
+\begin{tabular}{|c|c|}
+	\hline
+	Parameter & Value  \\
+	\hline
+	$\tau_H$ &  0.5 \\
+	\hline
+	$\tau_S$ & 0.5 \\
+	\hline
+	$\alpha$ &  0.3 \\
+	\hline
+	$\beta$ &  0.95 \\
+	\hline
+\end{tabular}
+
+\caption{\textit{Parameters used to create figure \ref{fig:shadow_suppression_R0000_fig}.}}
+\label{tab:shadow_parameters_R0000}
 \end{table}

@@ -67,3 +67,16 @@ float Object::intervalOverlap(float x1, float x2, float y1, float y2)
 		return x2 - y1;
 	return 0;
 }
+
+bool Object::isOutside(float limitWidth, float limitHeight)
+{
+	return x - width/2 + dx*2 < 0 ||
+		   x + width/2 + dx*2 > limitWidth ||
+		   y - height/2 + dy*2 < 0 ||
+		   y + height/2 + dy*2 > limitHeight;
+}
+
+bool Object::isMovingOutside(float limitWidth, float limitHeight)
+{
+	return x - width/2 < 0 || x + width/2 > limitWidth || y - height/2 < 0 || y + height/2 > limitHeight;
+}

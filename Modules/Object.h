@@ -39,5 +39,8 @@ public:
 
 	void addPositionUncertainty(float positionErrorX, float positionErrorY) { this->positionUncertantyX += positionErrorX; this->positionUncertantyY += positionErrorY; }
 	void addSizeUncertainty(float widthError, float heightError) { this->widthUncertanty += widthError; this->heightUncertanty += heightError; }
+
+	bool isOutside(float limitWidth, float limitHeight);
+	bool isMovingOutside(float limitWidth, float limitHeight);
 };
 #endif

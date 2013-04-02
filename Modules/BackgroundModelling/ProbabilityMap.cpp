@@ -17,7 +17,7 @@ ProbabilityMap::ProbabilityMap(Frame *prevFrame, Frame *currFrame){
 	}else{
 
 		this->models = prevFrame->bgModel.models;
-		if(counter < 50){
+		if(counter < 20){
 			this->models->updateModel(currFrame->image);
 		}
 	}

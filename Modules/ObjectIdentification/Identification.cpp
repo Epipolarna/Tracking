@@ -161,11 +161,7 @@ namespace Identification
 		//   No  -> Find out which is the most probable parent
 		for(std::list<Object*>::iterator child = children.begin(); child != children.end(); child++)
 		{
-			if((*child)->parents.size() == 1)
-			{
-
-			}
-			else
+			if((*child)->parents.size() != 1)
 			{
 				// Which parent is the most likely?
 				parentError.clear();
@@ -212,29 +208,15 @@ namespace Identification
 		{
 			if((*parent)->children.size() == 1)
 			{
-				(*parent)->id = (*parent)->children.front()->id;
-				(*parent)->model = (*parent)->children.front()->model;
-				(*parent)->children.front()->isChild = false;
-				(*parent)->isParent = false;
+				Object * p = (*parent);
+				Object * c = (*parent)->children.front();
+				p->id = c->id;
+				p->model = c->model;
+				c->isChild = false;
+				p->isParent = false;
 
-				// Force slow width/height changes
-				Object * c = (*parent);
-				Object * p = (*parent)->children.front();
-				float widthChange = 0;
-				float heightChange = 0;
-				if(std::abs(c->width - p->width) > acceptedSizeChange)
-				{
-					widthChange = sign(c->width - p->width)*acceptedSizeChange;
-					c->width = p->width + widthChange;
-				}
-				if(std::abs(c->height - p->height) > acceptedSizeChange)
-				{
-					heightChange = sign(c->height - p->height)*acceptedSizeChange;
-					c->height = p->height + heightChange;
-				}
-
+				saturate_sizeChange(c, p);
 				c->addPositionUncertainty(std::abs(c->x - p->x), std::abs(c->y - p->y));
-				c->addSizeUncertainty(widthChange, heightChange);
 
 				decidedCurrent.push_back(**parent);
 			}
@@ -245,42 +227,9 @@ namespace Identification
 
 				for(std::list<Object*>::iterator child = (*parent)->children.begin(); child != (*parent)->children.end(); child++)
 				{
-					/*
-					// Force slow width/height changes
-					Object * c = (*child);
-					Object * p = (*parent);
-					if(std::abs(c->width - p->width) > acceptedSizeChange)
-						c->width = p->width + sign(c->width - p->width)*acceptedSizeChange;
-					if(std::abs(c->height - p->height) > acceptedSizeChange)
-						c->height = p->height + sign(c->height - p->height)*acceptedSizeChange;
-					*/
-
-					// Adjust width & height of child to fit inside of the parent
-					int widthDiff =  (int)std::floor((*child)->width - (*parent)->width);
-					int heightDiff = (int)std::floor((*child)->height - (*parent)->height);
-					if(widthDiff > 0)
-						(*child)->width -= widthDiff;
-					if(heightDiff > 0)
-						(*child)->height -= heightDiff;
-
-					// Adjust position of child to fit inside of parent
-					int leftDiff   = (int)std::floor(((*parent)->x-(*parent)->width/2)  - ((*child)->x-(*child)->width/2));
-					int rightDiff  = (int)std::floor(((*child)->x+(*child)->width/2)    - ((*parent)->x+(*parent)->width/2));
-					int topDiff    = (int)std::floor(((*parent)->y-(*parent)->height/2) - ((*child)->y-(*child)->height/2));
-					int bottomDiff = (int)std::floor(((*child)->y+(*child)->height/2)   - ((*parent)->y+(*parent)->height/2));
-					if(leftDiff > 0)
-						{(*child)->x += leftDiff;	(*child)->xHat += leftDiff; (*child)->model.xHat.ptr<float>()[0] += float(leftDiff); }
-					if(rightDiff > 0)
-						{(*child)->x -= rightDiff;	(*child)->xHat -= rightDiff; (*child)->model.xHat.ptr<float>()[0] -= float(rightDiff); }
-					if(topDiff > 0)
-						{(*child)->y+= topDiff;		(*child)->yHat += topDiff; (*child)->model.xHat.ptr<float>()[1] += float(topDiff); }
-					if(bottomDiff > 0)
-						{(*child)->y-= bottomDiff;	(*child)->yHat -= bottomDiff; (*child)->model.xHat.ptr<float>()[1] -= float(bottomDiff); }
+					saturate_size(*child, *parent);					
+					saturate_position(*child, *parent);
 					
-					// Add uncertainty
-					(*child)->addPositionUncertainty(std::min(std::abs(leftDiff) + std::abs(rightDiff), (*parent)->width), std::min(std::abs(topDiff) + std::abs(bottomDiff), (*parent)->height));
-					(*child)->addSizeUncertainty(std::max(widthDiff, 0), std::max(heightDiff, 0));
-
 					// Add child as decided 'current'.
 					decidedCurrent.push_back(**child);
 
@@ -290,13 +239,7 @@ namespace Identification
 
 				// Visualise Parent
 				objectText[objectText.size()-1] = ')';
-				rectangle(current->image, Point((*parent)->x-(*parent)->width/2, (*parent)->y-(*parent)->height/2), 
-											Point((*parent)->x+(*parent)->width/2,   (*parent)->y+(*parent)->height/2), 
-											Scalar(250, 0, 250), 1, 8);
-				int fontFace = CV_FONT_HERSHEY_COMPLEX;
-				double fontScale = 0.3;
-				int thickness = (int)0.3;
-				putText(current->image, objectText, Point((*parent)->x+(*parent)->width/2, (*parent)->y-(*parent)->height/2+10), fontFace, fontScale, Scalar::all(255), thickness, 8);
+				draw_parentText(current, *parent, objectText);
 			}
 		}
 		
@@ -331,11 +274,9 @@ namespace Identification
 			c->isLost = false;
 						
 			// Force slow width/height changes
-			if(std::abs(c->width - p->width) > acceptedSizeChange)
-				c->width = p->width + sign(c->width - p->width)*acceptedSizeChange;
-			if(std::abs(c->height - p->height) > acceptedSizeChange)
-				c->height = p->height + sign(c->height - p->height)*acceptedSizeChange;
+			//saturate_sizeChange(c, p);
 
+			// Add uncertainty
 			c->addPositionUncertainty(std::abs(c->x - p->x), std::abs(c->y - p->y));
 
 			decidedCurrent.push_back(*c);
@@ -394,9 +335,8 @@ namespace Identification
 			std::list<Object>::iterator c = decidedCurrent.begin();
 			while(c != decidedCurrent.end())
 			{
-				if(c->x - c->width/2 + c->dx*2 < 0 || c->x + c->width/2 + c->dx*2 > current->image.size().width || c->y - c->height/2 + c->dy*2 < 0 || c->y + c->height/2 + c->dy*2 > current->image.size().height)
-					decidedCurrent.erase(c++);
-				else if(c->x - c->width/2 < 0 || c->x + c->width/2 > current->image.size().width || c->y - c->height/2 < 0 || c->y + c->height/2 > current->image.size().height)
+				if(c->isOutside(current->image.size().width, current->image.size().height) ||
+				   c->isMovingOutside(current->image.size().width, current->image.size().height))
 					decidedCurrent.erase(c++);
 				else
 					c++;
@@ -413,10 +353,86 @@ namespace Identification
 		std::copy(decidedCurrent.begin(), decidedCurrent.end(), back_inserter(current->objects));
 
 		// Debug: print all objects and their status
+		print_objectsAndStatus(decidedCurrent);
+	}
+	
+
+
+//////// INTERNAL FUNCTIONS //////////
+//////////////////////////////////////
+	
+	void Identifier::saturate_size(Object * child, Object * parent)
+	{
+		int widthDiff =  (int)std::floor(child->width - parent->width);
+		int heightDiff = (int)std::floor(child->height - parent->height);
+		if(widthDiff > 0)
+			child->width -= widthDiff;
+		if(heightDiff > 0)
+			child->height -= heightDiff;
+
+		// Add uncertainty
+		child->addSizeUncertainty(std::max(widthDiff, 0), std::max(heightDiff, 0));
+	}
+
+	void Identifier::saturate_position(Object * child, Object * parent)
+	{
+		int leftDiff   = (int)std::floor((parent->x-parent->width/2)  - (child->x-child->width/2));
+		int rightDiff  = (int)std::floor((child->x+child->width/2)    - (parent->x+parent->width/2));
+		int topDiff    = (int)std::floor((parent->y-parent->height/2) - (child->y-child->height/2));
+		int bottomDiff = (int)std::floor((child->y+child->height/2)   - (parent->y+parent->height/2));
+		if(leftDiff > 0)
+			{child->x += leftDiff;	child->xHat += leftDiff;	child->model.xHat.ptr<float>()[0] += float(leftDiff); }
+		if(rightDiff > 0)
+			{child->x -= rightDiff;	child->xHat -= rightDiff;	child->model.xHat.ptr<float>()[0] -= float(rightDiff); }
+		if(topDiff > 0)
+			{child->y+= topDiff;	child->yHat += topDiff;		child->model.xHat.ptr<float>()[1] += float(topDiff); }
+		if(bottomDiff > 0)
+			{child->y-= bottomDiff;	child->yHat -= bottomDiff;	child->model.xHat.ptr<float>()[1] -= float(bottomDiff); }
+					
+		// Add uncertainty
+		child->addPositionUncertainty(std::min(std::abs(leftDiff) + std::abs(rightDiff), parent->width),
+									  std::min(std::abs(topDiff)  + std::abs(bottomDiff), parent->height));
+	}
+
+	void Identifier::saturate_sizeChange(Object * c, Object * p)
+	{
+		float widthChange = 0;
+		float heightChange = 0;
+		if(std::abs(c->width - p->width) > acceptedSizeChange)
+		{
+			widthChange = sign(c->width - p->width)*acceptedSizeChange;
+			c->width = p->width + widthChange;
+		}
+		if(std::abs(c->height - p->height) > acceptedSizeChange)
+		{
+			heightChange = sign(c->height - p->height)*acceptedSizeChange;
+			c->height = p->height + heightChange;
+		}
+
+		// Add uncertainty
+		c->addSizeUncertainty(widthChange, heightChange);
+	}
+
+	void Identifier::draw_parentText(Frame * frame, Object * parent, std::string & text)
+	{
+		rectangle(frame->image, Point(parent->x - parent->width/2,
+									  parent->y - parent->height/2), 
+								Point(parent->x + parent->width/2,
+									  parent->y + parent->height/2), 
+								Scalar(250, 0, 250), 1, 8);
+		int fontFace = CV_FONT_HERSHEY_COMPLEX;
+		double fontScale = 0.3;
+		int thickness = (int)0.3;
+		putText(frame->image, text, Point(parent->x+parent->width/2, parent->y-parent->height/2+10),
+			    fontFace, fontScale, Scalar::all(255), thickness, 8);
+	}
+
+	void Identifier::print_objectsAndStatus(std::list<Object> & objects)
+	{
 		static int i = 0;	// Frame counter
 		std::cout << std::to_string(i++) << " ------------------\n";
 		int n;
-		for(std::list<Object>::iterator c = decidedCurrent.begin(); c != decidedCurrent.end(); c++)
+		for(std::list<Object>::iterator c = objects.begin(); c != objects.end(); c++)
 		{
 			std::cout << "Object " << std::to_string(c->id) << ": ";
 			if(c->isLost) std::cout << "LOST";
@@ -428,13 +444,12 @@ namespace Identification
 				for(std::list<Object*>::iterator child = c->children.begin(); child != c->children.end(); c++, n++)
 					std::cout << "\tChild " << std::to_string(n) << ": " << std::to_string((*child)->id) << "\n";
 		}
-		std::cout << std::to_string(decidedCurrent.size()) << " Objects in total\n";
+		std::cout << std::to_string(objects.size()) << " Objects in total\n";
 	}
 
 
-
-	////////// TEST GENERATION ///////////
-	//////////////////////////////////////
+////////// TEST GENERATION ///////////
+//////////////////////////////////////
 
 	const int cTEST_FRAME_WIDTH = 480;
 	const int cTEST_FRAME_HEIGHT = 360;

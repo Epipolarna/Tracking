@@ -36,15 +36,24 @@ namespace Identification
 		void init(Algorithm algorithmName);
 		
 	private:
+		// Algorithm manager
 		Algorithm algorithmName;
 		void (Identifier::*algorithm)(std::list<Frame> & frames);
-		
-		int uniqueIDPool;
-		int newID() {return uniqueIDPool++;}
-		
+				
+		// Algorithms
 		void algorithm_nearestFit(std::list<Frame> & frames);
 		void algorithm_ultimate(std::list<Frame> & frames);
+				
+		// Internal methods
+		int uniqueIDPool;
+		int newID() {return uniqueIDPool++;}
+		void saturate_size(Object * child, Object * parent);		// Adjust width & height of child to fit inside of the parent
+		void saturate_position(Object * child, Object * parent);	// Adjust position of child to fit inside of parent
+		void saturate_sizeChange(Object * c, Object * p);			// Adjust width & height so they do not change faster than 'acceptedSizeChange'
+		void draw_parentText(Frame * frame, Object * parent, std::string & text);
+		void print_objectsAndStatus(std::list<Object> & objects);
 
+		// Internal containers
 		std::list<Object> decidedPrevious, decidedCurrent;
 		std::list<Object*> parents, children;
 		std::list<Object*> undecidedPrevObject, undecidedCurrObject;

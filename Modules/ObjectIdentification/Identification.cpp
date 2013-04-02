@@ -7,7 +7,7 @@ namespace Identification
 	//////////     Module     ///////////
 	/////////////////////////////////////
 
-	void Identifier::init(Algorithm algorithmName)
+	void Identifier::init(Algorithm algorithmName, float maxError, float acceptedSizeChange)
 	{
 		switch(algorithmName)
 		{
@@ -18,6 +18,8 @@ namespace Identification
 			algorithm = &Identifier::algorithm_nearestFit;
 			break;			
 		}
+		this->maxError = maxError;
+		this->acceptedSizeChange = acceptedSizeChange;
 	}
 
 	void Identifier::identify(std::list<Frame> & frames)

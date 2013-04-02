@@ -33,7 +33,7 @@ namespace Identification
 		Identifier() {uniqueIDPool = 1; algorithm = &Identifier::algorithm_nearestFit; acceptedSizeChange = 10; maxError = 5000;}
 		void identify(std::list<Frame> & frames);
 		
-		void init(Algorithm algorithmName);
+		void init(Algorithm algorithmName, float maxError = 5000, float acceptedSizeChange = 10);
 		
 	private:
 		// Algorithm manager

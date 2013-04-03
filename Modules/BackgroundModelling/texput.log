@@ -1,16 +1,16 @@
-This is pdfTeX, Version 3.1415926-2.4-1.40.13 (MiKTeX 2.9) (preloaded format=pdflatex 2013.3.21)  21 MAR 2013 10:36
+This is pdfTeX, Version 3.1415926-2.4-1.40.13 (MiKTeX 2.9) (preloaded format=pdflatex 2013.3.21)  3 APR 2013 16:25
 entering extended mode
-**ProbabilityMap.tex
+**BackgroundModel.tex
 
 ! Emergency stop.
-<*> ProbabilityMap.tex
-                      
+<*> BackgroundModel.tex
+                       
 *** (job aborted, file error in nonstop mode)
 
  
 Here is how much of TeX's memory you used:
  2 strings out of 493921
- 24 string characters out of 3144876
+ 25 string characters out of 3144876
  49031 words of memory out of 3000000
  3400 multiletter control sequences out of 15000+200000
  3640 words of font info for 14 fonts, out of 3000000 for 9000

@@ -1,6 +1,6 @@
 /* TSBB15 Tracking project 2013
  * - - - - - - - - - - - - - - -
- * Principal contributer: Gustav Häger
+ * Principal contributer: Gustav H'a'ger
  */
 
 #ifndef __PROBABILITYMAP__

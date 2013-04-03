@@ -1,4 +1,4 @@
-The shadow suppression is performed in a fashion similar to what is mentioned in the paper by Woods \cite{Wood}. The suppression if performed using the Hue- Saturation- Value- (HSV) mapping, The HSV mapping was chosen since it gives very small amounts of false positives (non shadow pixels labeled as shadow pixels) and a manageable number of false negatives, while at the same time being fairly simple. We make the assumption that a if a pixel is shadowed the hue remains constant, while there is a decrease in both the value and saturation channels compared to the most likely background at the time.
+The shadow suppression is performed in a fashion similar to what is mentioned in the paper by Woods \cite{Wood}. The suppression if performed using the Hue- Saturation- Value- (HSV) mapping, The HSV mapping was chosen since it gives very small amounts of false positives (non shadow pixels labeled as shadow pixels) and a manageable number of false negatives, while at the same time being fairly simple. We make the assumption that a if a pixel is shadowed the hue remains constant, while there is a decrease in both the value and saturation channels compared to the most likely background at the time. To test the performance of the shadow suppression, the Renova footage produced in the IVSS project at CVL was used. 
 
 
 \subsubsection{Implementation}
@@ -20,7 +20,7 @@ The parameters that need to be specified in the shadow suppression are the thres
 	\label{eq:V}
 \end{equation}
 
-The parameter setting depend on the scene that is being observed. For example in figure \ref{fig:shadow_suppression_R0002_fig} where most of the shadows are cast on a gray road (hue $\approx 0$), a rather large $\tau_H$ is required. Also, since the shadows are not so profound, alpha can be raised, causing lower false positives for dark objects. There are big problems with false positives from the shadow suppression on dark objects, for example the car windows in the Renova 0000 sequence (figure \ref{fig:shadow_suppression_R0000_fig}). This can also be seen to some extent in figure \ref{fig:shadow_suppression_R0002_fig}, from the Renova 0002 sequence. These two figures illustrate how the parameters have to be changed, especially $\alpha$, when the lighting conditions vary over time. Even though $\alpha$ is significantly lower in figure \ref{fig:shadow_suppression_R0000_fig}, we still get shadow pixel labeled as foreground near the upper car.
+The parameter setting depend on the scene that is being observed. For example in figure \ref{fig:shadow_suppression_R0002_fig} where most of the shadows are cast on a gray road (hue $\approx 0$), a rather large $\tau_H$ is required. Also, since the shadows are not so profound, alpha can be raised, causing lower false positives for dark objects. There are big problems with false positives from the shadow suppression on dark objects, for example the car windows in the Renova 0000 sequence (figure \ref{fig:shadow_suppression_R0000_fig}). This can also be seen to some extent in figure \ref{fig:shadow_suppression_R0002_fig}, from the Renova 0002 sequence. These two figures illustrate how the parameters have to be changed, especially $\alpha$, when the lighting conditions vary over time. Even though $\alpha$ is significantly lower in figure \ref{fig:shadow_suppression_R0000_fig}, we still get shadow pixel labeled as foreground near the car in the middle of the image.
 
 \newpage
 \begin{figure}[htb]
@@ -29,9 +29,10 @@ The parameter setting depend on the scene that is being observed. For example in
 	\caption{\textit{Renova image sequence 0002, frame 217. 
 	\newline
 	Top row: Background model output, model output with marked shadow pixels (gray) \newline
-	Bottom row; final foreground image, actual video frame.}}
+	Bottom row: final foreground image, actual video frame.}}
 	\label{fig:shadow_suppression_R0002_fig}  %Skapar referens till figuren
 \end{figure}
+Note that the moped is classified as shadow and that the white dot in the upper right corner is created by the flag moving in the wind.\\
 
 The parameters used to create the images in figure \ref{fig:shadow_suppression_R0002_fig} above were:
 
@@ -50,11 +51,9 @@ The parameters used to create the images in figure \ref{fig:shadow_suppression_R
 	$\beta$ &  0.95 \\
 	\hline
 \end{tabular}
-
 \caption{\textit{Parameters used to create figure \ref{fig:shadow_suppression_R0002_fig}.}}
 \label{tab:shadow_parameters_R0002_fig}
 \end{table}
-
 
 \newpage
 \begin{figure}[htb]
@@ -62,10 +61,12 @@ The parameters used to create the images in figure \ref{fig:shadow_suppression_R
 	\includegraphics[width=\linewidth]{images/ShadowRenova0000.png}
 	\caption{\textit{Renova image sequence 0000, frame 209. 
 	\newline
-	Top row: Background model output, model output with marked shadow pixels (gray) \newline
-	Bottom row; final foreground image, actual video frame.}}
+	Top row: Background model output, model output with marked shadow pixels (gray)
+	\newline
+	Bottom row: final foreground image, actual video frame.}}
 	\label{fig:shadow_suppression_R0000_fig}  %Skapar referens till figuren
 \end{figure}
+Note the false positives at the car windows and the dark regions on the approaching vehicle.
 
 The parameters used to create the images in figure \ref{fig:shadow_suppression_R0000_fig} above were:
 

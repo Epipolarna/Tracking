@@ -1,8 +1,9 @@
-In this section the results of the project is summarized for some sequences chosen together with the other group. The sequences used are provided by the EC Funded CAVIAR project, \cite{CAVIAR}.
+In this section the results of the project is summarized for some sequences chosen together with the other group. The sequences, as well as the ground truth used are provided by the EC Funded CAVIAR project, \cite{CAVIAR}.
 
-Evaluation Scores
+\subsection{Evaluation Scores}
 
-\begin{center}
+\begin{table}
+\centering
 	\begin{tabular}{r | c | c | c }
 		\emph{Sequence Name}		& \emph{MOTA} & \emph{MOTP} \\
 		\hline \hline
@@ -12,13 +13,16 @@ Evaluation Scores
 		OneStopNoEnter2front 		& 0.85 & 5.48 \\
 		WalkByShop1front 			& -0.66 & 7.96 \\
 	\end{tabular}
-\end{center}
+	\caption{\textit{Tracking performance according to the MOTA and MOTP evaluation standards, as described in section \ref{sec:evaluation}.}}
+	\label{tab:evaluation_performance}
+\end{table}
 
-Parameters
+\subsection{Parameters}
 
-\begin{center}
+\begin{table}
+\centering
 	\begin{tabular}{r | c || c | c || c | c | c | c | c }
-	&	\multicolumn{1}{|c||}{BG model} & \multicolumn{2}{c||}{FG Segmentation} &\multicolumn{4}{c|}{Shadow Detection} \\
+	&	\multicolumn{1}{|c||}{BG model} & \multicolumn{2}{c||}{FG Segmentation} & \multicolumn{4}{c|}{Shadow Detection} \\
 		\hline
 		\emph{Sequence Name} & \emph{Learning Rate} & \emph{Iterations} & \emph{Min Thickness} &\emph{$\tau_H$} & \emph{$\tau_S$} & \emph{$\alpha$} & \emph{$\beta$}\\ 
 		\hline \hline
@@ -28,7 +32,10 @@ Parameters
 		OneStopNoEnter2front 		& 0.033		& 3 & 4 	& 0.5 & 1 & 0.8 & 0.99\\
 		WalkByShop1front 			& 0.033 	& 4 & 8 	& 0.5 & 1 & 0.8 & 0.99\\
 	\end{tabular}
-\end{center}
+	\caption{\textit{Parameters used to receive the evaluation results presented in table \ref{tab:evaluation_performance}.}}
+	\label{tab:evaluation_parameters}
+\end{table}
+
 
 \subsection{Performance}
 
@@ -39,28 +46,6 @@ The evaluation needs access to some sort of ground truth which is defined as the
 \subsection{Conclusion}
 MOTA is measure of accuracy with respect to how many mistakes are made by the tracker. It consists of four variables: misses, false positive, mismatches and number of objects. A miss is when no hypothesis is suggested close enough to an object. Close enough is defined by a threshold, T. This is the only design parameter in this method. If the distance between an object and the closest hypothesis is larger than T, the object yields a miss. If a hypothesis has no object within the threshold it results in a false positive error. One important feature of a tracker is the ability to keep objects identities correct. If this is not the case and an object is changing identity between frames one mismatch error is added for every change. The number of objects variable is defined as the total number of objects trackable according to the ground truth in the current frame. For a sequence the equation for MOTA is found in \eqref{eq:MOTA}.
 
-\begin{equation}
-\label{eq:MOTA}
-MOTA = 1 - \frac{\sum_{frames}{misses + false Positive + mismatches}}{\sum_{frames}{number Of Objects}}
-\end{equation}	
-
-\subsection{MOTP}
-The MOTP is a measure of how well the correct matches fit the ground truth objects. It only uses two variables: distance and matches. The distance is calculated between a hypothesis and its corresponding object. Matches is the number of hypothesis within the 
-threshold, T, of an object. MOTP for a sequence is calculated in \eqref{eq:MOTP}.
-
-\begin{equation}
-\label{eq:MOTP}
-MOTP = \frac{\sum_{frames}{distance}}{\sum_{frames}{matches}}
-\end{equation}
-
-One can notice that preferably is MOTA close to one and MOTP close zero. That would indicate perfect tracking according to this measurement method. In \ref{fig:system_evaluation_fig} the results from a sequence can be seen. notice that the MOTA is negative which is due to the large number of false positive errors. If the numerator in MOTA is large enough the accuracy will be negative. The MOTP indicate how precise the tracker is. For the moment the precision is somewhere around eight pixels.
-
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=\linewidth]{images/sequenceEvaluation}
-	\caption{\textit{System evaluation figure.}}
-	\label{fig:system_evaluation_fig} %Skapar referens till figuren
-\end{figure}
 
 
 

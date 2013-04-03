@@ -59,36 +59,18 @@ namespace ForegroundProcessing
 	void ForegroundProcessor::segmentForegroundSlow(Frame & frame)
 	{
 		threshMap(frame.foreground, threshval); //Threshold at threshval
-		
-		//Demo recording
-		Mat demoTemp;
-		cvtColor(frame.foreground, demoTemp, CV_GRAY2BGR, 3);
-		demoTemp.copyTo(frame.demoImage(Range(0, frame.image.rows), 
-										Range(0, frame.image.cols)));
-		
+
 		if (shadows)
 		{
 			suppressShadows(frame, minArea, minQuotient);
 		}
-		//Demo Recording
-		cvtColor(frame.foreground, demoTemp, CV_GRAY2BGR, 3);
-		demoTemp.copyTo(frame.demoImage(Range(0, frame.image.rows), 
-										Range(frame.image.cols, frame.image.cols*2)));
-
-		//Debug
-		imshow( "Shadow Debug", frame.foreground );
 		
 		//Remove gray pixels
 		threshMap(frame.foreground, threshval);
 
 		distanceFilter(frame, minDist);
 		dilateBinMap(frame.foreground, iterations);
-		
-		//Demo recording
-		cvtColor(frame.foreground, demoTemp, CV_GRAY2BGR, 3);
-		demoTemp.copyTo(frame.demoImage(Range(frame.image.rows, frame.image.rows*2), 
-										Range(0, frame.image.cols)));		
-		
+
 		getObjects(frame);
 	
 		return;
@@ -117,36 +99,16 @@ namespace ForegroundProcessing
 		{
 			suppressShadows(frame, minArea, minQuotient);
 		}
-		
-		//Debug
-		Mat debug = frame.foreground;
-		imshow( "Shadow Debug", debug );
-		
+
 		//Remove the gray debug pixels
-		threshMap(frame.foreground, 170);
+		threshMap(frame.foreground, threshval);
 		
 		openingBinMap(frame.foreground, iterations);
 		dilateBinMap(frame.foreground, iterations);
 		closingBinMap(frame.foreground, iterations);
 
 		getObjectsArea(frame, minArea, minQuotient);
-		
-		//Debug (removes everything the getObjectsArea method ignores)
-		vector<vector<Point>> contours;
-		findContours( frame.foreground.clone(), contours, CV_RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
-		double objArea;
-		Rect objRect;
-		
-		for(unsigned int i = 0; i < contours.size(); i++)
-		{		
-			objArea = contourArea(contours[i]);
-			if (objArea < minArea && (objArea > (objRect.width * objRect.height)/minQuotient))
-			{
-				drawContours(frame.foreground, contours, i, Scalar(0), CV_FILLED); 
-			}
-		}	
-		
-		return;
+
 	}
 
 
@@ -199,25 +161,6 @@ namespace ForegroundProcessing
 			shadowModel += (frame.image / 10);
 			return;
 		}
-		if (frameCounter == 10)
-		{
-			//Show "most probable background"
-			//imshow( "ShadowModel", shadowModel );
-			//cvtColor(shadowModel, shadowModel, CV_BGR2HSV_FULL);
-			// Debug
-			/*
-			Mat hue(shadowModel.size(), CV_8UC1);
-			Mat saturation(shadowModel.size(), CV_8UC1);
-			Mat value(shadowModel.size(), CV_8UC1);
-			Mat derp[] = {hue, saturation, value};
-			int from_to[] = { 0,0, 1,1, 2,2 };
-			mixChannels(&shadowModel, 1, derp, 3, from_to, 3);
-			imshow( "ShadowModel, hue", hue );
-			imshow( "ShadowModel, saturation", saturation );
-			imshow( "ShadowModel, value", value);
-			*/
-
-		}
 
 		vector<vector<Point>> contours;
 		findContours( frame.foreground.clone(), contours, CV_RETR_EXTERNAL, CHAIN_APPROX_SIMPLE);
@@ -261,6 +204,7 @@ namespace ForegroundProcessing
 	
 
 	////////////////// Image Processing //////////////////////
+
 	void ForegroundProcessor::distanceFilter(Frame & frame, double minDist)
 	{
 		Mat temp = Mat::zeros(frame.foreground.size(), frame.foreground.type());
@@ -294,7 +238,6 @@ namespace ForegroundProcessing
 		}
 		
 		frame.foreground = temp;
-		imshow( "Temp", frame.foreground );
 		
 	}
 	

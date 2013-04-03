@@ -1,5 +1,14 @@
 
-\subsection{Foreground segmentation and Shadow suppression}
 
-\subsubsection{Noise removal}
-There are several algorithms implemented for the foreground segmentation, however the one described above is the one which delivers the best performance in terms of noise removal and reliability. However, it can be rather slow if there are a lot of objects to track, and to enable the segmentation to run in real-time, one might want to choose one of the faster implementations, where noise removal is handled by some erode/dilate sequences.
+
+\subsection{Shadow suppression}
+One of the reasons that the performance is drastically lower for the last sequence is that it contains not only shadows, but specular reflections as well and this is something the HSV model does not take into account. There are also problems with persons walking in front of only slightly darker walls of the same hue, causing false positives. In the sequences used for evaluation $\tau_S$ is set to one, which means that the condition in equation \eqref{S} is always fulfilled. One reason that this yields better performance might be that there is some specularity involved in the shadowing as well as the fact that false positives from the shadow suppression might split foreground regions apart. This might cause the segmentation to yield false positives, drastically lowering MOTA performance.
+
+\subsubsection{Possible improvements}
+The shadow suppression algorithm also has great problems handling varying illumination in the scene. One way to solve this could be to somehow make the parameter settings depend on the overall illumination of the scene. 
+
+\subsection{Foreground noise removal and segmentation}
+The foreground segmentation performance depends highly on the parameter settings and what is deemed as good performance in terms of noise removal and segmentation depends highly on both the input characteristics as well as what the expected segmentation output is. The implementation used to achieve the results in section \ref{sec:results}  is the one  described in section \ref{sec:foreground_segmentation}. In this implementation the background model generates significantly more false positives than negatives, while at the same time the identification module is good at handling false negatives and not good at all with false positives. 
+
+\subsubsection{Possible improvements}
+The implementation of the foreground segmentation described in the previous paragraph can, however be rather slow if there are a lot of objects to track. To enable the segmentation to run in real-time, one might want to choose one of the faster implementations, where noise removal is handled by some erode/dilate sequences together with removal of objects that are e.g. not convex enough. With an other background model and/or identification modules one of these other algorithms might even yield better performance in terms of MOTA and MOTP.

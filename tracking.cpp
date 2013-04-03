@@ -36,6 +36,8 @@ int main()
 	identifier.init(Identification::Ultimate);
 	evaluate.readXML2FrameList("clip1.xml");
 	//evaluate.readXML2FrameList("CAVIAR1/fosne2gt.xml");
+
+	int waitForBGConvergence = 60;
 	
 	
 	// Load frame source
@@ -54,6 +56,7 @@ int main()
 	namedWindow("Tracking",CV_WINDOW_AUTOSIZE);
 	namedWindow("Raw image", CV_WINDOW_AUTOSIZE);
 	//namedWindow("BackgroundModel",CV_WINDOW_AUTOSIZE);
+	namedWindow("Evaluation", CV_WINDOW_AUTOSIZE);
 
 	while (frameList.queryNextFrame())
 	{
@@ -62,18 +65,18 @@ int main()
 		sampleDown(frameList.getLatestFrame().image, frameList.getLatestFrame().image);
 		
 		// Do the nessecary processing
-		backgroundModel.update(frameList.getFrames());						PROFILE("BackgroundModel");
-		if (frameList.getCurrentFrameNumber() > 60)	//Wait for convergence
+		backgroundModel.update(frameList.getFrames());							PROFILE("BackgroundModel");
+		if (frameList.getCurrentFrameNumber() > waitForBGConvergence)	//Wait for convergence
 			foregroundProcessor.segmentForeground(frameList.getLatestFrame());	PROFILE("ForegroundSeg.");
-		identifier.identify(frameList.getFrames());							PROFILE("Identification");	
-		kalmanFilter.predict(frameList.getLatestFrame());					PROFILE("Kalman Prediction");
-		evaluate.currentFrame();											PROFILE("Evaluation");
+		identifier.identify(frameList.getFrames());								PROFILE("Identification");	
+		kalmanFilter.predict(frameList.getLatestFrame());						PROFILE("Kalman Prediction");
+		evaluate.currentFrame();												PROFILE("Evaluation");
 
 		
 		// Display result
 		frameList.display("Tracking");
 		frameList.displayBackground("Background");
-		if (frameList.getCurrentFrameNumber() > 60) //Wait for convergence
+		if (frameList.getCurrentFrameNumber() > waitForBGConvergence) //Wait for convergence
 			frameList.displayForeground("Foreground");
 		evaluate.displayInfo("Evaluation");
 				
@@ -97,6 +100,7 @@ int main()
 		// Display info
 		frameList.displayInfo("Info");
 	} 
+	evaluate.displaySequenceInfo("Evaluation");
 	waitKey(0);
 
 	return 0;

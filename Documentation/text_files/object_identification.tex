@@ -37,8 +37,3 @@ See source code in appendix \ref{sec:ObjID_code} for further details. %referens 
 	\caption{\textit{Flow chart of the 'Ultimate' algorithm. Each rectangular box may contains additional branches and loops leaving this figure to provide the reader with a overview of the occlusion handling progress and identification).}}
 	\label{fig:ObjID_fig} %Skapar referens till figuren
 \end{figure}
-
-\subsubsection{Unsolved problems and possible improvements}
-When objects are lost for too long and without any velocity, which would otherwise indicate that the object might temporary be behind a hinder, it should probably be removed in order ot compensate for ghost objects let through by the background modeling and the foreground segmentation. Another indication for removal could be when the uncertainty grows much larger than the entire frame.
-
-Objects could also be forced to change width/height very slowly, both when moving freely and when entering/exiting parent objects. This was partly implemented but was discarded due to lack of time.

@@ -1,6 +1,5 @@
 \documentclass[10pt, a4paper, twoside]{article}
 
-
 % Set up the standard margins for the document
 % 42.2 left & 15.5 right is same as Forsling, Neymark
 % 21.3 top  & 20 bottom is same as Olofsson
@@ -9,6 +8,7 @@
 % Input file character encoding (kinda useless if we don't
 % use åäö and stuff, but it doesn't hurt to have it)
 \usepackage[utf8]{inputenc}
+\usepackage[swedish]{babel}
 
 % Block Comments
 \usepackage{comment}
@@ -248,7 +248,7 @@ Style2*=-- ,Style3*=$\circ$ ,Style4*=\tiny$\blacksquare$ )
 	showstringspaces=false,							% Don't show string spaces
 	morekeywords={electrical, analog},  			% Additional keywords 
 	breaklines = true, 								% Auto new line
-	extendedchars = true,							% Allow more than ASCII chars
+	extendedchars = true							% Allow more than ASCII chars
 }
 
 
@@ -320,6 +320,7 @@ Style2*=-- ,Style3*=$\circ$ ,Style4*=\tiny$\blacksquare$ )
 	numbers=left,						% numbering
 	backgroundcolor=\color{sexy-gray},	% background color
 	morekeywords={textscan,ones},		% Additional keywords
+	inputencoding=utf8/latin1
 }
 
 %\lstinputlisting{code_files/Sigma_Delta_PSD_SNR_and_ENOB_calculations_INNAN_PILL.m}

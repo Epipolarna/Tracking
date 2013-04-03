@@ -1,6 +1,6 @@
 /* TSBB15 Tracking project 2013
  * - - - - - - - - - - - - - - -
- * Principal contributer: Alexander Sjöholm
+ * Principal contributer: Alexander Sj'o'holm
  */
 
 #ifndef _KALMAN_H_
@@ -24,7 +24,6 @@ namespace Prediction
 		Mat S, L, K, y;
 		float* xHat;
 	};
-	// Additional function-/datastructuredeclarations here
 }
 
 #endif

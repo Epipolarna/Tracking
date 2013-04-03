@@ -13,13 +13,20 @@ The foreground segmentation performance depends highly on the parameter settings
 \subsubsection{Possible improvements}
 The implementation of the foreground segmentation described in the previous paragraph can, however be rather slow if there are a lot of objects to track. To enable the segmentation to run in real-time, one might want to choose one of the faster implementations, where noise removal is handled by some erode/dilate sequences together with removal of objects that are e.g. not convex enough. With an other background model and/or identification modules one of these other algorithms might even yield better performance in terms of MOTA and MOTP.
 
-\subsection{Identification}
+\subsection{Identification and occlusion handling}
+The identification process and precision depends heavily on robustness of the foreground segmentation and background model since it currently assumes that all objects discovered are real objects.
 
+Using the concept of parents and children for objects overlapping in sequent frames simplified a lot and allowed for compensation of errors in the estimated motion of objects not currently detectable by them self. The children were kept within the parent border, keeping the motion estimation realistic as they should (probably) be within the border.
+
+The minimization of the error $\epsilon$ was based on the assumption that it is more likely that the pairs with the lowest $\epsilon$ are corresponding than those pairs of a global optimization solution, with possible situations where a incoming outlier is forcefully decided to correspond to a object close to its true corresponding candidate in order for the minimization of the total error. This assumption seemed reasonable and no sequence, as far as we have seen, have produced identification errors which we haven't always found is due to flickering or other noise due the performance of the foreground segmentation and the background model.
+The minimization had an implementation with quadratic time complexity which was sufficient for our cases with one digit objects at the most. Constructing an algorithm with linear time complexity is feasible using pointer arrays to make random removal a constant time operation on lists.
 
 \subsubsection{Possible improvements}
 When objects are lost for too long and without any velocity, which would otherwise indicate that the object might temporary be behind a hinder, it should probably be removed in order ot compensate for ghost objects let through by the background modelling and the foreground segmentation. Another indication for removal could be when the uncertainty grows much larger than the entire frame.
 
 Objects could also be forced to change width/height very slowly, both when moving freely and when entering/exiting parent objects. This was partly implemented but was discarded due to lack of time.
+
+The error $\epsilon$ should probably be affected more of the difference in width/height in order to let the occlusion handling improve and be able to tackle even more challenging situations.
 
 \subsection{Kalman Predictor}
 The Kalman predictor did overall work well. The state-space model including only position and velocity worked good enough for its purpose. It did however face difficulties with sudden objects appearing then suddenly disappearing, yielding predictions with unstable velocity due to few measurements. Tweaking of parameters

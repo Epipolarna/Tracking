@@ -23,15 +23,14 @@ If $\epsilon$ is larger than 5000 the error is considered to large and two objec
 \subsubsection{Algorithms}
 \textbf{Nearest Fit} \\
 The 'Nearest Fit' algorithm matches previous and current objects by minimizing $\epsilon$. This means that the pair of objects with the lowest $\epsilon$ are assumed to be the same. They are removed from the candidating previous and current object lists and the next pair with lowest $\epsilon$ is considered until no more pairs are left. Any left previous objects are assumed to have disappeared and any left current objects are considered new objects. \\
-No occlusion is handled. \\
+Since this is a simpler algorithm it handles almost no occlusions. \\
 \newline
 \textbf{Ultimate}\\
 The 'Ultimate' algorithm concentrates on solving the occlusion situations described in that section \ref{sec:Occlusion}. It focus on parent-child relationships between previous objects and new objects. If a current object overlaps previous objects these are seen as children to the current object, which is seen as a parent. It minimizes $\epsilon$ when deciding which the best parent is for a child (if it seems to have multiple), or when pairing up previous-current objects not overlapping. See the flow chart in figure \ref{fig:ObjID_fig}. \\
 \newline
-See source code in appendix \ref{sec:ObjID_code} for further details. %referens till kod, ger klickbar länk.
 
 \newpage
-\begin{figure}[htb]
+\begin{figure}[h]
 	\centering
 	\includegraphics[width=123.5mm]{images/data_flow_identification.png}
 	\caption{\textit{Flow chart of the 'Ultimate' algorithm. Each rectangular box may contains additional branches and loops leaving this figure to provide the reader with a overview of the occlusion handling progress and identification.}}

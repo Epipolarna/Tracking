@@ -214,114 +214,13 @@ Style2*=-- ,Style3*=$\circ$ ,Style4*=\tiny$\blacksquare$ )
 
 % Force a blank page so the bibliography starts on a new page.
 % Comment out if not necessary
-\newpage
+%\newpage
 \thispagestyle{fancy}
 \mbox{}
 \newpage
 \input{text_files/bibliography.tex}
 
 
-
-%\begin{comment}
-
-%
-% Appendix start
-%
-\newpage
-\appendix
-\addcontentsline{toc}{section}{Appendices} % Add an entry for this in the table of contents
-
-% Define background color for the code
-\definecolor{sexy-gray}{gray}{0.95}
-
-% Set properties for source code listings
-\lstset{
-	language=C++, 									% Language
-	frame=single,									% Frame around code
-	tabsize = 4,									% Better Tabbing
-	basicstyle=\ttfamily\scriptsize,				% Font size and style
-	commentstyle=\ttfamily\color{green!40!black},	% Comment color and style
-	numbers=left,									% numbering
-	backgroundcolor=\color{sexy-gray},				% background color
-	keywordstyle=\color{blue},						% Keyword color
-	stringstyle=\color{orange},						% String color
-	showstringspaces=false,							% Don't show string spaces
-	morekeywords={electrical, analog},  			% Additional keywords 
-	breaklines = true, 								% Auto new line
-	extendedchars = true							% Allow more than ASCII chars
-}
-
-
-\section{Source code for data structures}
-\subsection{Frame class}
-\label{sec:Frame_code}
-\lstinputlisting{../Modules/Frame.h}
-\newpage
-\lstinputlisting{../Modules/Frame.cpp}
-
-\subsection{FrameList class}
-\label{sec:FrameList_code}
-\lstinputlisting{../Modules/FrameList.h}
-\newpage
-\lstinputlisting{../Modules/FrameList.cpp}
-
-\subsection{Object class}
-\label{sec:Object_code}
-\lstinputlisting{../Modules/Object.h}
-\newpage
-\lstinputlisting{../Modules/Object.cpp}
-
-
-\newpage
-\section{Source code for Background modeling}
-\label{sec:BGMod_code}
-\subsection{Background Model}
-\lstinputlisting{../Modules/BackgroundModelling/BackgroundModel.h}
-%\newpage
-\lstinputlisting{../Modules/BackgroundModelling/BackgroundModel.cpp}
-\newpage
-\subsection{Probability Map}
-\label{sec:ProbMap_code}
-\lstinputlisting{../Modules/BackgroundModelling/ProbabilityMap.h}
-\newpage
-\lstinputlisting{../Modules/BackgroundModelling/ProbabilityMap.cpp}
-
-\newpage
-\section{Source code for Foreground segmentation}
-\label{sec:ForeGroundSeg_code}
-\lstinputlisting{../Modules/ForegroundProcessing/ForegroundProcessor.h}
-\newpage
-\lstinputlisting{../Modules/ForegroundProcessing/ForegroundProcessor.cpp}
-
-\newpage
-\section{Source code for Object identification}
-\label{sec:ObjID_code}
-\lstinputlisting{../Modules/ObjectIdentification/Identification.h}
-\newpage
-\lstinputlisting{../Modules/ObjectIdentification/Identification.cpp}
-
-\newpage
-\section{Source code for Kalman prediction}
-\label{sec:Kalman_code}
-\lstinputlisting{../Modules/Prediction/Kalman.h}
-\newpage
-\lstinputlisting{../Modules/Prediction/Kalman.cpp}
-
-\newpage
-\section{Source code for Main program}
-\label{sec:Main_code}
-\lstinputlisting{../tracking.cpp}
-
-% Set properties for Matlab code listings
-\lstset{
-	language=Matlab, 					% Language
-	frame=single,						% Frame around code
-	basicstyle=\small,					% Font size
-	numbers=left,						% numbering
-	backgroundcolor=\color{sexy-gray},	% background color
-	morekeywords={textscan,ones},		% Additional keywords
-	inputencoding=utf8/latin1
-}
 
 %\lstinputlisting{code_files/Sigma_Delta_PSD_SNR_and_ENOB_calculations_INNAN_PILL.m}
 %\end{comment}

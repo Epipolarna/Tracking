@@ -1,6 +1,6 @@
 Occlusion should be handled and objects that disappears by entering something or by becoming stationary should be kept.
 
-\begin{figure}[htb]
+\begin{figure}[h]
 	\centering
 	\includegraphics[width=\linewidth]{images/occlusionIllustration1.png}
 	\caption{\textit{A part of a sequence from the camera1.mov video illustrating the occlusion handling. Top row is the video with bounding boxes containing different objects, middle row is the thresholded probability map from the background model, bottom row is the result of the foreground segmentation and each connected white blob is a detected object. In the top row: The lines are the estimated velocity multiplied by 30 for visualisation purposes. Single objects are coloured blue, parents are coloured pink, children are coloured yellow.Observe that in the two middle frames only the parent is known and the motion is based on estimates from the Kalman predictions. }}

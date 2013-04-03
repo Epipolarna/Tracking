@@ -11,9 +11,10 @@
 #define PROFILER_RESET() c.reset();
 #define PROFILE(string) frameList.setTime(string, c.getTime()); c.lap();
 #define PROFILE_TOTALTIME() frameList.setTime("Total Time", c.getTotalTime());
-#define PROFILE_TOTALFPS() frameList.setTime("Total FPS", c.getTotalFPS());
+#define PROFILE_FPS() frameList.setTime("FPS", c.getFPS());
 
-void sampleDown(Mat & source, Mat & destination);
+void sampleDown(Mat & source, Mat & destination, int stepSize);
+void stepWiseFromFrame(FrameList & frameList, int frameNumber);
 
 int main()
 {
@@ -62,7 +63,7 @@ int main()
 	{
 		PROFILER_RESET();
 
-		sampleDown(frameList.getLatestFrame().image, frameList.getLatestFrame().image);
+		sampleDown(frameList.getLatestFrame().image, frameList.getLatestFrame().image, 1);	// Speed up by sampling down the image
 		
 		// Do the nessecary processing
 		backgroundModel.update(frameList.getFrames());							PROFILE("BackgroundModel");
@@ -72,27 +73,24 @@ int main()
 		kalmanFilter.predict(frameList.getLatestFrame());						PROFILE("Kalman Prediction");
 		evaluate.currentFrame();												PROFILE("Evaluation");
 
-		
 		// Display result
 		frameList.display("Tracking");
 		frameList.displayBackground("Background");
 		if (frameList.getCurrentFrameNumber() > waitForBGConvergence) //Wait for convergence
 			frameList.displayForeground("Foreground");
 		evaluate.displayInfo("Evaluation");
-				
 		// Give the GUI time to render
 		waitKey(1);															PROFILE("Display");
-
+		
 		// Write current frame (and info) to file
 		demo << frameList.getLatestFrame().demoImage;
 		
 		// Optional pause between each frame
-		//if (frameList.getCurrentFrameNumber() > 55)
-		//	waitKey(0);
+		//stepWiseFromFrame(frameList, 55);
 																			PROFILE("QueryNextFrame");										
 																			PROFILE_TOTALTIME();
-																			PROFILE("Total FPS");
-																			PROFILE_TOTALFPS();
+																			PROFILE("FPS");
+																			PROFILE_FPS();
 		// Evaluate accuracy and precision
 		evaluate.MOTA();
 		evaluate.MOTP();
@@ -100,15 +98,21 @@ int main()
 		// Display info
 		frameList.displayInfo("Info");
 	} 
+	
 	evaluate.displaySequenceInfo("Evaluation");
 	waitKey(0);
-
 	return 0;
 }
 
-void sampleDown(Mat & source, Mat & destination)
+
+void stepWiseFromFrame(FrameList & frameList, int frameNumber)
 {
-	int stepSize = 1;
+	if (frameList.getCurrentFrameNumber() > frameNumber)
+		waitKey(0);
+}
+
+void sampleDown(Mat & source, Mat & destination, int stepSize)
+{
 	Mat temp = source.clone();
 	destination = Mat(temp.size().height/stepSize, temp.size().width/stepSize, CV_8UC3);		
 	for(int r1=0, r2=0; r1 < temp.size().height; r1+=stepSize, r2++){

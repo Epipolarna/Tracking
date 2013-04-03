@@ -170,7 +170,7 @@ void Evaluation::currentFrame()
 			for( vector<Object>::iterator hypObj = hypothesisList.begin(); hypObj != hypothesisList.end(); hypObj++)
 			{
 				//cout << "Alg part 2.3" << endl;
-				double distance = sqrt((truObj->x - hypObj->x)^2 + (truObj->y - hypObj->y)^2); 
+				double distance = sqrt(std::pow(truObj->x - hypObj->x, 2) + std::pow(truObj->y - hypObj->y, 2)); 
 					if (distance < T)
 					{
 						distMap.emplace(distance, make_pair(truObj->id, hypObj->id));
@@ -401,7 +401,7 @@ bool Evaluation::isCorr(int truID, int hypID)
 	obY = ob->y;
 	hypX = hyp->x;
 	hypY = hyp->y;
-	float dist = sqrt(pow(obX - hypX, 2) + pow(obY - hypY, 2));
+	float dist = (float) sqrt(pow(obX - hypX, 2) + pow(obY - hypY, 2));
  
 	if (dist < T)
 	{

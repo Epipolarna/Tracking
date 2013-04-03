@@ -1,11 +1,7 @@
-// ForecroundProcessor.cpp
-
 #include "ForegroundProcessor.h"
-//#include "stdafx.h"
 
 namespace ForegroundProcessing
 {
-
 	////////////////// Foreground Segmentation //////////////////////
 	void ForegroundProcessor::segmentForeground(Frame & frame)
 	{

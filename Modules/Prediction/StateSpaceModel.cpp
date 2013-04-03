@@ -1,4 +1,3 @@
-// StateSpaceModel.cpp
 #include "StateSpaceModel.h"
 
 namespace Prediction
@@ -11,7 +10,7 @@ namespace Prediction
 		// y(t)   = Cx(t) + v(t),	R = var(v(t))
 
 		// The number of frames to rember for velocity smoothing
-		smoothingHistoryAmount = 5;
+		smoothingHistoryAmount = 10;
 		hasConverged = false;
 		preConvergenceIteration = 1;
 		

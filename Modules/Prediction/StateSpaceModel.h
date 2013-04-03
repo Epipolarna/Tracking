@@ -1,4 +1,8 @@
-// StateSpaceModel.h
+/* TSBB15 Tracking project 2013
+ * - - - - - - - - - - - - - - -
+ * Principal contributer: Alexander Sjöholm
+ */
+
 #ifndef _STATESPACEMODEL_H_
 #define _STATESPACEMODEL_H_
 

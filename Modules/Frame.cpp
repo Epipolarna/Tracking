@@ -1,7 +1,3 @@
-/* 
-*	frame.cpp
-*/
-
 #include "Frame.h"
 
 using namespace cv;

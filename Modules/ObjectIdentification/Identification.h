@@ -1,3 +1,8 @@
+/* TSBB15 Tracking project 2013
+ * - - - - - - - - - - - - - - -
+ * Principal contributer: Mattias Tiger
+ */
+
 #ifndef _IDENTIFICATION_H_
 #define _IDENTIFICATION_H_
 
@@ -30,10 +35,10 @@ namespace Identification
 	class Identifier
 	{
 	public:
-		Identifier() {uniqueIDPool = 1; algorithm = &Identifier::algorithm_nearestFit; acceptedSizeChange = 10; maxError = 5000;}
+		Identifier();
 		void identify(std::list<Frame> & frames);
 		
-		void init(Algorithm algorithmName, float maxError = 5000, float acceptedSizeChange = 10);
+		void init(Algorithm algorithmName, float areaOverlapThreshold = 0.2, float maxError = 5000, float acceptedSizeChange = 10);
 		
 	private:
 		// Algorithm manager
@@ -59,8 +64,9 @@ namespace Identification
 		std::list<Object*> undecidedPrevObject, undecidedCurrObject;
 		std::list<std::list<Error>> errorMap;
 		std::list<Error> parentError;
-		int acceptedSizeChange;
-		int maxError;
+		float acceptedSizeChange;
+		float maxError;
+		float areaOverlapThreshold;	//Percent of area overlapping to suggest a parent-child relationship
 	};
 	
 

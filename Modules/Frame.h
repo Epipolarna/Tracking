@@ -1,6 +1,8 @@
-/* 
-*	frame.h
-*/
+/* TSBB15 Tracking project 2013
+ * - - - - - - - - - - - - - - -
+ * Principal contributer: Martin Svensson & Mattias Tiger
+ */
+
 #ifndef _FRAME_H_
 #define _FRAME_H_
 

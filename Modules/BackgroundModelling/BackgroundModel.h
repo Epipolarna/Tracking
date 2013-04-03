@@ -1,3 +1,8 @@
+/* TSBB15 Tracking project 2013
+ * - - - - - - - - - - - - - - -
+ * Principal contributer: Gustav Häger
+ */
+
 #ifndef _BACKGROUND_MODEL_H_
 #define _BACKGROUND_MODEL_H_
 

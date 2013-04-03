@@ -1,3 +1,9 @@
+/* TSBB15 Tracking project 2013
+ * - - - - - - - - - - - - - - -
+ * Principal contributer: Mattias Tiger
+ */
+
+
 #ifndef _BACKGROUND_MODEL_SIMPLE_H_
 #define _BACKGROUND_MODEL_SIMPLE_H_
 

@@ -6,7 +6,6 @@ ProbabilityMap::ProbabilityMap(Frame* currFrame){
 	pImage = currFrame->image;
 }
 
-
 ProbabilityMap::ProbabilityMap(Frame *prevFrame, Frame *currFrame){	
 	
 	static int counter = 0;

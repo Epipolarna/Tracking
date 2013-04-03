@@ -1,3 +1,8 @@
+/* TSBB15 Tracking project 2013
+ * - - - - - - - - - - - - - - -
+ * Principal contributer: Martin Svensson & Alexander Sjöholm
+ */
+
 #ifndef _EALUATION_H_
 #define _EALUATION_H_
 

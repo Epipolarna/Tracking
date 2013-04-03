@@ -1,7 +1,14 @@
+/* TSBB15 Tracking project 2013
+ * - - - - - - - - - - - - - - -
+ * Principal contributer: Alexander Sjöholm
+ */
+
 #ifndef _KALMAN_H_
 #define _KALMAN_H_
 
 #include "../Frame.h"
+#include <functional>
+#include <numeric>
 
 namespace Prediction
 {

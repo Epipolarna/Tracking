@@ -1,3 +1,8 @@
+/* TSBB15 Tracking project 2013
+ * - - - - - - - - - - - - - - -
+ * Principal contributer: Gustav Häger
+ */
+
 #ifndef __PIXELMODEL__
 #define __PIXELMODEL__
 

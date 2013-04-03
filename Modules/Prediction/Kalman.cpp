@@ -1,7 +1,4 @@
 #include "Kalman.h"
-//#include <vector>
-#include <functional>
-#include <numeric>
 
 namespace Prediction
 {

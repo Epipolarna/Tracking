@@ -1,6 +1,5 @@
 #include "BackgroundModel_simple.h"
 
-
 namespace BackgroundModelling_simple
 {
 	void BackgroundModel::update(std::list<Frame> &frames)

@@ -1,5 +1,3 @@
-// object.ccp
-
 #include "Object.h"
 #include <iostream>
 

@@ -1,3 +1,8 @@
+/* TSBB15 Tracking project 2013
+ * - - - - - - - - - - - - - - -
+ * Principal contributer: Martin Svensson
+ */
+
 #ifndef _FOREGROUND_PROCESSOR_H_
 #define _FOREGROUND_PROCESSOR_H_
 

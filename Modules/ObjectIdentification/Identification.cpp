@@ -1,13 +1,21 @@
 #include "Identification.h"
 
-
 namespace Identification
 {
 	
 	//////////     Module     ///////////
 	/////////////////////////////////////
 
-	void Identifier::init(Algorithm algorithmName, float maxError, float acceptedSizeChange)
+	Identifier::Identifier()
+	{
+		uniqueIDPool = 1; 
+		algorithm = &Identifier::algorithm_nearestFit;
+		acceptedSizeChange = 10; 
+		maxError = 5000; 
+		areaOverlapThreshold = 0.2f;
+	}
+
+	void Identifier::init(Algorithm algorithmName, float areaOverlapThreshold, float maxError, float acceptedSizeChange)
 	{
 		switch(algorithmName)
 		{
@@ -20,6 +28,7 @@ namespace Identification
 		}
 		this->maxError = maxError;
 		this->acceptedSizeChange = acceptedSizeChange;
+		this->areaOverlapThreshold = areaOverlapThreshold;
 	}
 
 	void Identifier::identify(std::list<Frame> & frames)
@@ -133,7 +142,8 @@ namespace Identification
 		{
 			for(std::vector<Object>::iterator p = previous->objects.begin(); p != previous->objects.end(); p++)
 			{
-				if(!p->isLost && p->containedAreaQuotient(*c) > 0.2)	// p (previous object) is a child of c (current object)
+				// p (previous object) is a child of c (current object)
+				if(!p->isLost && p->containedAreaQuotient(*c) > areaOverlapThreshold)	
 				{
 					parents.push_back(&(*c));
 					children.push_back(&(*p));
@@ -389,12 +399,12 @@ namespace Identification
 		if(std::abs(c->width - p->width) > acceptedSizeChange)
 		{
 			widthChange = sign(c->width - p->width)*acceptedSizeChange;
-			c->width = p->width + widthChange;
+			c->width = p->width + std::ceil(widthChange);
 		}
 		if(std::abs(c->height - p->height) > acceptedSizeChange)
 		{
 			heightChange = sign(c->height - p->height)*acceptedSizeChange;
-			c->height = p->height + heightChange;
+			c->height = p->height + std::ceil(heightChange);
 		}
 
 		// Add uncertainty

@@ -2,10 +2,11 @@
 
 PixelModel::PixelModel(int maxRow, int maxCol){
 
-    //Parameters, tunable
-    //lambda and sigma for sensitivity
-    //alpha for update speed
-    //others are probably fine.
+    /* Tunable Parameters
+     *  - lambda and sigma for sensitivity
+     *  - alpha for update speed
+     * the others are probably fine as they are.
+	 */
 	lambda = 10; //limit to decide how close something should be to belong to a distribution
 	alpha = 0.05f; //learning rate, how fast the model changes
 	backgroundThreshold = 0.75; //total sum of of w needed to be background

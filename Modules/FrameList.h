@@ -1,3 +1,8 @@
+/* TSBB15 Tracking project 2013
+ * - - - - - - - - - - - - - - -
+ * Principal contributer: Martin Svensson & Mattias Tiger
+ */
+
 #ifndef __FRAMELIST_H_
 #define __FRAMELIST_H_
 

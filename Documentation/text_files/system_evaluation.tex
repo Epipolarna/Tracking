@@ -20,15 +20,8 @@ threshold, T, of an object. MOTP for a sequence is calculated according to \eqre
 MOTP = \frac{\sum_{frames}{distance}}{\sum_{frames}{matches}}
 \end{equation}
 
-One can notice that ideally MOTA should be one and MOTP zero. This would indicate perfect tracking according to this measurement method. In \ref{fig:system_evaluation_fig} the results from a sequence can be seen. notice that the MOTA is negative which is due to the large number of false positive errors. If the numerator in MOTA is large enough the accuracy will be negative. The MOTP indicate how precise the tracker is. For the moment the precision is somewhere around eight pixels.
+\subsection{Reflections}
+One can conclude that ideally MOTA should be one and MOTP zero. This would indicate perfect tracking according to this measurement method. One can discuss the validity of these measures. It is for instance never taken into account if the suggested hypothesis is close to the ground truth with respect to size and shape of bounding box. Only position is measured which makes MOTP a bit wage.
 
-\newpage
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=\linewidth]{images/sequenceEvaluation}
-	\caption{\textit{System evaluation figure.}}
-	\label{fig:system_evaluation_fig} %Skapar referens till figuren
-\end{figure}
-
-
+Regarding the MOTA it is unclear how a negative accuracy should be interpreted and compared to a positive one. A negative accuracy is obviously bad but maybe it would have been preferable to a restrict it to a positive number between one and zero.
 

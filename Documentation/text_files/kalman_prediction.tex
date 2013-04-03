@@ -29,28 +29,23 @@ $\hat{\textbf{x}}_{k|k-1}$ is an estimate the internal state vector at time $k$ 
 \subsubsection{The Kalman Filter}
 The Kalman filter is made up of two main parts; measurement update and time update. The measurement update takes, as the name suggests a new measurement and updates the model according to this new measurement. The filter uses a matrix, $\textbf{K}$, referred to as the Kalman gain. This determines the mixture between old and new information.
 
-\paragraph{Kalman Filter Algorithm}	
-
+\emph{Measurement Update}
 \begin{equation}
-\label{}
-\textbf{K}_{k} = \textbf{P}_{k-1}\textbf{C}^T(\textbf{C}\textbf{P}_{k-1}\textbf{C}^T + \textbf{R})^{-1}
+	\textbf{K}_{k} = \textbf{P}_{k-1}\textbf{C}^T(\textbf{C}\textbf{P}_{k-1}\textbf{C}^T + \textbf{R})^{-1}
 \end{equation}
 \begin{equation}
-\label{}
-\hat{\textbf{x}}_k = \hat{\textbf{x}}_{k-1} + \textbf{K}_k (\textbf{y}_k - \textbf{C}\hat{\textbf{x}}_{k-1})
+	\hat{\textbf{x}}_k = \hat{\textbf{x}}_{k-1} + \textbf{K}_k (\textbf{y}_k - \textbf{C}\hat{\textbf{x}}_{k-1})
 \end{equation}
 \begin{equation}
-\label{}
-\textbf{P}_k = \textbf{P}_{k-1} - \textbf{K}_k\textbf{C}\textbf{P}_{k-1}^T
+	\textbf{P}_k = \textbf{P}_{k-1} - \textbf{K}_k\textbf{C}\textbf{P}_{k-1}^T
 \end{equation}
 
+\emph{Time Update}
 \begin{equation}
-\label{}
-\hat{\textbf{x}}_{k+1} = \textbf{A}\hat{\textbf{x}}_{k}
+	\hat{\textbf{x}}_{k+1} = \textbf{A}\hat{\textbf{x}}_{k}
 \end{equation}
 \begin{equation}
-\label{}
-\textbf{P}_{k+1} = \textbf{A}\textbf{P}_{k}\textbf{A}^T + \textbf{Q}
+	\textbf{P}_{k+1} = \textbf{A}\textbf{P}_{k}\textbf{A}^T + \textbf{Q}
 \end{equation}
 
 Depending on where the state vector is stored in the algorithm, either a filter or predictor is achieved. Since this project seeks a predictor the state vector is stored in the time update.
@@ -62,6 +57,6 @@ See code in appendix \ref{sec:Kalman_code}. %referens till kod, ger klickbar lä
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=\linewidth]{images/Kalmask2}
-	\caption{\textit{Kalman Prediction figure.}}
+	\caption{\textit{Kalman Prediction figure showing tracking example with measurements in black, predictions in blue and uncertainty in red.}}
 	\label{fig:kalman_fig} %Skapar referens till figuren
 \end{figure}

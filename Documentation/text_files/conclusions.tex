@@ -12,3 +12,27 @@ The foreground segmentation performance depends highly on the parameter settings
 
 \subsubsection{Possible improvements}
 The implementation of the foreground segmentation described in the previous paragraph can, however be rather slow if there are a lot of objects to track. To enable the segmentation to run in real-time, one might want to choose one of the faster implementations, where noise removal is handled by some erode/dilate sequences together with removal of objects that are e.g. not convex enough. With an other background model and/or identification modules one of these other algorithms might even yield better performance in terms of MOTA and MOTP.
+
+\subsection{Kalman Predictor}
+The Kalman predictor did overall work well. The state-space model including only position and velocity worked good enough for its purpose. It did however face difficulties with sudden objects appearing then suddenly disappearing, yielding predictions with unstable velocity due to few measurements. Tweaking of parameters
+where made but still there was problems that could only be solved by denying velocity predictions until enough information was gathered. This did however also cause problem for briefly appearing objects that did not get any velocity estimation and thus did not move when vision was lost. These got stock in the middle of the sequence causing false positive errors for the evaluation.
+
+\subsubsection{Possible improvements}
+It is always possible to use more advance state-space models including for instance acceleration that could possibly lead to improvements in the predictors performance. It is however not certain that it will. Some test where carried out using acceleration that did not show any significant improvement. The parameters involved in the predictor can as well be subject to hours of tweaking and tuning, and thereby possibly improved, but our time budget could not allow for such indulgence. 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

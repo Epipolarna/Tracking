@@ -1,11 +1,11 @@
 
-\subsection{Background Modeling}
-The background model appears to work roughly as well on all the clips, atleast after an initial convergence has been achived. The main problems is that the update procedure for the model is far to slow to run in real time. The resulting model is also farily noisy, however the noise is mostly isolated pixels falsely classified as foreground, something the foreground segmentaion step has no trouble handling.
+\subsection{Background Modelling}
+The background model appears to work roughly as well on all the clips, at least after an initial convergence has been achieved. The main problems is that the update procedure for the model is far to slow to run in real time. The resulting model is also fairly noisy, however the noise is mostly isolated pixels falsely classified as foreground, something the foreground segmentation step has no trouble handling.
 
-For certain sequences it is possible to stop updating the model once it has converged, since if the enviroment does not change significantly the need for adaptivity is reduced.
+For certain sequences it is possible to stop updating the model once it has converged, since if the environment does not change significantly the need for adaptivity is reduced.
 
-\subssubsection{Possible improvements}
-The most obvious needed improvement is to make the model fast enough that it can be updated every frame, without significantly slowing the system down. The simplest way to achive this is probably to take advantage of the fact that each pixel of the model can be updated without concern for the others, thus it shuld be possible to update the model of sevral pixels in parallel.
+\subsubsection{Possible improvements}
+The most obvious needed improvement is to make the model fast enough that it can be updated every frame, without significantly slowing the system down. The simplest way to achieve this is probably to take advantage of the fact that each pixel of the model can be updated without concern for the others, thus it should be possible to update the model of several pixels in parallel.
 
 \subsection{Shadow suppression}
 One of the reasons that the performance is drastically lower for the last sequence is that it contains not only shadows, but specular reflections as well and this is something the HSV model does not take into account. There are also problems with persons walking in front of only slightly darker walls of the same hue, causing false positives. In the sequences used for evaluation $\tau_S$ is set to one, which means that the condition in equation \eqref{eq:S} is always fulfilled. One reason that this yields better performance might be that there is some secularity involved in the shadowing as well as the fact that false positives from the shadow suppression might split foreground regions apart. This might cause the segmentation to yield false positives, drastically lowering MOTA performance.

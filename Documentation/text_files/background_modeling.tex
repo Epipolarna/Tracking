@@ -1,16 +1,16 @@
-The background model uses a mixture of gaussians method, looking at all three color channels in the image. The output of the background modeling step is a matrix with probable non-objects marked, aswell as an updated model for use in the next frame.
+The background model uses a mixture of Gaussians method, looking at all three colour channels in the image. The output of the background modelling step is a matrix with probable non-objects marked, as well as an updated model for use in the next frame.
 
 \subsubsection{Expectation maximization}
 
-As the background is not completely static, due to camera noise and changing conditions in the scene the model needs to be dynamic aswell, for this a mixture of gaussians is used, that is updated with a variant of expectation maximization described in \cite{wood}
+As the background is not completely static, due to camera noise and changing conditions in the scene the model needs to be dynamic as well, for this a mixture of Gaussians is used, that is updated with a variant of expectation maximization described in \cite{wood}
 
-The major downside with this type of model is that it requires considerable computing power to update, and thus will run very slowly on a higher resolution video. For indoor videos simply stopping the update of the model once it had converged turned out to work suprisingly well. Outdoors the varying lightning conditions required that the model be allowed to adapt.
+The major downside with this type of model is that it requires considerable computing power to update, and thus will run very slowly on a higher resolution video. For indoor videos simply stopping the update of the model once it had converged turned out to work surprisingly well. Outdoors the varying lightning conditions required the model adapt continuously.
 
 See code in appendix \ref{sec:BGMod_code}. %referens till kod, ger klickbar länk.
 
 \subsubsection{Solution}
 
-Each pixel has x different distributions, each one representing a different object that can cause the pixel to have a particular color and intensity. For each frame each pixel checks which one of the x distributions best match the current pixel value, the best match is then considered to be the correct distribution. The matched pixel has its weight in updated aswell. 
+Each pixel has x different distributions, each one representing a different object that can cause the pixel to have a particular colour and intensity. For each frame each pixel checks which one of the x distributions best match the current pixel value, the best match is then considered to be the correct distribution. The matched pixel has its weight in updated as well. 
 
 If no matching distribution is found, the one with the lowest weight is replaced by a new distribution with a mean matching the current pixel value, a low weight and a relatively large variance
 
@@ -18,5 +18,5 @@ The weights of a single distribution are then normalized so they sum to one.
 
 In order to improve the stability of the model, a maximum weight and a minimum variance is used. Should a weight become to low an update will cause the variance of the pixel to become so large as to match anything. Without a minimum variance the the variance will quickly become to small, and cause the model to report pixels as foreground incorrectly.
 
-The result of the model ends up with only small (most are just one isolated pixel) ammounts of wrongly classified pixels, that are easily handled with a few morphological operations in the segmentation step.
+The result of the model ends up with only small (most are just one isolated pixel) amounts of wrongly classified pixels, that are easily handled with a few morphological operations in the segmentation step.
 

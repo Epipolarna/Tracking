@@ -5,14 +5,14 @@ In table \ref{tab:evaluation_performance} below the video clips chosen for the e
 
 \begin{table}[h]
 \centering
-	\begin{tabular}{r | c | c | c }
+	\begin{tabular}{r | c | c }
 		\emph{Sequence Name}		& \emph{MOTA} & \emph{MOTP} \\
 		\hline \hline
 		OneLeaveShop1front			& 0.56 & 5.01 \\
 		OneLeaveShop2front			& 0.70 & 5.30 \\
 		OneLeaveShopReenter2front	& 0.65 & 5.09 \\
 		OneStopNoEnter2front 		& 0.85 & 5.48 \\
-		WalkByShop1front 			& -0.66 & 7.96 \\
+		WalkByShop1front 			& 0.36 & 8.51 \\
 	\end{tabular}
 	\caption{\textit{Tracking performance according to the MOTA and MOTP evaluation standards as described in section \ref{sec:evaluation}.}}
 	\label{tab:evaluation_performance}
@@ -22,7 +22,7 @@ In table \ref{tab:evaluation_performance} below the video clips chosen for the e
 A table of the relevant parameter settings used to achieve the results presented in table \ref{tab:evaluation_performance}. For more information about the the function of the parameters, see the system description of the respective modules.
 \begin{table}[h]
 \centering
-	\begin{tabular}{r | c || c | c || c | c | c | c | c }
+	\begin{tabular}{r | c || c | c || c | c | c | c }
 	&	\multicolumn{1}{|c||}{BG model} & \multicolumn{2}{c||}{FG Segmentation} & \multicolumn{4}{c|}{Shadow Detection} \\
 		\hline
 		\emph{Sequence Name} & \emph{Learning Rate} & \emph{Iterations} & \emph{Min Thickness} &\emph{$\tau_H$} & \emph{$\tau_S$} & \emph{$\alpha$} & \emph{$\beta$}\\ 
@@ -31,7 +31,7 @@ A table of the relevant parameter settings used to achieve the results presented
 		OneLeaveShop2front			& 0.05 		& 3 & 4 	& 0.5 & 1 & 0.8 & 0.99\\
 		OneLeaveShopReenter2front	& 0.05		& 4 & 4 	& 0.5 & 1 & 0.8 & 0.99\\
 		OneStopNoEnter2front 		& 0.033		& 3 & 4 	& 0.5 & 1 & 0.8 & 0.99\\
-		WalkByShop1front 			& 0.033 	& 4 & 8 	& 0.5 & 1 & 0.8 & 0.99\\
+		WalkByShop1front 			& 0.01	 	& 25 & 10 	& 0.5 & 0.5 & 0.3 & 0.99\\
 	\end{tabular}
 	\caption{\textit{Parameters used to receive the evaluation results presented in table \ref{tab:evaluation_performance}.}}
 	\label{tab:evaluation_parameters}

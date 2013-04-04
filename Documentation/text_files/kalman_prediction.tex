@@ -50,10 +50,6 @@ The Kalman filter is made up of two main parts; measurement update and time upda
 
 Depending on where the state vector is stored in the algorithm, either a filter or predictor is achieved. Since this project seeks a predictor the state vector is stored in the time update.
 
-In \ref{fig:kalman_fig} an example of the Kalman predictor can be seen. The black and blue dots are measurements and predictions respectively. The red circles indicate uncertainty. Those are heavily amplified to clearly see their shape and orientation. The last measurements are pretended to be lost and the last five predictions are purely based on the state-space model. A clear rise in uncertainty can be seen, as expected. 
- 
-See code in appendix \ref{sec:Kalman_code}. %referens till kod, ger klickbar länk.
-
 \begin{figure}[h]
 	\centering
 	\includegraphics[width=\linewidth]{images/Kalmask2}
@@ -61,3 +57,5 @@ See code in appendix \ref{sec:Kalman_code}. %referens till kod, ger klickbar lä
 	\label{fig:kalman_fig} %Skapar referens till figuren
 \end{figure}
 \pagebreak
+
+In \ref{fig:kalman_fig} an example of the Kalman predictor can be seen. The black and blue dots are measurements and predictions respectively. The red circles indicate uncertainty. Those are heavily amplified to clearly see their shape and orientation. The last measurements are pretended to be lost and the last five predictions are purely based on the state-space model. A clear rise in uncertainty can be seen, as expected. 

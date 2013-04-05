@@ -54,12 +54,18 @@ namespace ForegroundProcessing
 
 	void ForegroundProcessor::segmentForegroundSlow(Frame & frame)
 	{
+		//record demo
 		threshMap(frame.foreground, threshval); //Threshold at threshval
-
+		frame.foreground.copyTo(frame.demoImage(Range(0, frame.image.rows), 
+												Range(0, frame.image.cols)));
 		if (shadows)
 		{
 			suppressShadows(frame, minArea, minQuotient);
 		}
+
+		//record demo
+		frame.foreground.copyTo(frame.demoImage(Range(0, frame.image.rows), 
+												Range(frame.image.cols, frame.image.cols*2)));
 		
 		//Remove gray pixels
 		threshMap(frame.foreground, threshval);
@@ -67,6 +73,10 @@ namespace ForegroundProcessing
 		distanceFilter(frame, minDist);
 		dilateBinMap(frame.foreground, iterations);
 
+		//record demo
+		frame.foreground.copyTo(frame.demoImage(Range(frame.image.rows, frame.image.rows*2), 
+												Range(0, frame.image.cols)));
+		
 		getObjects(frame);
 	
 		return;

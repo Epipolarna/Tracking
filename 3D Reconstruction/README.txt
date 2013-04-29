@@ -1,4 +1,4 @@
-Levmar är färdigbyggt och ligger uppe på sven.
+Rätt version av levmar ligget på sven.
 Gold-standard skattning av F är också klar.
 
 Lägg in 

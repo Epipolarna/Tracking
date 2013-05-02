@@ -36,7 +36,7 @@ void findMatches(vector<Mat>* imageList, vector<vector<pointPair>>* matchesVecto
 	// ---------- HARRIS detector -----------
 	int		maxNumberOfFeatures =	100;		// Maximum number of features to return
 	double	qualityLevel =			0.005;		// Remove features with worse than 99 % of the best eigenvalue,			0.01
-	double	minDistance =			10;			// Minimal Euclidiean distance between features,						3
+	double	minDistance =			20;			// Minimal Euclidiean distance between features,						3
 	int		blockSize =				7;			// Size of averaging mask when calculating neighbourhood covariance,	3
 	bool	useHarris =				true;		// Use Harris or die,													false
 	double	k =						0.04;		// Parameter for Harris detector: Har(x,y) = det - k * trace^2,			0.04
@@ -124,21 +124,21 @@ void findMatches(vector<Mat>* imageList, vector<vector<pointPair>>* matchesVecto
 			}
 		}
 
-		vector<Point2d> bestPoints1;
-		vector<Point2d> bestPoints2;
+		//vector<Point2d> bestPoints1;
+		//vector<Point2d> bestPoints2;
 
 		vector<pointPair> pointPairs;
 
 		for (int k=0; k<matches.size(); k++)
 		{
-			bestPoints1.push_back(keypoints1[matches[k].queryIdx].pt);
-			bestPoints2.push_back(keypoints2[matches[k].trainIdx].pt);
+			//bestPoints1.push_back(keypoints1[matches[k].queryIdx].pt);
+			//bestPoints2.push_back(keypoints2[matches[k].trainIdx].pt);
 
 			pointPair temp;
 			temp.p1.x = keypoints1[matches[k].queryIdx].pt.x;
 			temp.p1.y = keypoints1[matches[k].queryIdx].pt.y;
-			temp.p2.x = keypoints2[matches[k].queryIdx].pt.x;
-			temp.p2.y = keypoints2[matches[k].queryIdx].pt.y;
+			temp.p2.x = keypoints2[matches[k].trainIdx].pt.x;
+			temp.p2.y = keypoints2[matches[k].trainIdx].pt.y;
 
 			//cout << "p1: " << temp.p1 << endl;
 			//cout << "p2: " << temp.p2 << endl;
@@ -151,10 +151,10 @@ void findMatches(vector<Mat>* imageList, vector<vector<pointPair>>* matchesVecto
 		//matchesVector->push_back(matches);
 		cout << "matches: " << matches.size() << endl;
 		
-		//Mat matchImage;
-		//drawMatches(*i, keypoints1, *(i+1), keypoints2, matches, matchImage);
+		Mat matchImage;
+		drawMatches(*i, keypoints1, *(i+1), keypoints2, matches, matchImage);
 
-		//imshow("win1", matchImage);
+		imshow("win1", matchImage);
 		waitKey(1);
 	}
 }

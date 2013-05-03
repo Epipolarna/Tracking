@@ -1,0 +1,50 @@
+
+\subsection{Point Extractor}
+The background model appears to work roughly as well on all the clips, at least after an initial convergence has been achieved. The main problems is that the update procedure for the model is far to slow to run in real time. The resulting model is also fairly noisy, however the noise is mostly isolated pixels falsely classified as foreground, something the foreground segmentation step has no trouble handling.
+
+For certain sequences it is possible to stop updating the model once it has converged, since if the environment does not change significantly the need for adaptivity is reduced.
+
+\subsubsection{Possible improvements}
+The most obvious needed improvement is to make the model fast enough that it can be updated every frame, without significantly slowing the system down. The simplest way to achieve this is probably to take advantage of the fact that each pixel of the model can be updated without concern for the others, thus it should be possible to update the model of several pixels in parallel.
+
+\subsection{Pose Estimator}
+One of the reasons that the performance is drastically lower for the last sequence is that it contains not only shadows, but specular reflections as well and this is something the HSV model does not take into account. There are also problems with persons walking in front of only slightly darker walls of the same hue, causing false positives. In the sequences used for evaluation $\tau_S$ is set to one, which means that the condition in equation \eqref{eq:S} is always fulfilled. One reason that this yields better performance might be that there is some secularity involved in the shadowing as well as the fact that false positives from the shadow suppression might split foreground regions apart. This might cause the segmentation to yield false positives, drastically lowering MOTA performance.
+
+\subsubsection{Possible improvements}
+The shadow suppression algorithm also has great problems handling varying illumination in the scene. One way to solve this could be to somehow make the parameter settings depend on the overall illumination of the scene. 
+
+\subsection{Non-linear Optimizer}
+The foreground segmentation performance depends highly on the parameter settings and what is deemed as good performance in terms of noise removal and segmentation depends highly on both the input characteristics as well as what the expected segmentation output is. The implementation used to achieve the results in section \ref{sec:results}  is the one  described in section \ref{sec:foreground_segmentation}. In this implementation the background model generates significantly more false positives than negatives, while at the same time the identification module is good at handling false negatives and not good at all with false positives. 
+
+\subsubsection{Possible improvements}
+The implementation of the foreground segmentation described in the previous paragraph can, however be rather slow if there are a lot of objects to track. To enable the segmentation to run in real-time, one might want to choose one of the faster implementations, where noise removal is handled by some erode/dilate sequences together with removal of objects that are e.g. not convex enough. With an other background model and/or identification modules one of these other algorithms might even yield better performance in terms of MOTA and MOTP.
+
+\pagebreak
+\subsection{3D Visualization}
+The identification process and precision depends heavily on robustness of the foreground segmentation and background model since it currently assumes that all objects discovered are real objects.
+
+Using the concept of parents and children for objects overlapping in sequent frames simplified a lot and allowed for compensation of errors in the estimated motion of objects not currently detectable by them self. The children were kept within the parent border, keeping the motion estimation realistic as they should (probably) be within the border.
+
+The minimization of the error $\epsilon$ was based on the assumption that it is more likely that the pairs with the lowest $\epsilon$ are corresponding than those pairs of a global optimization solution, with possible situations where a incoming outlier is forcefully decided to correspond to a object already close to its true corresponding candidate in order for the minimization of the total error. This assumption seemed reasonable and no sequence, as far as we have seen, have produced identification errors which we haven't always found is due to flickering of object detections or other noise due the performance of the foreground segmentation and the background model.
+
+\subsubsection{Possible improvements}
+When objects are lost for too long and without any velocity, which would otherwise indicate that the object might temporary be behind a hinder, it should probably be removed in order to compensate for ghost objects let through by the background modelling and the foreground segmentation. Another indication for removal could be when the uncertainty grows much larger than the entire frame.
+
+Objects could also be forced to change width/height very slowly, both when moving freely and when entering/exiting parent objects. This was partly implemented but was discarded due to lack of time.
+
+The error $\epsilon$ should probably be affected more of the difference in width/height in order to let the occlusion handling improve and be able to tackle even more challenging situations.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

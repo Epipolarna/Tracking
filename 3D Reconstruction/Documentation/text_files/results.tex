@@ -1,0 +1,43 @@
+In this section the results of the project is summarized for some sequences chosen together with the other group. The sequences, as well as the ground truth used are provided by the EC Funded CAVIAR project, \cite{CAVIAR}.
+
+\subsection{Evaluation Scores}
+In table \ref{tab:evaluation_performance} below the video clips chosen for the evaluation are presented, along with the achieved accuracy measurements.
+
+\begin{table}[h]
+\centering
+	\begin{tabular}{r | c | c }
+		\emph{Sequence Name}		& \emph{MOTA} & \emph{MOTP} \\
+		\hline \hline
+		OneLeaveShop1front			& 0.56 & 5.01 \\
+		OneLeaveShop2front			& 0.70 & 5.30 \\
+		OneLeaveShopReenter2front	& 0.65 & 5.09 \\
+		OneStopNoEnter2front 		& 0.90 & 5.44 \\
+		WalkByShop1front 			& 0.42 & 7.68 \\
+	\end{tabular}
+	\caption{\textit{Tracking performance according to the MOTA and MOTP evaluation standards as described in section \ref{sec:evaluation}.}}
+	\label{tab:evaluation_performance}
+\end{table}
+
+\subsection{Parameters}
+A table of the relevant parameter settings used to achieve the results presented in table \ref{tab:evaluation_performance}. For more information about the the function of the parameters, see the system description of the respective modules.
+\begin{table}[h]
+\centering
+	\begin{tabular}{r | c || c | c || c | c | c | c }
+	&	\multicolumn{1}{|c||}{BG model} & \multicolumn{2}{c||}{FG Segmentation} & \multicolumn{4}{c|}{Shadow Detection} \\
+		\hline
+		\emph{Sequence Name} & \emph{Learning Rate} & \emph{Iterations} & \emph{Min Thickness} &\emph{$\tau_H$} & \emph{$\tau_S$} & \emph{$\alpha$} & \emph{$\beta$}\\ 
+		\hline \hline
+		OneLeaveShop1front			& 0.05 		& 3 & 3.5 	& 0.5 & 1 & 0.8 & 0.99\\
+		OneLeaveShop2front			& 0.05 		& 3 & 4 	& 0.5 & 1 & 0.8 & 0.99\\
+		OneLeaveShopReenter2front	& 0.05		& 4 & 4 	& 0.5 & 1 & 0.8 & 0.99\\
+		OneStopNoEnter2front 		& 0.033		& 3 & 5 	& 0.6 & 0.6 & 0.3 & 0.99\\
+		WalkByShop1front 			& 0.01	 	& 24 & 8 	& 0.5 & 0.5 & 0.3 & 0.99\\
+	\end{tabular}
+	\caption{\textit{Parameters used to receive the evaluation results presented in table \ref{tab:evaluation_performance}.}}
+	\label{tab:evaluation_parameters}
+\end{table}
+
+\subsection{Discussion}
+The results presented in the table \ref{tab:evaluation_performance} could be considered fairly good, with the exception for the last one. The poor performance in the clip "WalkByShop1front" is caused by several possible factors. Several of the people moving in the sequence have clothing with a similar colour as the background. This causes the background model to miss parts of the persons moving, sometimes even splitting them into two regions. The sequence also contains specular reflections, which the shadow suppression has a lot of trouble with. Both of these effects cause objects to be split into several parts, which means that the Identification module is fed with a lot of false positives. The identification module we have implemented is very potent in most situations, but false positives are something it does not handle very well, hence the poor performance.
+
+

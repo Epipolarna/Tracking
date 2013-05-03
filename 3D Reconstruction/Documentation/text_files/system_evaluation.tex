@@ -1,0 +1,27 @@
+One of the most important parts of a project is the ability to evaluate it. Without it there is no way to compare results with others. There exists no established evaluation method for multiple object tracking, but there are several candidates available. It was however decided to use two measures called MOTA, multiple object tracking accuracy, and MOTP, multiple object tracking precision \cite{MOTA}. These are easy to grasp, implement and compare. The other group carrying out the same project uses the same measures which makes comparison between the groups easy.
+
+\subsection{Ground Truth}
+The evaluation needs access to some sort of ground truth which is defined as the best possible achievable tracking output. Throughout this part of the document an object is defined as a position by the ground truth and a hypothesis as the output from the tracker. The method only allows one-to-one correspondence between objects and hypothesis and in case of conflict the combination yielding the lowest total distance error is chosen. The ground truth data and video clips used for evaluation are all from the CAVIAR project \cite{CAVIAR}.
+
+\subsection{MOTA}
+MOTA is measure of accuracy with respect to how many mistakes are made by the tracker. It consists of four variables: misses, false positive, mismatches and number of objects. A miss is when no hypothesis suggested is close enough to an object, close enough being defined by a threshold, T. This is the only design parameter in this method. If the distance between an object and the closest hypothesis is larger than T, the object is considered a miss. If a hypothesis has no object within threshold distance it results it is labeled a false positive. One important feature of a tracker is the ability to keep objects identities correct. If this is not the case and an object is changing identity between frames one mismatch error is added for every change. The number of objects variable is defined as the total number of objects trackable according to the ground truth in the current frame. For a given image sequence, equation \eqref{eq:MOTA} can be used to compute the MOTA.
+
+\begin{equation}
+\label{eq:MOTA}
+MOTA = 1 - \frac{\sum_{frames}{misses + false Positive + mismatches}}{\sum_{frames}{number Of Objects}}
+\end{equation}	
+
+\subsection{MOTP}
+The MOTP is a measure of how well the correct matches fit the ground truth objects. It only uses two variables: distance and matches. The distance is calculated between a hypothesis and its corresponding object. Matches are the number of hypothesis within the 
+threshold, T, of an object. MOTP for a sequence is calculated according to \eqref{eq:MOTP}.
+
+\begin{equation}
+\label{eq:MOTP}
+MOTP = \frac{\sum_{frames}{distance}}{\sum_{frames}{matches}}
+\end{equation}
+
+\subsection{Reflections}
+One can conclude that ideally MOTA should be one and MOTP zero. This would indicate perfect tracking according to this measurement method. One can discuss the validity of these measures. It is for instance never taken into account if the suggested hypothesis is close to the ground truth with respect to size and shape of bounding box. Only position is measured which makes MOTP a bit wage.
+
+Regarding the MOTA it is unclear how a negative accuracy should be interpreted and compared to a positive one. A negative accuracy is obviously bad but maybe it would have been preferable to a restrict it to a positive number between one and zero.
+

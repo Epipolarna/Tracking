@@ -16,6 +16,8 @@
 struct pointPair
 {
 	cv::Point2d p1, p2;
+	pointPair(){}
+	pointPair(cv::Point2d p1, cv::Point2d p2): p1(p1),p2(p2) {}
 };
 
 void readImages(std::vector<cv::Mat>* imageList);

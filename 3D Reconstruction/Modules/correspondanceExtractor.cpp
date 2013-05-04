@@ -6,7 +6,7 @@ using namespace cv;
 void readImages(vector<Mat>* imageList)
 {
 	string fileName, fileNumber;
-	string fileBeginning = "images/viff.";
+	string fileBeginning = "images/dinosaur/viff.";
 	string fileEnding = ".ppm";
 
 	int endingNumber = 36;
@@ -26,6 +26,8 @@ void readImages(vector<Mat>* imageList)
 
 		cout << "Filename: " << fileName << endl;
 		imageList->push_back(imread(fileName));
+		if(imageList->back().empty())
+			cout << "\t Could not read file!\n";
     }
 }
 

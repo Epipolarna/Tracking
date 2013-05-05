@@ -61,7 +61,7 @@ namespace NonLinear
 		//cv::Mat allPoints3D;
 		//std::vector<std::vector<cv::Mat>> visible3Dpoints;
 		std::vector<std::vector<cv::Point3d*>> points3D;
-		std::vector<cv::Point3d>* all3DPoints;
+		std::vector<Visible3DPoint>* all3DPoints;
 		
 
 	};
@@ -75,7 +75,7 @@ namespace NonLinear
 		void testFunc(double* params, double* residuals);
 		void goldStandardRefine(cv::Mat F, std::vector<cv::Point2d> points1, std::vector<cv::Point2d> points2);
 		cv::Mat goldNonLin(cv::Mat F, cv::Mat C1, cv::Mat C2, cv::Mat point3D, std::vector<cv::Point2d> points1, std::vector<cv::Point2d> points2);
-		void BundleAdjust(std::vector<Camera*> views, std::vector<cv::Point3d>* all3DPoints);
+		void BundleAdjust(std::vector<Camera*>& views, std::vector<Visible3DPoint>* all3DPoints);
 	private:
 		// Hard-coded in constructor
 		cv::Mat K;

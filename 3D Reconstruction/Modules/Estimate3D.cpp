@@ -179,7 +179,7 @@ cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2
 	cv::vector<cv::Point2d> inliers1;
 	cv::vector<cv::Point2d> inliers2;
 
-	std::cout << "nu börjar det\n";
+	//std::cout << "nu börjar det\n";
 
 	for (int i = 0; i < inlierMask.size(); ++i)
 	{
@@ -188,8 +188,8 @@ cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2
 			inliers1.push_back(points1[i]);
 			inliers2.push_back(points2[i]);
 
-			std::cout << points1[i] << std::endl;
-			std::cout << points2[i] << std::endl;
+			//std::cout << points1[i] << std::endl;
+			//std::cout << points2[i] << std::endl;
 		}
 	}
 	//Get epipolar point coordinates for P2 estimation

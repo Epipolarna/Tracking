@@ -179,15 +179,26 @@ namespace NonLinear
 	{
 		int errorIdx = 0;
 		int paramIdx = 0;
+		int pointIdx = 0;
 		BAData* data = static_cast<BAData*>(derp);
 		//Rebuild 3Dpoints (sigh)
 		//data->all3DPoints = Mat(3,data->n3DPoints,CV_64FC1,&p[data->nViews*6]);
+		/*
 		for(int i = 0; i < data->n3DPoints; i++)
 		{
-			(*data->all3DPoints)[i].x = p[data->nViews*6 + 3*i];
-			(*data->all3DPoints)[i].x = p[data->nViews*6 + 3*i + 1];
-			(*data->all3DPoints)[i].x = p[data->nViews*6 + 3*i + 2];
+			(*data)->all3DPoints[i] = p[data->nViews*6 + 3*i];
+			(*data->all3DPoints)[i]->y = p[data->nViews*6 + 3*i + 1];
+			(*data->all3DPoints)[i]->z = p[data->nViews*6 + 3*i + 2];
+		}*/
+
+		for(std::vector<Visible3DPoint>::iterator it = data->all3DPoints->begin(); it != data->all3DPoints->end(); it++)
+		{
+			it->point3D->x = p[data->nViews*6 + 3*pointIdx];
+			it->point3D->y = p[data->nViews*6 + 3*pointIdx + 1];
+			it->point3D->z = p[data->nViews*6 + 3*pointIdx+ 2];
+			pointIdx += 3;
 		}
+
 
 		// For all cameras
 		for (int i = 0; i < data->rotations.size(); i++)
@@ -220,7 +231,7 @@ namespace NonLinear
 	}
 
 
-	void NonLinear::BundleAdjust(std::vector<Camera*> views, std::vector<cv::Point3d>* _all3DPoints)
+	void NonLinear::BundleAdjust(std::vector<Camera*>& views, std::vector<Visible3DPoint>* _all3DPoints)
 	{
 		int nPoints = 0;
 		//I want this :/
@@ -279,11 +290,11 @@ namespace NonLinear
 		{
 			params.push_back(*matIt);
 		}*/
-		for(std::vector<cv::Point3d>::iterator it = data.all3DPoints->begin(); it != data.all3DPoints->end(); it++)
+		for(std::vector<Visible3DPoint>::iterator it = data.all3DPoints->begin(); it != data.all3DPoints->end(); it++)
 		{
-			params.push_back(it->x);
-			params.push_back(it->y);
-			params.push_back(it->z);
+			params.push_back(it->point3D->x);
+			params.push_back(it->point3D->y);
+			params.push_back(it->point3D->z);
 		}
 
 

@@ -46,10 +46,10 @@ int main()
 	readImages(&imageList);
 
 	vector<vector<pointPair>> matchesVector;
-	//findMatches(&imageList, &matchesVector);
+	findMatches(&imageList, &matchesVector);
 
 	//saveMatches(&matchesVector, "data.alx");
-	loadMatches(&matchesVector, "data.alx");
+	//loadMatches(&matchesVector, "data.alx");
 
 	cout << matchesVector.begin()->begin()->p1 << endl;
 	cout << matchesVector.begin()->begin()->p2 << endl;

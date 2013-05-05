@@ -37,6 +37,8 @@ void Visualizer::addPoint(GLfloat x, GLfloat y, GLfloat z){
 void Visualizer::mainLoop(){
 	bool running = true;
 
+	cout << "visualizer started..." << endl;
+
 	while(running){
 		sf::Event event;
 

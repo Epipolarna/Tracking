@@ -65,70 +65,70 @@ void VisualisationDisplayCameraClass::lookAtUpload(GLuint program){
 
 void VisualisationDisplayCameraClass::moveUp(float dt)
 {
-	std::cout << "moveUp" << std::endl;
+	//std::cout << "moveUp" << std::endl;
 	cv::Vec3f prevPos = position;
 	position += cv::normalize(upVector)*movementSpeed*dt;
 	lookAtVector += position - prevPos;
-	std::cout << position - prevPos << std::endl;
+	//std::cout << position - prevPos << std::endl;
 }
 
 void VisualisationDisplayCameraClass::moveDown(float dt)
 {
-	std::cout << "moveDown" << std::endl;
+	//std::cout << "moveDown" << std::endl;
 	cv::Vec3f prevPos = position;
 	position -= cv::normalize(upVector)*movementSpeed*dt;
 	lookAtVector += position - prevPos;
-	std::cout << position - prevPos << std::endl;
+	//std::cout << position - prevPos << std::endl;
 }
 
 void VisualisationDisplayCameraClass::moveForward(float dt)
 {
-	std::cout << "W" << std::endl;
+	//std::cout << "W" << std::endl;
 	position += cv::normalize(lookAtVector - position)*movementSpeed*dt;
 	lookAtVector += cv::normalize(lookAtVector - position)*movementSpeed*dt;
-	std::cout << position << std::endl;
+	//std::cout << position << std::endl;
 }
 void VisualisationDisplayCameraClass::moveBackward(float dt)
 {
-	std::cout << "S" << std::endl;
+	//std::cout << "S" << std::endl;
 	position -= cv::normalize(lookAtVector - position)*movementSpeed*dt;
 	lookAtVector -= cv::normalize(lookAtVector - position)*movementSpeed*dt;
-	std::cout << position << std::endl;
+	//std::cout << position << std::endl;
 }
 void VisualisationDisplayCameraClass::moveLeft(float dt)
 {
-	std::cout << "A" << std::endl;
+	//std::cout << "A" << std::endl;
 	position -= cv::normalize( (lookAtVector - position).cross(upVector) )*movementSpeed*dt;
 	lookAtVector -= cv::normalize( (lookAtVector - position).cross(upVector) )*movementSpeed*dt;
-	std::cout << position << std::endl;
+	//std::cout << position << std::endl;
 }
 void VisualisationDisplayCameraClass::moveRight(float dt)
 {
-	std::cout << "D" << std::endl;
+	//std::cout << "D" << std::endl;
 	position += cv::normalize( (lookAtVector - position).cross(upVector) )*movementSpeed*dt;
 	lookAtVector += cv::normalize( (lookAtVector - position).cross(upVector) )*movementSpeed*dt;
-	std::cout << position << std::endl;
+	//std::cout << position << std::endl;
 }
 
 
 void VisualisationDisplayCameraClass::xLook(float dt, int dx)
 {
-	std::cout << "xlook " << dx << std::endl;
+	//std::cout << "xlook " << dx << std::endl;
 	cv::Vec3f lookAtDirection = lookAtVector - position;
 	GLfloat length = (GLfloat)cv::norm(lookAtDirection);
 	cv::Vec3f helpVector = cv::normalize(lookAtDirection.cross(upVector));
 
 	lookAtVector = position + cv::normalize(lookAtDirection + sensitivity*helpVector*dx)*length;
-	upVector = cv::normalize(helpVector.cross(lookAtVector - position));
+	//upVector = cv::normalize(helpVector.cross(lookAtVector - position));
 }
 
 void VisualisationDisplayCameraClass::yLook(float dt, int dy)
 {
-	std::cout << "ylook " << dy << std::endl;
+	//std::cout << "ylook " << dy << std::endl;
 	cv::Vec3f lookAtDirection = lookAtVector - position;
 	GLfloat length = (GLfloat)cv::norm(lookAtDirection);
 	cv::Vec3f helpVector = lookAtDirection.cross(upVector);
 
 	lookAtVector = position + cv::normalize(lookAtDirection + sensitivity*upVector*dy)*length;
-	upVector = cv::normalize(helpVector.cross(lookAtVector - position));
+	//upVector = cv::normalize(helpVector.cross(lookAtVector - position));
 }

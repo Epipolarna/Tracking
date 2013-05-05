@@ -6,7 +6,7 @@ using namespace cv;
 void readImages(vector<Mat>* imageList)
 {
 	string fileName, fileNumber;
-	string fileBeginning = "images/dinosaur/viff.";
+	string fileBeginning = "data/dinosaur/viff.";
 	string fileEnding = ".ppm";
 
 	int endingNumber = 36;

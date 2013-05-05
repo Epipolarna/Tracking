@@ -88,10 +88,10 @@ int main()
 	dinosaurModel.init(bestPoints1, bestPoints2, K);
 	
 	Camera * cam2 = dinosaurModel.cameras.back();
-	cout << "P2:\n" << cam2->P << "\n";
-	cout << "K:\n" << cam2->K << "\n";
-	cout << "R:\n" << cam2->R << "\n";
-	cout << "t:\n" << cam2->t << "\n";
+	cout << "P2:\n " << cam2->P << "\n";
+	cout << "K:\n " << cam2->K << "\n";
+	cout << "R:\n " << cam2->R << "\n";
+	cout << "t:\n " << cam2->t << "\n";
 	
 	
 	waitKey(0);

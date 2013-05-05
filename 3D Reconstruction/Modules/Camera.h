@@ -8,6 +8,7 @@
 struct Camera
 {
 public:
+	int id;
 	cv::Mat P;	 // Camera/projection matrix (P = K*P)
 	cv::Mat K;	 // Internal camera parameters
 	cv::Mat C;	 // External camera parameters (C = [R t])

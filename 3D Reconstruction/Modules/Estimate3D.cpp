@@ -29,6 +29,8 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	cameras.push_back(cam1);
 	cameras.push_back(cam2);
 
+	cam1->id = 0;
+	cam2->id = 1;
 	cam1->P = GO.P1;
 	cam2->P = GO.P2;
 	//cam1->K = K;
@@ -71,6 +73,7 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 	/*vconcat(cam1->R, cv::Mat::zeros(1,3,CV_64FC1), cam1->C);
 	hconcat(cam1->C, cam1->t/cam1->t.at<float>(0,3), cam1->C);
 	cam1->P.at<float>(3,3) = 1;*/
+	cam2->id = cam1->id+1;
 	cam2->P = GO.P2;
 	decomposeProjectionMatrix(cam2->P, cam2->K, cam2->R, cam2->t);
 

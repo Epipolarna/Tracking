@@ -17,6 +17,7 @@
 #include "Modules\correspondanceExtractor.h"
 #include "Modules\Camera.h"
 #include "Modules\Estimate3D.h"
+#include "Modules\Visualization\Visualizer.h"
 
 #include <vector>
 using namespace cv;
@@ -94,6 +95,16 @@ int main()
 	cout << "t:\n " << cam2->t << "\n";
 	
 	
+	vis::Visualizer v = vis::Visualizer();
+	vector<Visible3DPoint> pvector = dinosaurModel.visible3DPoint;
+	for(vector<Visible3DPoint>::iterator it = pvector.begin(); it != pvector.end(); ++it){
+		cv::Point3d* whatIsThePoint = it->point3D;
+		v.addPoint(whatIsThePoint->x,whatIsThePoint->y,whatIsThePoint->z);
+		cout << *whatIsThePoint << endl;
+	}
+
+	v.mainLoop();
+
 	waitKey(0);
 
 	return 0;

@@ -67,6 +67,7 @@ void Shader::loadShader(std::string vertexShaderFile, std::string fragmentShader
 
 	if(linkStatus != 0){
 		cout << "shader linkage fail, l2shader n00b" << endl;
+		cout << "link status was: " << linkStatus << endl;
 	}
 
 	assert(linkStatus != 0);

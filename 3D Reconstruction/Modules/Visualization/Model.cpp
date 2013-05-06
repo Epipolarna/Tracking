@@ -22,7 +22,7 @@ namespace vis{
 	double phi = 0, theta = 0;
 	double pi = 3.1415;
 
-	int subdivisions = 1000;
+	int subdivisions = 10;
 	int numberOfVertices = 0;
 	
 

@@ -65,7 +65,7 @@ void Shader::loadShader(std::string vertexShaderFile, std::string fragmentShader
 	GLint linkStatus = 10;
 	glGetProgramiv(programRef, GL_LINK_STATUS, &linkStatus);
 
-	if(linkStatus != 0){
+	if(linkStatus == 0){
 		cout << "shader linkage fail, l2shader n00b" << endl;
 		cout << "link status was: " << linkStatus << endl;
 		cout << "opengl error after linkage is: " << hex << glGetError << endl;

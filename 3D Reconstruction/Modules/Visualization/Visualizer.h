@@ -15,6 +15,7 @@
 #include "Shader.h"
 #include "VisualisationDisplayCameraClass.h"
 #include "Model.h"
+#include "Object.h"
 
 
 using namespace std;
@@ -44,9 +45,10 @@ private:
 	//variables
 	Shader shader;
 	sf::Window* displayWindow;
-	vector<Model> plottedPoints;
+	vector<Object> plottedPoints;
 	GLfloat* mdl;
 	VisualisationDisplayCameraClass cam;
+	Model* sphereModel;
 };
 
 }

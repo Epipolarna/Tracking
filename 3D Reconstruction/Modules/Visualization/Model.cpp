@@ -2,25 +2,12 @@
 
 namespace vis{
 
-	Model::Model(float x, float y, float z){
-		program = texture0 = 0;
-		position = cv::Vec3f(x,y,z);
-		scale = cv::Vec3f(1.0,1.0,1.0);
-		numberOfIndices = 0;
-		generate();
-		upload();
-		updateMatrices();
-	}
 
-	Model::Model(GLuint p, float x, float y, float z){
-		program = p;
+	Model::Model(void){
 		texture0 = 0;
-		scale = cv::Vec3f(1.0, 1.0, 1.0);
-		position = cv::Vec3f(x,y,z);
 		numberOfIndices = 0;
 		generate();
 		upload();
-		updateMatrices();
 	}
 
 	void Model::generate(){
@@ -167,8 +154,7 @@ namespace vis{
 	}
 
 
-	void Model::draw(){
-		updateMatrices();
+	void Model::draw(GLuint program){
 
 		if(texture0 != 0){
 			glActiveTexture(GL_TEXTURE0);
@@ -176,7 +162,7 @@ namespace vis{
 			glUniform1i(glGetUniformLocation(program, "Tex0"), 0);
 		}
 
-		glUniformMatrix4fv(glGetUniformLocation(program, "scaleTrans"), 1, GL_TRUE, scaleTrans.ptr<GLfloat>());
+		
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glVertexAttribPointer(glGetAttribLocation(program, "vert"), 3, GL_FLOAT, GL_FALSE, 0, 0);
@@ -193,13 +179,6 @@ namespace vis{
 		glDrawElements(GL_TRIANGLES, numberOfIndices, GL_UNSIGNED_INT, 0);
 	}
 
-	void Model::updateMatrices(){
-			GLfloat	scaleTransData[] = {	scale(0), 0.0f,	0.0f,	position(0),
-											0.0f,	scale(1),	0.0f,	position(1),
-											0.0f,	0.0f,	scale(2), position(2),
-											0.0f,	0.0f,	0.0f,	1.0f };
-
-			scaleTrans = cv::Mat(4, 4, CV_32FC1, scaleTransData).clone();
-	}
+	
 
 }

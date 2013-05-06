@@ -17,6 +17,8 @@ Visualizer::Visualizer(void){
 						0.0, 0.0, 0.0, 1.0};
 	mdl = new GLfloat[16];
 	
+	sphereModel = new Model();
+
 	//copy modulating matrix to the dynamically allocated one
 	//there is probably a better way to do this...
 	for(int i=0; i < 16; i++){
@@ -29,8 +31,7 @@ Visualizer::~Visualizer(void){
 }
 
 void Visualizer::addPoint(GLfloat x, GLfloat y, GLfloat z){
-	Model m = Model(shader.programRef,x,y,z);
-	plottedPoints.push_back(m);
+	plottedPoints.push_back(Object(shader.programRef,sphereModel,x,y,z));
 }
 
 
@@ -80,7 +81,7 @@ GLfloat frustumMatrix[] = {		2.0f*nearFrustum/(right-left), 0.0f,					(right+lef
 	cam.lookAtUpload(shader.programRef);
 
 
-	for(vector<Model>::iterator it = plottedPoints.begin(); it != plottedPoints.end(); ++it){
+	for(vector<Object>::iterator it = plottedPoints.begin(); it != plottedPoints.end(); ++it){
 		it->draw();
 	}
 	

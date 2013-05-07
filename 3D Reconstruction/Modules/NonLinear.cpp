@@ -18,7 +18,8 @@ namespace NonLinear
 		double Kdata[9] = {	3217.328669180762, -78.606641008226180, 289.8672403229193,
 							0,					2292.424143977958,  -1070.516234777778,
 							0,					0,					1};
-		K = cv::Mat(3,3,CV_64FC1,Kdata);
+		this->K = cv::Mat(3,3,CV_64FC1,&Kdata);
+		
 	};
 
 
@@ -190,27 +191,38 @@ namespace NonLinear
 			(*data->all3DPoints)[i]->y = p[data->nViews*6 + 3*i + 1];
 			(*data->all3DPoints)[i]->z = p[data->nViews*6 + 3*i + 2];
 		}*/
+		double Kdata[9] = {	3217.328669180762, -78.606641008226180, 289.8672403229193,
+							0,					2292.424143977958,  -1070.516234777778,
+							0,					0,					1};
+		data->K = cv::Mat(3,3,CV_64FC1,Kdata);
+
 
 		for(std::vector<Visible3DPoint>::iterator it = data->all3DPoints->begin(); it != data->all3DPoints->end(); it++)
 		{
 			it->point3D->x = p[data->nViews*6 + 3*pointIdx];
 			it->point3D->y = p[data->nViews*6 + 3*pointIdx + 1];
-			it->point3D->z = p[data->nViews*6 + 3*pointIdx+ 2];
-			pointIdx += 3;
+			it->point3D->z = p[data->nViews*6 + 3*pointIdx + 2];
+			pointIdx++;
 		}
-
 
 		// For all cameras
 		for (int i = 0; i < data->rotations.size(); i++)
 		{
 			//Extract rotation and translation vectors
-			setDataRange(p,data->rVec.ptr<double>(),i*6,i*6+3);
-			setDataRange(p,data->t.ptr<double>(),i*6+3,(i+1)*6);
+			//setDataRange(p,data->rVec.ptr<double>(),i*6,i*6+3);
+			//setDataRange(p,data->t.ptr<double>(),i*6+3,(i+1)*6);
+			setDataRange(p,data->rotations[i].ptr<double>(),i*6,i*6+3);
+			setDataRange(p,data->translations[i].ptr<double>(),i*6+3,(i+1)*6);
+			//cout << "rVec: " << data->rVec << endl;
+			//cout << "tVec: " << data->t << endl;
 			
-			Rodrigues(data->rVec, data->R);
-			hconcat(data->R, data->t, data->C);
+			Rodrigues(data->rotations[i], data->R);
+			//cout << "R: " << data->R << endl;
+			hconcat(data->R, data->translations[i], data->C);
+			//cout << "C: " << data->C << endl;
+			//cout << "K: " << data->K << endl;
 			data->P = data->K * data->C;
-			
+			//cout << "P: " << data->P << endl;
 			// for all visible 3D points, calculate the reprojection error
 			for(int j = 0; j < data->points3D[i].size(); j++)
 			{
@@ -219,19 +231,20 @@ namespace NonLinear
 				data->point3D.ptr<double>()[1] = data->points3D[i][j]->y;
 				data->point3D.ptr<double>()[2] = data->points3D[i][j]->z;
 				data->point3D.ptr<double>()[3] = 1;
-				
+				//cout << "3D point: " << data->point3D << endl;
 				// Project onto image plane
 				data->point2D = data->P * data->point3D;
 				//Calculate residuals.
 				error[errorIdx] = (*data->imagePoints[i])[j].x - data->point2D.ptr<double>()[0] / data->point2D.ptr<double>()[2];
 				error[errorIdx+1] = (*data->imagePoints[i])[j].y - data->point2D.ptr<double>()[1] / data->point2D.ptr<double>()[2];
 				errorIdx += 2;
+				//cout << "errors: " << error[errorIdx] << " " << error[errorIdx + 1] << endl;
 			}
 		}
 	}
 
 
-	void NonLinear::BundleAdjust(std::vector<Camera*>& views, std::vector<Visible3DPoint>* _all3DPoints)
+	void NonLinear::BundleAdjust(std::list<Camera*>& views, std::vector<Visible3DPoint>* _all3DPoints)
 	{
 		int nPoints = 0;
 		//I want this :/
@@ -243,7 +256,9 @@ namespace NonLinear
 		std::vector<double> params;
 		int residualTerms = 0;
 		int pointcounter = 0;
-		data.K = K;
+		//data.K = this->K;
+		cout << "K RAWFIRST AAAHH: " << K << endl;
+		cout << "K IN DATAAAAHH: " << data.K << endl;
 		data.nViews = (int)views.size();
 		
 
@@ -251,20 +266,20 @@ namespace NonLinear
 		double oneData[1] = {1};
 		data.one = cv::Mat(1,1,CV_64FC1,oneData);
 		data.R = cv::Mat(3,3,CV_64FC1);
-		data.rVec = cv::Mat(1,3,CV_64FC1);
-		data.t = cv::Mat(1,3,CV_64FC1);
-		data.point2D = cv::Mat(1,3,CV_64FC1);
-		data.point3D = cv::Mat(1,4,CV_64FC1);
+		data.rVec = cv::Mat(3,1,CV_64FC1);
+		data.t = cv::Mat(3,1,CV_64FC1);
+		data.point2D = cv::Mat(3,1,CV_64FC1);
+		data.point3D = cv::Mat(4,1,CV_64FC1);
 		data.C = cv::Mat(3,4,CV_64FC1);
 		data.P = cv::Mat(3,4,CV_64FC1);
 		data.all3DPoints = _all3DPoints;
 		
 		//Save data.
-		for(std::vector<Camera*>::iterator it = views.begin(); it != views.end(); it++)
+		for(std::list<Camera*>::iterator it = views.begin(); it != views.end(); it++)
 		{
 			Rodrigues((*it)->R, rVec);
 			data.rotations.push_back(rVec);
-			data.translations.push_back((*it)->t);
+			data.translations.push_back((*it)->t.rowRange(cv::Range(0,3)) / (*it)->t.ptr<double>()[3]);
 			data.imagePoints.push_back(&((*it)->imagePoints));
 			data.points3D.push_back(((*it)->visible3DPoints));
 			residualTerms += (int)(*it)->imagePoints.size()*2;
@@ -303,6 +318,20 @@ namespace NonLinear
 		int ret;
 		ret = dlevmar_dif(BAResiduals, paramArray, NULL, (int)params.size(),residualTerms,10000,NULL,info,NULL,NULL,&data);
 		printf("Levenberg-Marquardt returned in %g iter, reason %g, output error %g with an initial error of [%g]\n", info[5], info[6], info[1], info[0]);
+	
+		//Rebuild
+		itTrans = data.translations.begin();
+		std::vector<cv::Mat>::iterator itRot = data.rotations.begin();
+		for(std::list<Camera*>::iterator it = views.begin(); it != views.end(); it++)
+		{
+			Rodrigues(*itRot,(*it)->R);
+			vconcat(*itTrans,data.one,(*it)->t);
+			hconcat((*it)->R,*itTrans,(*it)->C);
+			(*it)->P = (*it)->K *  (*it)->C;
+			itTrans++;
+			itRot++;
+		} 
+	
 	}
 
 

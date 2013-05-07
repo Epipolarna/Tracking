@@ -12,31 +12,44 @@ VisualisationDisplayCameraClass::VisualisationDisplayCameraClass()
 }
 
 void VisualisationDisplayCameraClass::updatePosition(void){
+
+	float movementSpeed = 0.01;
+
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Space)){
-		moveUp(0.01);
+		moveUp(movementSpeed);
 	}
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::LControl)){
-		moveDown(0.01);
+		moveDown(movementSpeed);
 	}
 	
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::W)){
-		moveForward(0.01);
+		moveForward(movementSpeed);
 	}
 	
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::S)){
-		moveBackward(0.01);
+		moveBackward(movementSpeed);
 	}
 	
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::A)){
-		moveLeft(0.01);
+		moveLeft(movementSpeed);
 	}
 
 	if(sf::Keyboard::isKeyPressed(sf::Keyboard::D)){
-		moveRight(0.01);
+		moveRight(movementSpeed);
+	}
+
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::Q)){
+		moveUp(movementSpeed);
+	}
+
+	if(sf::Keyboard::isKeyPressed(sf::Keyboard::E)){
+		moveDown(movementSpeed);
 	}
 }
 
 void VisualisationDisplayCameraClass::lookAtUpdate(float dt){
+
+	mouseMovement(dt,sf::Mouse::getPosition());
 
 	cv::Vec3f n = cv::normalize(position - lookAtVector);
 
@@ -110,25 +123,31 @@ void VisualisationDisplayCameraClass::moveRight(float dt)
 	//std::cout << position << std::endl;
 }
 
-
-void VisualisationDisplayCameraClass::xLook(float dt, int dx)
+void VisualisationDisplayCameraClass::lookUp(float dt)
 {
-	//std::cout << "xlook " << dx << std::endl;
-	cv::Vec3f lookAtDirection = lookAtVector - position;
-	GLfloat length = (GLfloat)cv::norm(lookAtDirection);
-	cv::Vec3f helpVector = cv::normalize(lookAtDirection.cross(upVector));
-
-	lookAtVector = position + cv::normalize(lookAtDirection + sensitivity*helpVector*dx)*length;
-	//upVector = cv::normalize(helpVector.cross(lookAtVector - position));
-}
-
-void VisualisationDisplayCameraClass::yLook(float dt, int dy)
-{
-	//std::cout << "ylook " << dy << std::endl;
+	//std::cout << "Up" << std::endl;
 	cv::Vec3f lookAtDirection = lookAtVector - position;
 	GLfloat length = (GLfloat)cv::norm(lookAtDirection);
 	cv::Vec3f helpVector = lookAtDirection.cross(upVector);
 
-	lookAtVector = position + cv::normalize(lookAtDirection + sensitivity*upVector*dy)*length;
-	//upVector = cv::normalize(helpVector.cross(lookAtVector - position));
+	lookAtVector = position + cv::normalize(lookAtDirection + arrowSensitivity*upVector)*length;
+	upVector = cv::normalize(helpVector.cross(lookAtVector - position));
+}
+void VisualisationDisplayCameraClass::lookDown(float dt)
+{
+	//std::cout << "Down" << std::endl;
+	cv::Vec3f lookAtDirection = lookAtVector - position;
+	GLfloat length = (GLfloat)cv::norm(lookAtDirection);
+	cv::Vec3f helpVector = lookAtDirection.cross(upVector);
+
+	lookAtVector = position + cv::normalize(lookAtDirection - arrowSensitivity*upVector)*length;
+	upVector = cv::normalize(helpVector.cross(lookAtVector - position));
+}
+
+
+void VisualisationDisplayCameraClass::mouseMovement(float dt, sf::Vector2i pos){
+	position[0] = lookAtVector[0] + turningRadius*cos(2*3.1415*pos.x/wWidth);
+	position[2] = lookAtVector[2] + turningRadius*sin(2*3.1415*pos.x/wWidth);
+
+	//something for up and down aswell...
 }

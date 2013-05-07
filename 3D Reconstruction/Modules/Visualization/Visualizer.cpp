@@ -4,10 +4,14 @@ namespace vis{
 
 Visualizer::Visualizer(void){
 
-	displayWindow = new sf::Window(sf::VideoMode(800,600),"Visualization");
+	displayWindow = new sf::Window(sf::VideoMode(800,800),"Visualization");
 	initGL();
 	string pointV = string("point.vert");
 	string pointF = string("point.frag");
+
+	cam.wHeight = 800;
+	cam.wWidth = 800;
+	cam.turningRadius = 10.0;
 
 	shader = Shader(pointV,pointF);
 

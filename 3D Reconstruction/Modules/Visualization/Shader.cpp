@@ -19,7 +19,7 @@ GLchar* Shader::readFromFile(std::string filename){
 	std::ifstream shaderFile;
 	int length;
 
-	shaderFile.open(filename,std::ios::in);
+	shaderFile.open(filename, std::ios::binary);
 
 	if(!shaderFile){
 		std::cout << "shader file not found, ERROR ERROR ERROR" << std::endl;
@@ -51,8 +51,32 @@ void Shader::loadShader(std::string vertexShaderFile, std::string fragmentShader
 	glShaderSource(vertexShader, 1, (const GLchar **) &vertexText, NULL);
 	glShaderSource(fragmentShader,1,(const GLchar **) &fragmentText, NULL);
 	
+	GLint status;
+
 	glCompileShader(vertexShader);
+	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &status);
+
+	cout << "vertex status: " << status << endl;
+	if (status == 0)
+	{
+		int loglen;
+		char logbuffer[1000];
+		glGetShaderInfoLog(vertexShader, sizeof(logbuffer), &loglen, logbuffer);
+		fprintf(stderr, "OpenGL Shader Compile Error at %s:%d:\n%.*s", vertexShaderFile.data() , 0, loglen, logbuffer);
+	}
+
 	glCompileShader(fragmentShader);
+	glGetShaderiv(fragmentShader, GL_COMPILE_STATUS, &status);
+
+	cout << "fragment status: " << status << endl;
+	if (status == 0)
+	{
+		int loglen;
+		char logbuffer[1000];
+		glGetShaderInfoLog(fragmentShader, sizeof(logbuffer), &loglen, logbuffer);
+		fprintf(stderr, "OpenGL Shader Compile Error at %s:%d:\n%.*s", fragmentShaderFile.data() , 0, loglen, logbuffer);
+	}
+
 	//cout << "shader compile error is: 0x" << hex << glGetError() << endl;
 	programRef = glCreateProgram();
 
@@ -70,6 +94,10 @@ void Shader::loadShader(std::string vertexShaderFile, std::string fragmentShader
 		cout << "link status was: " << linkStatus << endl;
 		cout << "opengl error after linkage is: " << hex << glGetError << endl;
 	}
+	
+
+	cout << "program status: " << linkStatus << endl;
+	
 
 	assert(linkStatus != 0);
 	//cout << "link status is: " << linkStatus << endl;

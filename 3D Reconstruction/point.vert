@@ -19,5 +19,5 @@ void main(void){
 
 	exNormal = normal * normalMatrix;
 	texCoord = texCoordFrag;
-	gl_Position = projMatrix * mdlMatrix * scaleTrans * camMatrix * vec4(vert, 1.0);
+	gl_Position = projMatrix * mdlMatrix * camMatrix * scaleTrans * vec4(vert, 1.0);
 }

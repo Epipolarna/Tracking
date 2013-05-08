@@ -19,6 +19,6 @@ void main(void){
 	mat3 normalMatrix = mat3(mdlMatrix);
 
 	exNormal = normal * normalMatrix;
-	texCoord = texCoordFrag;
+	texCoordFrag = texCoord;
 	gl_Position = projMatrix * mdlMatrix * camMatrix * scaleTrans * objectRot * vec4(vert, 1.0);
 }

@@ -15,11 +15,17 @@ public:
 	void draw(void);
 	void updateMatrices();
 
-
 	GLuint program;
 	Vec3f scale;
 	Vec3f position;
+
+	Vec3f rotAngles;
+
 	Mat scaleTrans;
+	Mat totalRot;
+	Mat rotX;
+	Mat rotY;
+	Mat rotZ;
 
 	Model* m;
 

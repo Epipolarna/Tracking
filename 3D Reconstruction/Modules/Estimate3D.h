@@ -6,6 +6,10 @@
 #include "Camera.h"
 #include "Modules/NonLinear.h"
 #include <time.h>
+#include <string>
+#include <sstream>
+#include "Parser.h"
+
 /* Estimate3D
  * ------------
  *
@@ -48,6 +52,8 @@ public:
 	std::vector<CameraPair> cameraPair;
 	cv::Mat K;	//Internal Camera parameters
 	std::vector<View> views;
+
+	Parser parser;
 public:
 	Estimate3D(void);
 	~Estimate3D(void);
@@ -55,6 +61,9 @@ public:
 	// p1 & p2 are corresponding 2D points, K_ is the Internal Camera matrix
 	void init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2, cv::Mat & K_);
 	void addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2);
+
+	void saveToFile(std::string path);
+	void loadFromFile(std::string path);
 };
 
 // Checks is p3D is new to cam. If it isn't then it is pointed to the old one ((*p3D) = old)
@@ -85,5 +94,8 @@ struct GoldStandardOutput
 cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2d>& points2, GoldStandardOutput * Gout = 0, int RANSAC_threshold = 3);
 
 cv::Mat normalizedCamera();
+
+
+
 
 #endif

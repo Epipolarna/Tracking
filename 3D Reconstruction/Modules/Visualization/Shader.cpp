@@ -14,7 +14,6 @@ Shader::Shader(std::string vertexFilename, std::string fragmentFilename){
 	loadShader(vertexFilename, fragmentFilename);
 }
 
-
 GLchar* Shader::readFromFile(std::string filename){
 	std::ifstream shaderFile;
 	int length;

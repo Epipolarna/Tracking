@@ -36,10 +36,9 @@ void keyPoints2Points(vector<KeyPoint>& src, vector<Point>& dst )
 		dst.push_back(it->pt);
 	}
 }
-
-
 int main()
 {
+	
 	namedWindow("win1");
 	namedWindow("win2");
 	
@@ -85,6 +84,9 @@ int main()
 	cv::Mat K = cv::Mat(3,3,CV_64FC1,Kdata);
 	
 	dinosaurModel.init(bestPoints1, bestPoints2, K);
+	dinosaurModel.saveToFile("iteration1.alx");
+
+
 	
 	clock_t t;
 	t = clock();
@@ -131,7 +133,6 @@ int main()
 
 	return 0;
 }
-
 
 
 

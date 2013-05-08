@@ -2,15 +2,82 @@
 
 namespace vis{
 
-
-	Model::Model(void){
+	Model::Model(enum model_type parameter){
 		texture0 = 0;
 		numberOfIndices = 0;
-		generate();
+		
+		switch(parameter){
+		case sphere:
+			generate_sphere();
+			cout << "generating sphere" << endl;
+			break;
+		case cube:
+			generate_cube();
+			cout << "generating cube" << endl;
+			break;
+		default:
+			cout << "no type selected, FAILING" << endl;
+			assert(false);
+			break;
+		}
+
 		upload();
+		
 	}
 
-	void Model::generate(){
+	void Model::generate_cube(void){
+
+		//front face
+		vertexArray.emplace_back(cv::Vec3f(0,0,0));
+		vertexArray.emplace_back(cv::Vec3f(1,0,0));
+		vertexArray.emplace_back(cv::Vec3f(1,1,0));
+		vertexArray.emplace_back(cv::Vec3f(0,1,0));
+
+		//back face
+		vertexArray.emplace_back(cv::Vec3f(0,1,1));
+		vertexArray.emplace_back(cv::Vec3f(1,1,1));
+		vertexArray.emplace_back(cv::Vec3f(1,0,1));
+		vertexArray.emplace_back(cv::Vec3f(0,0,1));
+
+		//front
+		indexArray.emplace_back(cv::Vec3i(0,1,2));
+		indexArray.emplace_back(cv::Vec3i(0,3,2));
+
+		//bottom
+		indexArray.emplace_back(cv::Vec3i(3,2,4));
+		indexArray.emplace_back(cv::Vec3i(2,5,4));
+
+		//back
+		indexArray.emplace_back(cv::Vec3i(4,5,6));
+		indexArray.emplace_back(cv::Vec3i(6,7,4));
+
+		//left
+		indexArray.emplace_back(cv::Vec3i(4,7,0));
+		indexArray.emplace_back(cv::Vec3i(0,3,4));
+
+		//top
+		indexArray.emplace_back(cv::Vec3i(0,7,1));
+		indexArray.emplace_back(cv::Vec3i(1,6,7));
+
+		//right
+		indexArray.emplace_back(cv::Vec3i(1,2,5));
+		indexArray.emplace_back(cv::Vec3i(5,6,1));
+
+		//normals
+		normalArray.emplace_back(cv::Vec3f(0,0,1));
+		normalArray.emplace_back(cv::Vec3f(0,0,1));
+
+		normalArray.emplace_back(cv::Vec3f(0,0,-1));
+		normalArray.emplace_back(cv::Vec3f(0,0,-1));
+
+		//textureCoordinates
+		texCoordArray.emplace_back(cv::Vec2f(0,0));
+		texCoordArray.emplace_back(cv::Vec2f(1,1));
+
+		numberOfIndices = indexArray.size() * 3;
+	}
+
+	void Model::generate_sphere(){
 
 	cv::Vec3f vertex;
 	cv::Vec2f texCoord;
@@ -162,7 +229,7 @@ namespace vis{
 			glUniform1i(glGetUniformLocation(program, "Tex0"), 0);
 		}
 
-		
+		glBindVertexArray(VAO);
 
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
 		glVertexAttribPointer(glGetAttribLocation(program, "vert"), 3, GL_FLOAT, GL_FALSE, 0, 0);

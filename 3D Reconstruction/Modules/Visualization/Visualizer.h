@@ -31,6 +31,8 @@ public:
 	~Visualizer(void);
 
 	void addPoint(GLfloat x, GLfloat y, GLfloat z);
+	void addCamera(GLfloat x, GLfloat y, GLfloat z);
+
 	void mainLoop();
 
 private:
@@ -46,9 +48,13 @@ private:
 	Shader shader;
 	sf::Window* displayWindow;
 	vector<Object> plottedPoints;
+	vector<Object> cameras;
 	GLfloat* mdl;
 	VisualisationDisplayCameraClass cam;
+
 	Model* sphereModel;
+	Model* boxModel;
+
 };
 
 }

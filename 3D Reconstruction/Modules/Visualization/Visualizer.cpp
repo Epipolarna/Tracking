@@ -2,6 +2,7 @@
 
 namespace vis{
 
+
 Visualizer::Visualizer(void){
 
 	displayWindow = new sf::Window(sf::VideoMode(800,800),"Visualization");
@@ -21,7 +22,8 @@ Visualizer::Visualizer(void){
 						0.0, 0.0, 0.0, 1.0};
 	mdl = new GLfloat[16];
 	
-	sphereModel = new Model();
+	sphereModel = new Model(sphere);
+	boxModel = new Model(cube);
 
 	//copy modulating matrix to the dynamically allocated one
 	//there is probably a better way to do this...
@@ -32,6 +34,14 @@ Visualizer::Visualizer(void){
 
 Visualizer::~Visualizer(void){
 
+}
+
+void Visualizer::addCamera(GLfloat x, GLfloat y, GLfloat z){
+
+	Object newCamera = Object(shader.programRef, boxModel, x,y,z);
+	newCamera.scale = Vec3f(1,2,1);
+
+	cameras.push_back(newCamera);
 }
 
 void Visualizer::addPoint(GLfloat x, GLfloat y, GLfloat z){
@@ -86,6 +96,10 @@ GLfloat frustumMatrix[] = {		2.0f*nearFrustum/(right-left), 0.0f,					(right+lef
 
 
 	for(vector<Object>::iterator it = plottedPoints.begin(); it != plottedPoints.end(); ++it){
+		it->draw();
+	}
+
+	for(vector<Object>::iterator it = cameras.begin(); it != cameras.end(); ++it){
 		it->draw();
 	}
 	

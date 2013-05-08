@@ -15,14 +15,17 @@
 #include "VisualisationDisplayCameraClass.h"
 
 namespace vis{
-
+	enum model_type{
+		sphere,cube
+	};
 class Model
 {
 public:
 
-	Model(void);
+	Model(enum model_type parameter);
 
-	void generate(void);
+	void generate_sphere(void);
+	void generate_cube(void);
 	void upload(void);
 	void draw(GLuint program);
 	

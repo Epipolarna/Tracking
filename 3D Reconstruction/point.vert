@@ -13,6 +13,7 @@ uniform mat4 mdlMatrix;
 uniform mat4 camMatrix;
 uniform mat4 scaleTrans;
 uniform mat4 objectRot;
+uniform mat4 cameraRotation;
 
 void main(void){
 
@@ -20,5 +21,5 @@ void main(void){
 
 	exNormal = normal * normalMatrix;
 	texCoordFrag = texCoord;
-	gl_Position = projMatrix * mdlMatrix * camMatrix * scaleTrans * objectRot * vec4(vert, 1.0);
+	gl_Position =  projMatrix * mdlMatrix * cameraRotation * camMatrix * scaleTrans * objectRot * vec4(vert, 1.0);
 }

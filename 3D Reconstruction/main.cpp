@@ -7,6 +7,7 @@
 
 
 #include <math.h>
+#include <time.h>
 #include <opencv\cvaux.h>
 #include <opencv\cv.h>
 #include <opencv\highgui.h>
@@ -47,10 +48,10 @@ int main()
 	readImages(&imageList);
 
 	vector<vector<pointPair>> matchesVector;
-	findMatches(&imageList, &matchesVector);
+	//findMatches(&imageList, &matchesVector);
 
 	//saveMatches(&matchesVector, "data.alx");
-	//loadMatches(&matchesVector, "data.alx");
+	loadMatches(&matchesVector, "data.alx");
 
 	cout << matchesVector.begin()->begin()->p1 << endl;
 	cout << matchesVector.begin()->begin()->p2 << endl;
@@ -59,22 +60,19 @@ int main()
 
 	vector<Point2d> bestPoints1;
 	vector<Point2d> bestPoints2;
+	vector<Point2d> bestPoints21;
+	vector<Point2d> bestPoints22;
 
 	for (vector<pointPair>::iterator i = matchesVector.begin()->begin(); i < matchesVector.begin()->end(); i++)
 	{
 		bestPoints1.push_back(i->p1);
 		bestPoints2.push_back(i->p2);
 
-		cout << i->p1 << endl;
-		cout << i->p2 << endl;
+		//cout << i->p1 << endl;
+		//cout << i->p2 << endl;
 	}
-
+	
 	GoldStandardOutput GO;
-	// Gold standard F. points have to be ordered with correspondances at the same indices.
-	Mat F = getGoldStandardF(bestPoints1,bestPoints2, &GO);
-
-	//F = findFundamentalMat(bestPoints1, bestPoints2, CV_FM_RANSAC, 3, 0.99);
-	//waitKey(0);
 
 
 	// Tiger
@@ -88,19 +86,43 @@ int main()
 	
 	dinosaurModel.init(bestPoints1, bestPoints2, K);
 	
+	clock_t t;
+	t = clock();
+	nonlin.BundleAdjust(dinosaurModel.cameras, &dinosaurModel.visible3DPoint);
+	std::cout << "Bundle adjustment time: " << ((float)(clock() - t))/CLOCKS_PER_SEC << std::endl;
+	
+	/* Taffligt försök till att läsa fler bilder.
+	vector<Point2d> alxPoints1;
+	vector<Point2d> alxPoints2;
+	int imCounter = 1;
+	do
+	{
+		
+		for (vector<pointPair>::iterator i = matchesVector[imCounter].begin(); i < matchesVector[imCounter].end(); i++)
+		{
+			alxPoints1.push_back(i->p1);
+			alxPoints2.push_back(i->p2);
+
+			//cout << i->p1 << endl;
+			//cout << i->p2 << endl;
+		}
+		dinosaurModel.addView(alxPoints1, alxPoints2);
+		nonlin.BundleAdjust(dinosaurModel.cameras, &dinosaurModel.visible3DPoint);
+		
+		imCounter++;
+	} while(imCounter < 9);*/
+	
 	Camera * cam2 = dinosaurModel.cameras.back();
 	cout << "P2:\n " << cam2->P << "\n";
 	cout << "K:\n " << cam2->K << "\n";
 	cout << "R:\n " << cam2->R << "\n";
 	cout << "t:\n " << cam2->t << "\n";
-	
-	
 	vis::Visualizer v = vis::Visualizer();
 	vector<Visible3DPoint> pvector = dinosaurModel.visible3DPoint;
 	for(vector<Visible3DPoint>::iterator it = pvector.begin(); it != pvector.end(); ++it){
 		cv::Point3d* whatIsThePoint = it->point3D;
 		v.addPoint(whatIsThePoint->x,whatIsThePoint->y,whatIsThePoint->z);
-		cout << *whatIsThePoint << endl;
+		//cout << *whatIsThePoint << endl;
 	}
 
 	v.mainLoop();

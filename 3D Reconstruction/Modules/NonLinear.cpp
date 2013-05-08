@@ -76,14 +76,15 @@ namespace NonLinear
 		Mat one(1,1,CV_64FC1,oneData);
 		Mat tempPoints3D, F, temppoint1, temppoint2, tempPoint3D;
 
-		tempPoints3D = Mat(3,adata->nPoints3D,CV_64FC1,&p[12]);
+		//tempPoints3D = Mat(3,adata->nPoints3D,CV_64FC1,&p[12]);
+		adata->points3D = Mat(3,adata->nPoints3D,CV_64FC1,&p[12]);
 		adata->F = Mat(3,3,CV_64FC1,p);
 		
 		setDataRange(p,adata->C2.ptr<double>(),0,12);
 
 		for(int i = 0; i < adata->nPoints3D; ++i)
 		{
-			vconcat(tempPoints3D.col(i),one,tempPoint3D);
+			vconcat(adata->points3D.col(i),one,tempPoint3D);
 			temppoint1 = adata->C1*tempPoint3D;
 			temppoint2 = adata->C2*tempPoint3D;
 			
@@ -91,6 +92,11 @@ namespace NonLinear
 			error[4*i+1] = adata->points1[i].y - temppoint1.ptr<double>()[1]/temppoint1.ptr<double>()[2];
 			error[4*i+2] = adata->points2[i].x - temppoint2.ptr<double>()[0]/temppoint2.ptr<double>()[2];
 			error[4*i+3] = adata->points2[i].y - temppoint2.ptr<double>()[1]/temppoint2.ptr<double>()[2];
+
+			//error[4*i] = adata->points1[i].x - temppoint1.ptr<double>()[0]/temppoint1.ptr<double>()[2];
+			//error[4*i+1] = adata->points1[i].y - temppoint1.ptr<double>()[1]/temppoint1.ptr<double>()[2];
+			//error[4*i+2] = adata->points2[i].x - temppoint2.ptr<double>()[0]/temppoint2.ptr<double>()[2];
+			//error[4*i+3] = adata->points2[i].y - temppoint2.ptr<double>()[1]/temppoint2.ptr<double>()[2];
 			
 		}
 	}
@@ -257,8 +263,6 @@ namespace NonLinear
 		int residualTerms = 0;
 		int pointcounter = 0;
 		//data.K = this->K;
-		cout << "K RAWFIRST AAAHH: " << K << endl;
-		cout << "K IN DATAAAAHH: " << data.K << endl;
 		data.nViews = (int)views.size();
 		
 

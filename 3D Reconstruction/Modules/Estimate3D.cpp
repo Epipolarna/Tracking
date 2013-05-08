@@ -210,25 +210,26 @@ cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2
 		normalized3Dpoints.col(i) = normalized3Dpoints.col(i)/dinoHomPoints.at<double>(3,i);
 	}
 	
-	std::cout << "Inlier percentage  " << (double)inliers1.size()/(double)points1.size()*100 << std::endl;
-	std::cout << "Fundamental Matrix: " << F << std::endl;
-	std::cout << "det(F): " << determinant(F) << std::endl;
+	//std::cout << "Inlier percentage  " << (double)inliers1.size()/(double)points1.size()*100 << std::endl;
+	//std::cout << "Fundamental Matrix: " << F << std::endl;
+	//nonlin.goldStandardRefine(F.clone(), inliers1,inliers2);
 	
-	nonlin.goldStandardRefine(F.clone(), inliers1,inliers2);
-
 	
 	//Actual call to the nonlinear part of the goldstandard estimation
+	clock_t t;
+	t = clock();
 	F = nonlin.goldNonLin(F, P1, P2, normalized3Dpoints,inliers1,inliers2);
 	F = F/F.at<double>(2,2);	// Normalize
+	std::cout << "Gold standard nonlin time: " << ((float)(clock() - t))/CLOCKS_PER_SEC << std::endl;
 
-	std::cout << "Refined Fundamental Matrix: " << F << std::endl;
-	std::cout << "det(F): " << determinant(F) << std::endl;
+	//std::cout << "Refined Fundamental Matrix: " << F << std::endl;
+	//std::cout << "det(F): " << determinant(F) << std::endl;
 	//return F/F.at<double>(2,2);
-	std::cout << "\n\n";
-	nonlin.goldStandardRefine(F, inliers1,inliers2);
+	//std::cout << "\n\n";
+	//nonlin.goldStandardRefine(F, inliers1,inliers2);
 
-	std::cout << "Refined Fundamental Matrix: " << F << std::endl;
-	std::cout << "det(F): " << determinant(F) << std::endl;
+	//std::cout << "Refined Fundamental Matrix: " << F << std::endl;
+	//std::cout << "det(F): " << determinant(F) << std::endl;
 
 
 	if(Gout != 0)

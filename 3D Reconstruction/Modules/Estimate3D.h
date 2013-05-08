@@ -5,7 +5,7 @@
 #include <opencv\cv.h>
 #include "Camera.h"
 #include "Modules/NonLinear.h"
-
+#include <time.h>
 /* Estimate3D
  * ------------
  *

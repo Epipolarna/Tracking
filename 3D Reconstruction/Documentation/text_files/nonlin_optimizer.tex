@@ -12,7 +12,7 @@ The residual function simply, for each view, calculates the re-projection error 
 
 \begin{equation}
 \label{eq:BA}
-\varepsilon^2 = \sum_{v=1}^{V}\sum_{n=1}^{N_v} (I_{v,n} - KC_vP_{v,n})^2, \hspace{1cm} C_v = R_v | t_v
+\varepsilon^2 = \sum_{v=1}^{V}\sum_{n=1}^{N_v} (I_{v,n} - KC_vP_{v,n})^2, \hspace{1cm} C_v = [R_v | t_v]
 \end{equation} 
 
 The number of outputs from the residual function scales rapidly with the number of views, as each view gives an additional $ 6 + 2n_v $ observations, where $ n_v $ is the number of 2D inliers in view $v$.

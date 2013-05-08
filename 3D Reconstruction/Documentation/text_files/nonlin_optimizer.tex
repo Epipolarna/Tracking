@@ -1,0 +1,23 @@
+This module is where the nonlinear optimization is performed, using the levmar API \cite{levmar}. Levmar uses the Levenberg-Marquardt non-linear optimization algorithm to optimize a specified residual function, in this case re-projection errors of 3D points int othe camera matrices. the reprojection error is the distance between the 3D point and the corresponding point in the image plane. There are, in the implemented 3D-reconstruction pipeline, two instances where these highly non-linear functions are optimized over up to one thousand parameters. With the Levmar API only accepting a residual function that take double arrays as both in and outputs, considerable preprocessing of the data is required.
+
+\subsection{Gold Standard estimation of F}
+The function computing the gold standard refinement step is implemented as described in alg. 11.3, step (iii) in \cite{HZ}. The function takes, as an input, an initial guess of the F matrix, two projection matrices and vectors containing 2D and 3D correspondences. All input data is then preprocessed and re-arranged to fit the optimization API. The cost function is optimized over the twelve parameters of the projection matrix as well as the 3D-point coordinates. For more in for on how the rest of the steps in the gold standard algorithm are implemented, see section \ref{sec:pose_estimator}.
+
+\subsection{Bundle Adjustment}
+The most important use of the non-linear optimizing module is in the bundle adjustment step of the 3D-reconstruction pipeline. The bundle adjustment function refines the estimates of both camera poses (rotation + translation) and location of 3D points for all views. 
+
+In order for the data to fit the levmar interface and minimize the number of parameters the rotation matrices of each view is parametrized  using Rodrigues' formula. Rotations and translations for each view are then stacked in a vector, along with all currently available 3D points. the second step is to make sure the residual function has access to all needed data, for example the visibility function and point correspondences.
+
+The residual function simply, for each view, calculates the re-projection error of all 3D points visible in that view, i.e the pixel distance of the reprojected 3D points to the actual image points used in the triangulation. In the equation below, $V$ denotes the number of views, $N_v$ the number of points visible in each view, and i $I_{v,n}$ the corresponding image points.
+
+\begin{equation}
+\label{eq:BA}
+\varepsilon^2 = \sum_{v=1}^{V}\sum_{n=1}^{N_v} (I_{v,n} - KC_vP_{v,n})^2, \hspace{1cm} C_v = R_v | t_v
+\end{equation} 
+
+The number of outputs from the residual function scales rapidly with the number of views, as each view gives an additional $ 6 + 2n_v $ observations, where $ n_v $ is the number of 2D inliers in view $v$.
+
+
+
+
+

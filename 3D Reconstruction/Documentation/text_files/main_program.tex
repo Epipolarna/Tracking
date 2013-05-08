@@ -1,6 +1,5 @@
-The main program is composed of two parts. The first one is initiation part, where the modules are declared, parameters specified, and movie clip loaded. The second one is the main loop, where the actual program is executed.
+The main program is composed of three main parts. The 2D correspondance extractor, the 3D reconstruction and pose estimation pipeline and the visualization module, for more information about each midule, see the respective section.
 
 
-\subsubsection{Main loop}
-The separate modules are called in the order described above.
-Once all the processing in the module is finished the objects in the current frame are drawn in the current frame as bounding boxes with velocity vectors, position in pixel coordinates and ID numbers.
+\subsubsection{3D reconstruction pipeline}
+The 3D reconstruction pipeline is where the image point pairs are used to triangulate 3D point estimates and estimate the camera poses relative to the first camera. 

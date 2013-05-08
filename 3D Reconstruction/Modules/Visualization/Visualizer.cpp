@@ -36,10 +36,11 @@ Visualizer::~Visualizer(void){
 
 }
 
-void Visualizer::addCamera(GLfloat x, GLfloat y, GLfloat z){
+void Visualizer::addCamera(Vec3f pos, Vec3f lookDir){
 
-	Object newCamera = Object(shader.programRef, boxModel, x,y,z);
-	newCamera.scale = Vec3f(1,2,1);
+
+	Object newCamera = Object(shader.programRef, boxModel, pos[0],pos[1],pos[2]);
+	newCamera.scale = Vec3f(2,1,1);
 
 	cameras.push_back(newCamera);
 }

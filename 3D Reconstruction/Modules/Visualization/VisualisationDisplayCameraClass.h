@@ -31,6 +31,7 @@ public:
 	void lookRight(float dt);
 
 	void mouseMovement(float dt, sf::Vector2i pos);
+	void updateCameraRotation(void);
 
 	cv::Vec3f getLookAtDirection() {return normalize(lookAtVector - position);};
 
@@ -39,7 +40,10 @@ public:
 	int wWidth, wHeight;
 
 	cv::Vec3f position, lookAtVector, upVector;
+	cv::Vec3f rotAngles;
+
 	cv::Mat lookAtMatrix;
+	cv::Mat cameraRotation;
 	GLfloat sensitivity, arrowSensitivity, movementSpeed;
 };
 

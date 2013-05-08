@@ -9,6 +9,36 @@ VisualisationDisplayCameraClass::VisualisationDisplayCameraClass()
 	sensitivity = 0.025f;
 	arrowSensitivity = 0.4f;
 	movementSpeed = 10.0f;
+	
+	rotAngles = cv::Vec3f(0,0,0);
+	//set the rotation matrix for the camera
+	updateCameraRotation();
+	
+}
+
+void VisualisationDisplayCameraClass::updateCameraRotation(void){
+	cv::Mat rotX,rotY,rotZ;
+
+	//rotation matrices
+	GLfloat	rotXData[] = {	1.0f, 0.0f,			0.0f,		0.0f,
+							0.0f, cos(rotAngles(0)),	-sin(rotAngles(0)),	0.0f,
+							0.0f, sin(rotAngles(0)),	cos(rotAngles(0)),	0.0f,
+							0.0f, 0.0f,			0.0f,		1.0f }; 
+	rotX = cv::Mat(4, 4, CV_32FC1, rotXData).clone();
+
+	GLfloat rotYData[] = {	cos(rotAngles(1)),	0.0f,	sin(rotAngles(1)),	0.0f,
+							0.0f,		1.0f,	0.0f,		0.0f,
+							-sin(rotAngles(1)),	0.0f,	cos(rotAngles(1)),	0.0f,
+							0.0f,		0.0f,	0.0f,		1.0f };
+	rotY = cv::Mat(4, 4, CV_32FC1, rotYData).clone();
+
+	GLfloat rotZData[] = {	cos(rotAngles(2)),	-sin(rotAngles(2)),	0.0f, 0.0f,
+							sin(rotAngles(2)),	cos(rotAngles(2)),	0.0f, 0.0f,
+							0.0f,		0.0f,		1.0f, 0.0f,
+							0.0f,		0.0f,		0.0f, 1.0f }; 
+	rotZ = cv::Mat(4, 4, CV_32FC1, rotZData).clone();
+
+	cameraRotation = rotX*rotY*rotZ;
 }
 
 void VisualisationDisplayCameraClass::updatePosition(void){
@@ -73,7 +103,9 @@ void VisualisationDisplayCameraClass::lookAtUpdate(float dt){
 }
 
 void VisualisationDisplayCameraClass::lookAtUpload(GLuint program){
+	updateCameraRotation();
 	glUniformMatrix4fv(glGetUniformLocation(program, "camMatrix"), 1, GL_TRUE, lookAtMatrix.ptr<GLfloat>());
+	glUniformMatrix4fv(glGetUniformLocation(program, "cameraRotation"), 1, GL_TRUE, cameraRotation.ptr<GLfloat>());
 }
 
 void VisualisationDisplayCameraClass::moveUp(float dt)

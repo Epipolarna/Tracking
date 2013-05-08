@@ -36,11 +36,16 @@ Visualizer::~Visualizer(void){
 
 }
 
-void Visualizer::addCamera(Vec3f pos, Vec3f lookDir){
+void Visualizer::addCamera(Mat externalParameters){
 
+	float x = externalParameters.at<float>(0,3);
+	float y = externalParameters.at<float>(1,3);
+	float z = externalParameters.at<float>(2,3);
 
-	Object newCamera = Object(shader.programRef, boxModel, pos[0],pos[1],pos[2]);
+	Object newCamera = Object(shader.programRef,boxModel,x,y,z);
+
 	newCamera.scale = Vec3f(2,1,1);
+	newCamera.totalRot = externalParameters(Rect(0,0,2,2));
 
 	cameras.push_back(newCamera);
 }

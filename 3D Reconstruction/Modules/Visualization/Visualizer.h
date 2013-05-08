@@ -31,7 +31,7 @@ public:
 	~Visualizer(void);
 
 	void addPoint(GLfloat x, GLfloat y, GLfloat z);
-	void addCamera(Vec3f pos, Vec3f lookDir);
+	void addCamera(Mat externalParameters);
 
 	void mainLoop();
 

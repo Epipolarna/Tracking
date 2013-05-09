@@ -35,7 +35,7 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 {
 	K = K_.clone();
 	GoldStandardOutput GO;
-	cv::Mat F = getGoldStandardF(p1,p2, &GO);
+	cv::Mat F = getGoldStandardF(p1,p2, K, &GO);
 	cv::Mat E = K.t()*F*K;
 	cv::Point3d * p3d;
 	Camera * cam1 = new Camera();
@@ -244,9 +244,9 @@ cv::Mat normalizedCamera()
 }
 
 // Gold standard F. points have to be ordered with correspondances at the same indices.
-cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2d>& points2, GoldStandardOutput * Gout, int RANSAC_threshold)
+cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2d>& points2,  cv::Mat _K, GoldStandardOutput * Gout, int RANSAC_threshold)
 {
-	NonLinear::NonLinear nonlin;
+	NonLinear::NonLinear nonlin(_K);
 	cv::vector<uchar> inlierMask;
 	cv::Mat P1,P2,dinoHomPoints;
 	// inital Fhat

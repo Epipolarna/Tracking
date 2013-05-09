@@ -91,7 +91,7 @@ struct GoldStandardOutput
 	cv::Mat point3D;	// 3xN
 };
 
-cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2d>& points2, GoldStandardOutput * Gout = 0, int RANSAC_threshold = 3);
+cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2d>& points2, cv::Mat K_, GoldStandardOutput * Gout = 0, int RANSAC_threshold = 3);
 
 cv::Mat normalizedCamera();
 

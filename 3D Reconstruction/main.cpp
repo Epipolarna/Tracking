@@ -82,7 +82,7 @@ int main()
 							0,					2292.424143977958,  -1070.516234777778,
 							0,					0,					1};
 	cv::Mat K = cv::Mat(3,3,CV_64FC1,Kdata);
-	
+	NonLinear::NonLinear nonlin(K);
 	dinosaurModel.init(bestPoints1, bestPoints2, K);
 	dinosaurModel.saveToFile("iteration1.alx");
 

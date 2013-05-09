@@ -13,13 +13,9 @@ using namespace std;
 namespace NonLinear
 {
 	
-	NonLinear::NonLinear()
+	NonLinear::NonLinear(cv::Mat _K)
 	{
-		double Kdata[9] = {	3217.328669180762, -78.606641008226180, 289.8672403229193,
-							0,					2292.424143977958,  -1070.516234777778,
-							0,					0,					1};
-		this->K = cv::Mat(3,3,CV_64FC1,&Kdata);
-		
+		this->K = _K.clone();
 	};
 
 
@@ -111,7 +107,7 @@ namespace NonLinear
 		
 		//Setup of optimization data
 		adata.params = &params;
-		adata.K = this->K;
+		adata.K = this->K.clone();
 		adata.nPoints3D = n3Dpoints;
 		adata.nPoints2D = nPoints;
 		adata.F = _F;
@@ -197,10 +193,6 @@ namespace NonLinear
 			(*data->all3DPoints)[i]->y = p[data->nViews*6 + 3*i + 1];
 			(*data->all3DPoints)[i]->z = p[data->nViews*6 + 3*i + 2];
 		}*/
-		double Kdata[9] = {	3217.328669180762, -78.606641008226180, 289.8672403229193,
-							0,					2292.424143977958,  -1070.516234777778,
-							0,					0,					1};
-		data->K = cv::Mat(3,3,CV_64FC1,Kdata);
 
 
 		for(std::vector<Visible3DPoint>::iterator it = data->all3DPoints->begin(); it != data->all3DPoints->end(); it++)
@@ -277,6 +269,7 @@ namespace NonLinear
 		data.C = cv::Mat(3,4,CV_64FC1);
 		data.P = cv::Mat(3,4,CV_64FC1);
 		data.all3DPoints = _all3DPoints;
+		data.K = this->K.clone();
 		
 		//Save data.
 		for(std::list<Camera*>::iterator it = views.begin(); it != views.end(); it++)
@@ -331,7 +324,7 @@ namespace NonLinear
 			Rodrigues(*itRot,(*it)->R);
 			vconcat(*itTrans,data.one,(*it)->t);
 			hconcat((*it)->R,*itTrans,(*it)->C);
-			(*it)->P = (*it)->K *  (*it)->C;
+			(*it)->P = this->K *  (*it)->C;
 			itTrans++;
 			itRot++;
 		} 

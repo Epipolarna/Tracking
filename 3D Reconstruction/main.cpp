@@ -38,24 +38,18 @@ void keyPoints2Points(vector<KeyPoint>& src, vector<Point>& dst )
 }
 int main()
 {
-	
-	namedWindow("win1");
-	namedWindow("win2");
+	//namedWindow("win1");
+	//((namedWindow("win2");
 	
 	// Read images into a vector
-	vector<Mat> imageList;
-	readImages(&imageList);
+	//vector<Mat> imageList;
+	//readImages(&imageList);
 
 	vector<vector<pointPair>> matchesVector;
 	//findMatches(&imageList, &matchesVector);
 
 	//saveMatches(&matchesVector, "data.alx");
 	loadMatches(&matchesVector, "data.alx");
-
-	cout << matchesVector.begin()->begin()->p1 << endl;
-	cout << matchesVector.begin()->begin()->p2 << endl;
-	
-	//waitKey(0);
 
 	vector<Point2d> bestPoints1;
 	vector<Point2d> bestPoints2;
@@ -66,13 +60,9 @@ int main()
 	{
 		bestPoints1.push_back(i->p1);
 		bestPoints2.push_back(i->p2);
-
-		//cout << i->p1 << endl;
-		//cout << i->p2 << endl;
 	}
 	
 	GoldStandardOutput GO;
-
 
 	// Tiger
 	//--------------------
@@ -87,7 +77,6 @@ int main()
 	dinosaurModel.saveToFile("iteration1.alx");
 
 
-	
 	clock_t t;
 	t = clock();
 	nonlin.BundleAdjust(dinosaurModel.cameras, &dinosaurModel.visible3DPoint);

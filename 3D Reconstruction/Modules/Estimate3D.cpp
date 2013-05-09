@@ -18,11 +18,25 @@ Estimate3D::~Estimate3D(void)
 	}
 }
 
+cv::Mat crossMat(cv::Mat in)
+{
+	cv::Mat out = cv::Mat::zeros(3, 3, in.type());
+	out.row(0).col(1) = -*in.row(2).col(0).ptr<double>();
+	out.row(0).col(2) =  *in.row(1).col(0).ptr<double>();
+	out.row(1).col(0) =  *in.row(2).col(0).ptr<double>();
+	out.row(1).col(2) = -*in.row(0).col(0).ptr<double>();
+	out.row(2).col(0) = -*in.row(1).col(0).ptr<double>();
+	out.row(2).col(1) =  *in.row(0).col(0).ptr<double>();
+
+	return out;
+}
+
 void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2, cv::Mat & K_)
 {
 	K = K_.clone();
 	GoldStandardOutput GO;
 	cv::Mat F = getGoldStandardF(p1,p2, &GO);
+	cv::Mat E = K.t()*F*K;
 	cv::Point3d * p3d;
 	Camera * cam1 = new Camera();
 	Camera * cam2 = new Camera();
@@ -33,77 +47,140 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	cam2->id = 1;
 	cam1->P = GO.P1;
 	cam2->P = GO.P2;
-	//cam1->K = K;
-	//cam2->K = K;
+	cam1->K = K;
+	cam2->K = K;
+
+	cam1->R = cv::Mat::eye(3, 3, CV_64FC1);
+	cam1->t = cv::Mat::zeros(3, 1, CV_64FC1);
 
 	cameraPair.push_back(CameraPair(cam1,cam2));
 	cameraPair.back().F = F;
-	cameraPair.back().E = K.t()*F*K;
+	cameraPair.back().E = E;
 
 	std::cout << "P:\n" << cam1->P << "\n";
-
-	// Estimate R and t for the cameras
-	decomposeProjectionMatrix(cam1->P, cam1->K, cam1->R, cam1->t);
-	decomposeProjectionMatrix(cam2->P, cam2->K, cam2->R, cam2->t);
-
+	
+	using namespace std;
 	// Fill up the data hierarchy (visibility etc)
 	for(int n = 0; n < GO.point3D.size().width; n++)
 	{
 		p3d = new cv::Point3d(GO.point3D.at<double>(0,n), GO.point3D.at<double>(1,n), GO.point3D.at<double>(2,n));
 		visible3DPoint.push_back(Visible3DPoint(p3d, ObserverPair(cam1, cam2, pointPair(GO.inlier1[n],GO.inlier2[n]))));
+		
+		// Convert to C-normalized image coordinates
 		cam1->imagePoints.push_back(GO.inlier1[n]);
 		cam2->imagePoints.push_back(GO.inlier2[n]);
+
 		cam1->visible3DPoints.push_back(p3d);
 		cam2->visible3DPoints.push_back(p3d);
 		cameraPair.back().pointPairs.push_back(pointPair(GO.inlier1[n], GO.inlier2[n]));
 		cameraPair.back().point3Ds.push_back(p3d);
 	}
-}
 
-void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2)
-{
-	GoldStandardOutput GO;
-	cv::Mat F = getGoldStandardF(p1,p2, &GO);
-	cv::Point3d * p3d;
-	Camera * cam1 = cameras.back();
-	Camera * cam2 = new Camera();
-	cameras.push_back(cam2);
-	
+	cv::Mat K1de, K2de, R1de, R2de, t1de, t2de;
+
 	// Estimate R and t for the cameras
-	/*vconcat(cam1->R, cv::Mat::zeros(1,3,CV_64FC1), cam1->C);
-	hconcat(cam1->C, cam1->t/cam1->t.at<float>(0,3), cam1->C);
-	cam1->P.at<float>(3,3) = 1;*/
-	cam2->id = cam1->id+1;
-	cam2->P = GO.P2;
-	decomposeProjectionMatrix(cam2->P, cam2->K, cam2->R, cam2->t);
+	//decomposeProjectionMatrix(cam1->P, cam1->K, cam1->R, cam1->t);
+	//decomposeProjectionMatrix(cam2->P, cam2->K, cam2->R, cam2->t);
 
-	// TODO: change coordinates of cam2 to the global coordinate system (the one which cam1 is in)
+	decomposeProjectionMatrix(cam1->P, K1de, R1de, t1de);
+	decomposeProjectionMatrix(cam2->P, K2de, R2de, t2de);
 
-	// Fill up the data hierarchy (visibility etc)
-	// Fill up the data hierarchy (visibility etc)
-	for(int n = 0; n < GO.point3D.size().width; n++)
+	// KalasKlas R & t Algoritm
+	cv::Mat U, S, V, Vt, t, W, R1, R2, C1, C21, C22, C23, C24, x1, x21, x22, x23, x24, y11, y21, y22, y23, y24;
+
+	// Decompose Essential matrix
+	cv::SVDecomp(E, S, U, Vt);
+	V = Vt.t();
+
+	// Translation is found as third column of V
+	t = V.col(2);
+	cv::normalize(t, t);
+
+	// Define W. Will be used to find R
+	double Wdata[] = {0, 1, 0,
+				     -1, 0, 0,
+				      0, 0, 1};
+	W = cv::Mat(3, 3, CV_64FC1, Wdata);
+
+	// Calculate R
+	R1 = V*W.t()*U.t();
+	R2 = V*W*U.t();
+
+	// Pick a corresponding 3D point
+	x1 = cv::Mat(*p3d);
+	cout << "x1: " << x1 << endl;
+
+	// Calculate position of 3D point relative the four posible cameras
+	x21 = R1*x1 + t;
+	x22 = R1*x1 - t;
+	x23 = R2*x1 + t;
+	x24 = R2*x1 - t;
+
+	cout << "x21: " << x21 << endl;
+	cout << "x22: " << x22 << endl;
+	cout << "x23: " << x23 << endl;
+	cout << "x24: " << x24 << endl;	
+	
+	if ( *x21.row(2).col(0).ptr<double>() > 0)
 	{
-		p3d = new cv::Point3d(GO.point3D.at<double>(0,n), GO.point3D.at<double>(1,n), GO.point3D.at<double>(2,n));
-		if(isUnique3DPoint(cam1, GO.inlier1[n], &p3d))
-		{
-			visible3DPoint.push_back(Visible3DPoint(p3d, ObserverPair(cam1, cam2, pointPair(GO.inlier1[n],GO.inlier2[n]))));
-			cam1->imagePoints.push_back(GO.inlier1[n]);
-			cam2->imagePoints.push_back(GO.inlier2[n]);
-			cam1->visible3DPoints.push_back(p3d);
-			cam2->visible3DPoints.push_back(p3d);
-			cameraPair.back().pointPairs.push_back(pointPair(GO.inlier1[n], GO.inlier2[n]));
-			cameraPair.back().point3Ds.push_back(p3d);
-		}
-		else
-		{
-			// TODO: Only add the 3D points to the new camera, and add the pairs.. (etc..)
-			cam2->imagePoints.push_back(GO.inlier2[n]);
-			cam2->visible3DPoints.push_back(p3d);
-			cameraPair.back().pointPairs.push_back(pointPair(GO.inlier1[n], GO.inlier2[n]));
-			cameraPair.back().point3Ds.push_back(p3d);
-		}
+		cout << "1 is the shit" << endl;
+		cout << x21 << endl;
+		cout << *x21.row(2).col(0).ptr<double>() << endl;
+		cam2->R = R1;
+		cam2->t = t;
+	}
+	else if ( *x22.row(2).col(0).ptr<double>() > 0)
+	{
+		cout << "2 is the shit" << endl;
+		cout << x22 << endl;
+		cout << *x22.row(2).col(0).ptr<double>() << endl;
+		cam2->R = R1;
+		cam2->t = -t;
+	}
+	else if ( *x23.row(2).col(0).ptr<double>() > 0)
+	{
+		cout << "3 is the shit" << endl;
+		cout << x23 << endl;
+		cout << *x23.row(2).col(0).ptr<double>() << endl;
+		cam2->R = R2;
+		cam2->t = t;
+	}
+	else if ( *x24.row(2).col(0).ptr<double>() > 0)
+	{
+		cout << "4 is the shit" << endl;
+		cout << x24 << endl;
+		cout << *x24.row(2).col(0).ptr<double>() << endl;
+		cam2->R = R2;
+		cam2->t = -t;
 	}
 
+	cv::Mat C1decomp, C2decomp, C1Klas, C2Klas;
+
+	cout << cam1->R << endl;
+	cout << cam1->t << endl;
+	cout << K << endl;
+
+	cv::hconcat(R1de, t1de.rowRange(cv::Range(0,3)), C1decomp);
+	cv::hconcat(R2de, t2de.rowRange(cv::Range(0,3)), C2decomp);
+	cv::hconcat(cam1->R, cam1->t, C1Klas);
+	cv::hconcat(cam2->R, cam2->t, C2Klas);
+	
+	C1decomp = K1de*C1decomp;
+	C2decomp = K2de*C2decomp;
+	C1Klas = C1Klas;
+	C2Klas = C2Klas;
+
+	cout << "comparison: " << endl;
+	cout << "K1 decomp: " << endl << K1de << endl;
+	cout << "K2 decomp: " << endl << K2de << endl;
+	cout << "K : " << endl << K << endl;
+	cout << endl;
+	cout << "P1: " << endl << GO.P1 << endl;
+	cout << "P2: " << endl << GO.P2 << endl;
+	cout << "C1 decomp: " << endl << C1decomp << endl;
+	cout << "C2 decomp: " << endl << C2decomp << endl; 
+	cout << "C1 klas: " << endl << C1Klas << endl;
+	cout << "C2 klas: " << endl << C2Klas << endl;
 }
 
 bool isUnique3DPoint(Camera * cam, cv::Point2f p2D, cv::Point3d ** p3D)

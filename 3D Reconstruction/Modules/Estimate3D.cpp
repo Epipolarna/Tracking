@@ -223,12 +223,12 @@ cv::Mat crossOperator(cv::Mat X)
 		float Ydata[] = {  0,		  -X.data[2],	 X.data[1],
 						   X.data[2],  0,			-X.data[0],
 						  -X.data[1],  X.data[0],    0			};
-		return cv::Mat(3,3,CV_64FC1,Ydata);
+		return cv::Mat(3,3,CV_64FC1,Ydata).clone();
 	}
 	else if(X.size().height == 3 && X.size().width == 3)
 	{
 		float Ydata[] = {  X.at<float>(1,2),	X.at<float>(2,0),  X.at<float>(0,1)  };
-		return cv::Mat(1,2,CV_64FC1,Ydata);
+		return cv::Mat(1,2,CV_64FC1,Ydata).clone();
 	}
 	else
 	{
@@ -243,7 +243,7 @@ cv::Mat normalizedCamera()
 	float Cdata[] = { 1, 0, 0, 0,
 					  0, 1, 0, 0,
 					  0, 0, 1, 0  };
-	return cv::Mat(3,4,CV_64FC1,Cdata);
+	return cv::Mat(3,4,CV_64FC1,Cdata).clone();
 }
 
 // Gold standard F. points have to be ordered with correspondances at the same indices.
@@ -327,12 +327,30 @@ cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2
 void Estimate3D::saveToFile(std::string path)
 {
 	std::ofstream file(path, std::ios::binary);
+	file.precision(20);
 	if(!file)
 	{
 		std::cout << "! Could not open file \"" << path << "\", could not load Estimate3D model\n";
 		return;
 	}
 	int n;
+	std::stringstream ss;
+	ss.precision(20);
+
+	// Unique 3D-points
+	file << "#Unique 3D-points (" << visible3DPoint.size() << ")\n";
+	for(std::vector<Visible3DPoint>::iterator i = visible3DPoint.begin(); i != visible3DPoint.end(); i++)
+	{
+		file << "p3D = " << *i->point3D << "\n";
+		for(std::list<ObserverPair>::iterator c = i->observerPair.begin(); c != i->observerPair.end(); c++)
+		{
+			file << "  C1.id = " << c->camera1->id << "\n";
+			file << "  C2.id = " << c->camera2->id << "\n";
+			file << "   p2D1 = " << c->point2D.p1 << "\n";
+			file << "   p2D2 = " << c->point2D.p2 << "\n";
+		}
+	}
+	file << "\n";
 	
 	// Cameras
 	n = 0;
@@ -345,33 +363,17 @@ void Estimate3D::saveToFile(std::string path)
 		file << "C  = \n " << (*i)->C << "\n";
 		file << "R  = \n " << (*i)->R << "\n";
 		file << "t  = " << (*i)->t << "\n";
-		file << "#image points (" << (*i)->imagePoints.size() << ")\n";
+		file << " #image points (" << (*i)->imagePoints.size() << ")\n";
 		for(std::vector<cv::Point2d>::iterator p = (*i)->imagePoints.begin(); p != (*i)->imagePoints.end(); p++)
 		{
 			file << "p2D = " << *p << "\n";
 		}
-		file << "#visible 3D-points (" << (*i)->visible3DPoints.size() << ")\n";
+		file << " #visible 3D-points (" << (*i)->visible3DPoints.size() << ")\n";
 		for(std::vector<cv::Point3d*>::iterator p = (*i)->visible3DPoints.begin(); p != (*i)->visible3DPoints.end(); p++)
 		{
 			file << "p3D = " << **p << "\n";
 		}
 		n++;
-	}
-	file << "\n";
-
-	// Unique 3D-points
-	file << "#Unique 3D-points (" << visible3DPoint.size() << ")\n";
-	for(std::vector<Visible3DPoint>::iterator i = visible3DPoint.begin(); i != visible3DPoint.end(); i++)
-	{
-		file << "p3D = " << i->point3D << "\n";
-		/*	// Can be deduced from the rest of the data
-		for(std::list<ObserverPair>::iterator c = i->observerPair.begin(); c != i->observerPair.end(); c++)
-		{
-			file << "  C1.id = " << c->camera1->id << "\n";
-			file << "  C2.id = " << c->camera2->id << "\n";
-			file << "   p2D1 = " << c->point2D.p1 << "\n";
-			file << "   p2D2 = " << c->point2D.p2 << "\n";
-		}*/
 	}
 	file << "\n";
 
@@ -383,6 +385,17 @@ void Estimate3D::saveToFile(std::string path)
 		file << "C2.id = " << i->camera2->id << "\n";
 		file << " F = \n " << i->F << "\n";
 		file << " E = \n " << i->E << "\n";
+		file << " #point pairs (" << i->pointPairs.size() << ")\n";
+		for(std::vector<pointPair>::iterator p = i->pointPairs.begin(); p != i->pointPairs.end(); p++)
+		{
+			file << "p2D 1 = " << p->p1 << "\n";
+			file << "p2D 2 = " << p->p2 << "\n";
+		}
+		file << " #point 3Ds (" << i->point3Ds.size() << ")\n";
+		for(std::vector<cv::Point3d*>::iterator p = i->point3Ds.begin(); p != i->point3Ds.end(); p++)
+		{
+			file << "p3D = " << **p << "\n";
+		}
 	}
 
 	file.close();
@@ -390,7 +403,8 @@ void Estimate3D::saveToFile(std::string path)
 
 void Estimate3D::loadFromFile(std::string path)
 {
-	std::ifstream file("testmat.txt", std::ios::binary);
+	std::ifstream file(path, std::ios::binary);
+	file.precision(20);
 	if(!file)
 	{
 		std::cout << "! Could not open file \"" << path << "\", could not save Estimate3D model\n";
@@ -398,40 +412,126 @@ void Estimate3D::loadFromFile(std::string path)
 	}
 	std::string line;
 	std::stringstream ss;
+	ss.precision(20);
 	int pos, amount;
 	double x,y,z;
-	char tmp[100]; 
+	int id1,id2;
+	char tmp; 
+	cv::Point2d p2d,p2d2;
+	cv::Point3d p3d;
+	std::map<cv::Point3d,cv::Point3d*,point3dLessThan> pointMap;
+	std::map<int,Camera *> cameraMap;
 	while(std::getline(file, line))
 	{
+		if(pos = line.find("#Unique") != std::string::npos)
+		{
+			std::getline(file, line);
+			while(line[0] == 'p')
+			{
+				parser.parsePoint3d(line, p3d);
+				visible3DPoint.push_back(Visible3DPoint(new cv::Point3d(p3d)));
+				pointMap[p3d] = visible3DPoint.back().point3D;
+				std::getline(file, line);
+				do
+				{
+					parser.parseVariable(line, id1);	// C1.id
+					std::getline(file, line);
+					parser.parseVariable(line, id2);	// C2.id
+					std::getline(file, line);
+					parser.parsePoint2d(line, p2d);
+					std::getline(file, line);
+					parser.parsePoint2d(line, p2d2);
+					visible3DPoint.back().observerPair.push_back(ObserverPair((Camera*)id1, (Camera*)id2, pointPair(p2d,p2d2))); // Must be reprocessed in the end (when the cameras have been parsed..)
+					std::getline(file, line);
+				} while(line.find("C1.id") != std::string::npos);
+			}
+			
+		}
+		else
+		if(pos = line.find("#Camera pair") != std::string::npos)
+		{
+			std::getline(file, line);
+			parser.parseVariable(line, x);
+			std::getline(file, line);
+			parser.parseVariable(line, y);
+			cameraPair.push_back(CameraPair(cameraMap[x], cameraMap[y]));
+			parser.parseMatrix(file, cameraPair.back().F);
+			parser.parseMatrix(file, cameraPair.back().E);
+			std::getline(file, line);	//#point pairs (..)
+			std::getline(file, line);
+			while(line[0] == 'p')
+			{
+				parser.parsePoint2d(line, p2d);
+				std::getline(file, line);
+				parser.parsePoint2d(line, p2d2);
+				cameraPair.back().pointPairs.push_back(pointPair(p2d,p2d2));
+				std::getline(file, line);
+			}	
+			do                         //#point 3Ds (..)
+			{
+				std::getline(file, line);
+				parser.parsePoint3d(line, p3d);
+				cameraPair.back().point3Ds.push_back(pointMap[p3d]);
+			}while(file.peek() == 'p');
+
+		}
+		else
 		if(pos = line.find("#Camera") != std::string::npos)
 		{
 			cameras.push_back(new Camera());
-			std::getline(file, line);
-			scanf(line.c_str(), "%s %s %i", tmp,tmp, &cameras.back()->id);
+			parser.parseVariable(file, cameras.back()->id);
 			parser.parseMatrix(file, cameras.back()->P);
 			parser.parseMatrix(file, cameras.back()->K);
 			parser.parseMatrix(file, cameras.back()->C);
 			parser.parseMatrix(file, cameras.back()->R);
 			parser.parseMatrix(file, cameras.back()->t);
+			std::getline(file, line);	//#image points (..)
 			std::getline(file, line);
-			std::getline(file, line);
-			/*
 			while(line[0] == 'p')
 			{
+				parser.parsePoint2d(line, p2d);
+				cameras.back()->imagePoints.push_back(p2d);
+				std::getline(file, line);
+			}	
+			do                         //#visible 3D-points (..)
+			{
+				std::getline(file, line);
+				parser.parsePoint3d(line, p3d);
+				cameras.back()->visible3DPoints.push_back(pointMap[p3d]);
+			}while(file.peek() == 'p');
 
-				cameras.back()->imagePoints.push_back(cv::Point2d());
-			}
-			*/
+			// Prepare lookup for Camera pair construction
+			cameraMap[cameras.back()->id] = cameras.back();
 		}
 	}
 
 	// Post process
-	// Connect 3D-points & Build ObserverPairs
-
+	// Build ObserverPairs by pointing to the actual cameras
+	for(std::vector<Visible3DPoint>::iterator v = visible3DPoint.begin(); v != visible3DPoint.end(); v++)
+	{
+		for(std::list<ObserverPair>::iterator o = v->observerPair.begin(); o != v->observerPair.end(); o++)
+		{
+			o->camera1 = cameraMap[(int)o->camera1];
+			o->camera2 = cameraMap[(int)o->camera2];
+		}
+	}
 
 	file.close();
 }
 
+void Estimate3D::clear()
+{
+	visible3DPoint.clear();
+	cameras.clear();
+	cameraPair.clear();
+	views.clear();
+}
+
+
+bool point3dLessThan::operator()(const cv::Point3d & left, const cv::Point3d & right) const
+{
+	return left.x < right.x || (left.x == right.x && left.y < right.y) || (left.x == right.x && left.y == right.y && left.z < right.z);
+}
 
 /*
 	CameraPair cameraPair;

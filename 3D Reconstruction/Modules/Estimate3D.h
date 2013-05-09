@@ -8,6 +8,7 @@
 #include <time.h>
 #include <string>
 #include <sstream>
+#include <map>
 #include "Parser.h"
 
 /* Estimate3D
@@ -64,6 +65,8 @@ public:
 
 	void saveToFile(std::string path);
 	void loadFromFile(std::string path);
+
+	void clear();
 };
 
 // Checks is p3D is new to cam. If it isn't then it is pointed to the old one ((*p3D) = old)
@@ -96,6 +99,10 @@ cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2
 cv::Mat normalizedCamera();
 
 
+struct point3dLessThan
+{
+	bool operator()(const cv::Point3d & left, const cv::Point3d & right) const;
+};
 
 
 #endif

@@ -71,6 +71,9 @@ void Visualizer::mainLoop(){
 				glViewport(0,0,event.size.width, event.size.height);
 			}else if(event.type == sf::Event::MouseMoved){
 				
+			}else if(event.type == sf::Event::KeyPressed){
+				if(event.key.code == sf::Keyboard::Escape)
+					running = false;
 			}
 		}
 		dx = sf::Mouse::getPosition(*displayWindow).x - displayWindow->getSize().x / 2;

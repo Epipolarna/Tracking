@@ -62,8 +62,6 @@ int main()
 		bestPoints2.push_back(i->p2);
 	}
 	
-	GoldStandardOutput GO;
-
 	// Tiger
 	//--------------------
 	Estimate3D dinosaurModel;
@@ -75,6 +73,9 @@ int main()
 	NonLinear::NonLinear nonlin(K);
 	dinosaurModel.init(bestPoints1, bestPoints2, K);
 	dinosaurModel.saveToFile("iteration1.alx");
+	dinosaurModel.clear();
+	dinosaurModel.loadFromFile("iteration1.alx");
+	dinosaurModel.saveToFile("iteration2.alx");
 
 
 	clock_t t;

@@ -60,6 +60,7 @@ public:
 	cv::Point3d * point3D;
 	std::list<ObserverPair> observerPair;
 public:
+	Visible3DPoint(cv::Point3d * p):point3D(p) {}
 	Visible3DPoint(cv::Point3d * p, ObserverPair op):point3D(p) {observerPair.push_back(op);}
 };
 

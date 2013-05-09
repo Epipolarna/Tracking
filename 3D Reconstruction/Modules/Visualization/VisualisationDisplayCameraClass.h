@@ -17,7 +17,7 @@ public:
 	void lookAtUpdate(float dt);
 	void lookAtUpload(GLuint program);
 
-	void updatePosition(void);
+	void updatePosition(int dx, int dy);
 
 	void moveForward(float dt);
 	void moveBackward(float dt);
@@ -30,8 +30,11 @@ public:
 	void lookLeft(float dt);
 	void lookRight(float dt);
 
+	void xLook(float dt, int dx);
+	void yLook(float dt, int dy);
+
 	void mouseMovement(float dt, sf::Vector2i pos);
-	void updateCameraRotation(void);
+	void updateCameraRotation();
 
 	cv::Vec3f getLookAtDirection() {return normalize(lookAtVector - position);};
 

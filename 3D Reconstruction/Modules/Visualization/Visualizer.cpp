@@ -57,7 +57,8 @@ void Visualizer::addPoint(GLfloat x, GLfloat y, GLfloat z){
 
 void Visualizer::mainLoop(){
 	bool running = true;
-
+	int dx, dy; 
+	dx = dy = 0;
 	cout << "visualizer started..." << endl;
 
 	while(running){
@@ -68,10 +69,16 @@ void Visualizer::mainLoop(){
 				running = false;
 			}else if(event.type == sf::Event::Resized){
 				glViewport(0,0,event.size.width, event.size.height);
+			}else if(event.type == sf::Event::MouseMoved){
+				
 			}
 		}
-		cam.updatePosition();
-
+		dx = sf::Mouse::getPosition(*displayWindow).x - displayWindow->getSize().x / 2;
+		dy = sf::Mouse::getPosition(*displayWindow).y - displayWindow->getSize().y / 2;
+		dy = -dy;
+		sf::Mouse::setPosition(sf::Vector2i(displayWindow->getSize().x / 2, displayWindow->getSize().y / 2),  *displayWindow);
+		cam.updatePosition(dx, dy);
+		dx = dy = 0;
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		redraw();
 		displayWindow->display();

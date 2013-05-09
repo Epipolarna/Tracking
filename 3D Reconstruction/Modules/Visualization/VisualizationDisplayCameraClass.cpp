@@ -183,7 +183,7 @@ void VisualisationDisplayCameraClass::lookDown(float dt)
 
 void VisualisationDisplayCameraClass::xLook(float dt, int dx)
 {
-	std::cout << "xlook " << dx << std::endl;
+	//std::cout << "xlook " << dx << std::endl;
 	cv::Vec3f lookAtDirection = lookAtVector - position;
 	GLfloat length = (GLfloat)cv::norm(lookAtDirection);
 	cv::Vec3f helpVector = cv::normalize(lookAtDirection.cross(upVector));
@@ -194,7 +194,7 @@ void VisualisationDisplayCameraClass::xLook(float dt, int dx)
 
 void VisualisationDisplayCameraClass::yLook(float dt, int dy)
 {
-	std::cout << "ylook " << dy << std::endl;
+	//std::cout << "ylook " << dy << std::endl;
 	cv::Vec3f lookAtDirection = lookAtVector - position;
 	GLfloat length = (GLfloat)cv::norm(lookAtDirection);
 	cv::Vec3f helpVector = lookAtDirection.cross(upVector);

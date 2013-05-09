@@ -30,7 +30,6 @@ cv::Mat crossMat(cv::Mat in)
 
 	return out;
 }
-
 void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2, cv::Mat & K_)
 {
 	K = K_.clone();
@@ -60,6 +59,7 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	std::cout << "P:\n" << cam1->P << "\n";
 	
 	using namespace std;
+
 	// Fill up the data hierarchy (visibility etc)
 	for(int n = 0; n < GO.point3D.size().width; n++)
 	{
@@ -75,7 +75,7 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 		cameraPair.back().pointPairs.push_back(pointPair(GO.inlier1[n], GO.inlier2[n]));
 		cameraPair.back().point3Ds.push_back(p3d);
 	}
-
+	
 	cv::Mat K1de, K2de, R1de, R2de, t1de, t2de;
 
 	// Estimate R and t for the cameras
@@ -107,6 +107,7 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	R2 = V*W*U.t();
 
 	// Pick a corresponding 3D point
+	p3d = new cv::Point3d(GO.point3D.at<double>(0,5), GO.point3D.at<double>(1,5), GO.point3D.at<double>(2,5));
 	x1 = cv::Mat(*p3d);
 	cout << "x1: " << x1 << endl;
 
@@ -184,7 +185,33 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	cout << "C2 decomp: " << endl << C2decomp << endl; 
 	cout << "C1 klas: " << endl << C1Klas << endl;
 	cout << "C2 klas: " << endl << C2Klas << endl;
+
+	/*
+	//triangulate like a BAWS
+	cv:: Mat HomPoints3D;
+	cv::triangulatePoints(C1Klas, C2Klas, GO.inlier1, GO.inlier2, HomPoints3D);
+	HomPoints3D.convertTo(HomPoints3D, CV_64FC1);
+	
+	for(int n = 0; n < HomPoints3D.size().width; n++)
+	{
+		//cout << HomPoints3D.col(n) << endl;
+		p3d = new cv::Point3d(HomPoints3D.at<double>(0,n)/HomPoints3D.at<double>(3,n),
+							  HomPoints3D.at<double>(1,n)/HomPoints3D.at<double>(3,n),
+							  HomPoints3D.at<double>(2,n)/HomPoints3D.at<double>(3,n));
+		//cout << *p3d << endl;
+		visible3DPoint.push_back(Visible3DPoint(p3d, ObserverPair(cam1, cam2, pointPair(GO.inlier1[n],GO.inlier2[n]))));
+		
+		// Convert to C-normalized image coordinates
+		cam1->imagePoints.push_back(GO.inlier1[n]);
+		cam2->imagePoints.push_back(GO.inlier2[n]);
+
+		cam1->visible3DPoints.push_back(p3d);
+		cam2->visible3DPoints.push_back(p3d);
+		cameraPair.back().pointPairs.push_back(pointPair(GO.inlier1[n], GO.inlier2[n]));
+		cameraPair.back().point3Ds.push_back(p3d);
+	}*/
 }
+
 
 bool isUnique3DPoint(Camera * cam, cv::Point2f p2D, cv::Point3d ** p3D)
 {

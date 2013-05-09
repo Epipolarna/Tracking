@@ -167,8 +167,11 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	
 	C1decomp = K1de*C1decomp;
 	C2decomp = K2de*C2decomp;
-	C1Klas = C1Klas;
-	C2Klas = C2Klas;
+	C1Klas = K*C1Klas;
+	C2Klas = K*C2Klas;
+
+	cam1->P = C1Klas;
+	cam2->P = C2Klas;
 
 	cout << "comparison: " << endl;
 	cout << "K1 decomp: " << endl << K1de << endl;

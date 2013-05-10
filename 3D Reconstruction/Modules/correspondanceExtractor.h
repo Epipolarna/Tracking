@@ -12,6 +12,7 @@
 #include <opencv2\nonfree\features2d.hpp>
 #include <fstream>
 #include <string>
+#include <vector>
 
 struct pointPair
 {
@@ -20,10 +21,23 @@ struct pointPair
 	pointPair(cv::Point2d p1, cv::Point2d p2): p1(p1),p2(p2) {}
 };
 
-void readImages(std::vector<cv::Mat>* imageList);
-void findMatches(std::vector<cv::Mat>* imageList, std::vector<std::vector<pointPair>>* matchesVector);
-void saveMatches(std::vector<std::vector<pointPair>>* matchesVector, char* filename);
-void loadMatches(std::vector<std::vector<pointPair>>* matchesVector, char* filename);
+class CorrespondanceExtractor
+{
+public:
+	CorrespondanceExtractor();
+	void readImages();
+	void findMatches();
+	void saveMatches(char* filename);
+	bool loadMatches(char* filename);
+
+	void getBAPoints(int imagePair, std::vector<cv::Point2d>& BAPoints1, std::vector<cv::Point2d>& BAPoints2);
+
+
+private:
+	std::vector<cv::Mat> imageList;
+	std::vector< std::vector<pointPair> > matchesVector;
+
+};
 
 
 #endif

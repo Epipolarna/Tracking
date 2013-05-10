@@ -3,7 +3,17 @@
 using namespace std;
 using namespace cv;
 
-void readImages(vector<Mat>* imageList)
+CorrespondanceExtractor::CorrespondanceExtractor()
+{
+	if(!loadMatches("data.alx"))
+	{
+		readImages();
+		findMatches();
+		saveMatches("data.alx");
+	}
+}
+
+void CorrespondanceExtractor::readImages()
 {
 	string fileName, fileNumber;
 	string fileBeginning = "data/dinosaur/viff.";
@@ -25,13 +35,13 @@ void readImages(vector<Mat>* imageList)
 		fileName = fileBeginning + fileNumber + fileEnding;
 
 		cout << "Filename: " << fileName << endl;
-		imageList->push_back(imread(fileName));
-		if(imageList->back().empty())
+		imageList.push_back(imread(fileName));
+		if(imageList.back().empty())
 			cout << "\t Could not read file!\n";
     }
 }
 
-void findMatches(vector<Mat>* imageList, vector<vector<pointPair>>* matchesVector)
+void CorrespondanceExtractor::findMatches()
 {
 	// FEATURES
 
@@ -84,7 +94,7 @@ void findMatches(vector<Mat>* imageList, vector<vector<pointPair>>* matchesVecto
 
 	vector<vector<pointPair>> sequenceMatches;
 
-	for (vector<Mat>::iterator i = imageList->begin(); i < imageList->end() - 1; i++)
+	for (vector<Mat>::iterator i = imageList.begin(); i < imageList.end() - 1; i++)
 	{
 		
 		//image1 = *i;
@@ -148,7 +158,7 @@ void findMatches(vector<Mat>* imageList, vector<vector<pointPair>>* matchesVecto
 			pointPairs.push_back(temp);
 		}
 
-		matchesVector->push_back(pointPairs);
+		matchesVector.push_back(pointPairs);
 
 		//matchesVector->push_back(matches);
 		cout << "matches: " << matches.size() << endl;
@@ -161,7 +171,7 @@ void findMatches(vector<Mat>* imageList, vector<vector<pointPair>>* matchesVecto
 	}
 }
 
-void saveMatches(vector<vector<pointPair>>* matchesVector, char* filename)
+void CorrespondanceExtractor::saveMatches(char* filename)
 {
 	ofstream os(filename, ios::binary);
 	if(!os)
@@ -173,7 +183,7 @@ void saveMatches(vector<vector<pointPair>>* matchesVector, char* filename)
 
 	os << "# Correspondances for each imagepair in sequnce \n";
 
-	for (vector<vector<pointPair>>::iterator i = matchesVector->begin(); i < matchesVector->end(); i++)
+	for (vector<vector<pointPair>>::iterator i = matchesVector.begin(); i < matchesVector.end(); i++)
 	{
 		imageCounter++;
 		os << "# Imagepair " << imageCounter << "\n";
@@ -192,12 +202,14 @@ void saveMatches(vector<vector<pointPair>>* matchesVector, char* filename)
 	cout << "Successfully saved" << endl;
 }
 
-void loadMatches(vector<vector<pointPair>>* matchesVector, char* filename)
+bool CorrespondanceExtractor::loadMatches(char* filename)
 {
 	ifstream is(filename, ios::binary);
 	if(!is)
 	{
 		cout << "Error loading from file " << filename << endl;
+		cout << "Recalculating correspondances" << endl;
+		return false;
 	}
 	
 	string line;
@@ -223,7 +235,7 @@ void loadMatches(vector<vector<pointPair>>* matchesVector, char* filename)
 		else if(line.substr(0,13) == "# Partly Done")
 		{
 			// Done loadng one imagepair
-			matchesVector->push_back(pointPairs);
+			matchesVector.push_back(pointPairs);
 			pointPairs.clear();
 		}
 		else if(line.substr(0,1) == "#")
@@ -237,4 +249,14 @@ void loadMatches(vector<vector<pointPair>>* matchesVector, char* filename)
 	}
 
 	cout << "Successfully loaded" << endl;
+	return true;
+}
+
+void CorrespondanceExtractor::getBAPoints(int imagePair, vector<Point2d>& BAPoints1, vector<Point2d>& BAPoints2)
+{
+	for (vector<pointPair>::iterator i = matchesVector[imagePair].begin(); i < matchesVector[imagePair].end(); i++)
+	{
+		BAPoints1.push_back(i->p1);
+		BAPoints2.push_back(i->p2);
+	}
 }

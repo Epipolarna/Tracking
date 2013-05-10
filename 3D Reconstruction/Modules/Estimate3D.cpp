@@ -142,6 +142,7 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 bool isUnique3DPoint(Camera * cam, cv::Point2f p2D, cv::Point3d ** p3D)
 {
 	// TODO: Loop through cam's image points and find a match to p2D. Optionaly: find such match that additionally has a close p3D..
+
 	return true;
 }
 

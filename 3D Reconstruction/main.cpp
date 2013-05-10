@@ -61,8 +61,8 @@ int main()
 	Estimate3D dinosaurModel;
 	vector<vector<pointPair>> matchesVector;
 
-	// Select state
-	programState = LOADFROMFILE;
+	// Select program state
+	programState = ePROGRAM_STATE::ESTIMATE3D;
 
 // The main program and it's 3 states
 //-----------------------------------
@@ -93,7 +93,6 @@ int main()
 
 		vector<Point2d> imagePoints1;
 		vector<Point2d> imagePoints2;
-
 		for (vector<pointPair>::iterator i = matchesVector.begin()->begin(); i < matchesVector.begin()->end(); i++)
 		{
 			imagePoints1.push_back(i->p1);
@@ -106,15 +105,14 @@ int main()
 			std::cout << "# Iteration " << 1 << " started..\n";	
 			t_mainLoop = clock();
 		dinosaurModel.init(imagePoints1, imagePoints2, K);
-		dinosaurModel.saveToFile(fileName);
+		dinosaurModel.saveToFile("iteration"+std::to_string(1)+".1.alx");
 	
 			std::cout << "# | Bundle adjustment started..\n";
 			t_BA = clock();
 		nonlin.BundleAdjust(dinosaurModel.cameras, &dinosaurModel.visible3DPoint);
 			std::cout << "# | Bundle adjustment finished! \n";
 			std::cout << "# |		Bundle adjustment time: " << mElapsedTime(t_BA) << " sec\n";
-			mFileName(fileName,"iteration",version,1.2,"alx");
-		dinosaurModel.saveToFile(fileName);
+		dinosaurModel.saveToFile("iteration"+std::to_string(1)+".2.alx");
 				std::cout << "# Iteration " << 1 << " Finished!\n";
 				std::cout << "# | Main loop time: " << mElapsedTime(t_mainLoop) << " sec\n";
 				std::cout << "# -----------------------------\n";
@@ -133,14 +131,12 @@ int main()
 				imagePoints2.push_back(i->p2);
 			}
 			dinosaurModel.addView(imagePoints1, imagePoints2);
-				mFileName(fileName,"iteration",version,imageCounter+1.1,"alx");
-			dinosaurModel.saveToFile(fileName);
+			dinosaurModel.saveToFile("iteration"+std::to_string(version)+".1.alx");
 				std::cout << "# | Bundle adjustment started..\n";
 				t_BA = clock();
 			nonlin.BundleAdjust(dinosaurModel.cameras, &dinosaurModel.visible3DPoint);
 				std::cout << "# |	Bundle adjustment time: " << mElapsedTime(t_BA) << " sec\n";
-				mFileName(fileName,"iteration",version,imageCounter+1.2,"alx");
-			dinosaurModel.saveToFile(fileName);
+			dinosaurModel.saveToFile("iteration"+std::to_string(version)+".2.alx");
 		
 				std::cout << "# Iteration " << imageCounter+1 << " Finished!\n";
 				std::cout << "# | Main loop time: " << mElapsedTime(t_mainLoop) << " sec\n";

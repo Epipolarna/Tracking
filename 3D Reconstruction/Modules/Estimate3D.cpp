@@ -394,8 +394,10 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d)
 			break;
 	}
 	
-	cout << R << endl;
-	cout << t << endl;
+	cout << "R1: " << R1 << endl;
+	cout << "R2: " << R2 << endl;
+	cout << "t :" << t << endl;
+	cout << cv::determinant(R) << endl;
 	/*
 	if ( *x21.row(2).col(0).ptr<double>() > 0)
 	{

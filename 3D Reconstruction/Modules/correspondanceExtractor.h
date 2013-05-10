@@ -25,14 +25,15 @@ class CorrespondanceExtractor
 {
 public:
 	CorrespondanceExtractor();
-	void init();
-	void readImages();
+	void init(std::string dataSet);
+	void readImages(std::string prefix, int numberOfImages, std::string postfix);
 	void findMatches();
-	void saveMatches(char* filename);
-	bool loadMatches(char* filename);
+	void saveMatches(std::string filename);
+	bool loadMatches(std::string filename);
 
 	void getBAPoints(int imagePair, std::vector<cv::Point2d>& BAPoints1, std::vector<cv::Point2d>& BAPoints2);
 
+	cv::Mat K;
 
 private:
 	std::vector<cv::Mat> imageList;

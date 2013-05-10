@@ -8,8 +8,41 @@ CorrespondanceExtractor::CorrespondanceExtractor()
 	
 }
 
-void CorrespondanceExtractor::readImages()
+void CorrespondanceExtractor::init(std::string dataSet)
 {
+	if (dataSet == "dinosaur")
+	{
+		if (!loadMatches(dataSet + ".alx"))
+		{
+			readImages("data/dinosaur2/im (", 37, ").ppm");
+			findMatches();
+			saveMatches(dataSet + ".alx");
+		}
+		double Kdata[9] = {	3217.328669180762, -78.606641008226180, 289.8672403229193,
+							0,					2292.424143977958,  -1070.516234777778,
+							0,					0,					1};
+		K = cv::Mat(3,3,CV_64FC1,Kdata).clone();
+	}
+
+}
+
+void CorrespondanceExtractor::readImages(string prefix, int numberOfImages, string postfix)
+{
+	//string prefix = directory + "/im (";
+	//string postfix = ").ppm";
+	string fileName;
+
+	for(int fileNo = 1; fileNo <= numberOfImages ;fileNo++)
+	{    
+		fileName = prefix + to_string(fileNo) + postfix;
+
+		cout << "Filename: " << fileName << endl;
+		imageList.push_back(imread(fileName));
+		if(imageList.back().empty())
+			cout << "\t Could not read file!\n";
+    }
+
+	/*
 	string fileName, fileNumber;
 	string fileBeginning = "data/dinosaur/viff.";
 	string fileEnding = ".ppm";
@@ -34,6 +67,7 @@ void CorrespondanceExtractor::readImages()
 		if(imageList.back().empty())
 			cout << "\t Could not read file!\n";
     }
+	*/
 }
 
 void CorrespondanceExtractor::findMatches()
@@ -166,7 +200,7 @@ void CorrespondanceExtractor::findMatches()
 	}
 }
 
-void CorrespondanceExtractor::saveMatches(char* filename)
+void CorrespondanceExtractor::saveMatches(string filename)
 {
 	ofstream os(filename, ios::binary);
 	if(!os)
@@ -197,7 +231,7 @@ void CorrespondanceExtractor::saveMatches(char* filename)
 	cout << "Successfully saved" << endl;
 }
 
-bool CorrespondanceExtractor::loadMatches(char* filename)
+bool CorrespondanceExtractor::loadMatches(string filename)
 {
 	ifstream is(filename, ios::binary);
 	if(!is)

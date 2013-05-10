@@ -69,6 +69,8 @@ public:
 	void clear();
 };
 
+void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d);
+
 // Checks is p3D is new to cam. If it isn't then it is pointed to the old one ((*p3D) = old)
 bool isUnique3DPoint(Camera * cam, cv::Point2f p2D, cv::Point3d ** p3D);
 

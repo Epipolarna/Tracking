@@ -332,13 +332,18 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d)
 	//p3d = new cv::Point3d(GO.point3D.at<double>(0,9), GO.point3D.at<double>(1,9), GO.point3D.at<double>(2,9));
 	x1 = cv::Mat(p3d);
 	
-
 	// Calculate position of 3D point relative the four posible cameras
 	x21 = R1*x1 + t;
 	x22 = R1*x1 - t;
 	x23 = R2*x1 + t;
 	x24 = R2*x1 - t;
 
+	cout << x1 << endl;
+	cout << x21 << endl;
+	cout << x22 << endl;
+	cout << x23 << endl;
+	cout << x24 << endl;
+	
 	double smallestDiff, diff[4], sign[4];
 	int cameraConfiguration = 0;
 	diff[0] = cv::norm(x1-x21);
@@ -366,50 +371,59 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d)
 	{
 		case 0:
 			cout << "Configuration 1" << endl;
-			R = R1;
+			R = R1.t();
 			t = t;
 			break;
 
 		case 1:
 			cout << "Configuration 2" << endl;
-			R = R1;
+			R = R1.t();
 			t = -t;
 			break;
 
 		case 2:
 			cout << "Configuration 3" << endl;
-			R = R2;
+			R = R2.t();
 			t = t;
 			break;
 
 		case 3:
 			cout << "Configuration 4" << endl;
-			R = R2;
+			R = R2.t();
 			t = -t;
 			break;
 	}
-
+	
+	cout << R << endl;
+	cout << t << endl;
 	/*
 	if ( *x21.row(2).col(0).ptr<double>() > 0)
 	{
+		cout << "Configuration 1" << endl;
 		R = R1;
 		t = t;
 	}
 	else if ( *x22.row(2).col(0).ptr<double>() > 0)
 	{
+		cout << "Configuration 2" << endl;
 		R = R1;
 		t = -t;
 	}
 	else if ( *x23.row(2).col(0).ptr<double>() > 0)
 	{
+		cout << "Configuration 3" << endl;
 		R = R2;
 		t = t;
 	}
 	else if ( *x24.row(2).col(0).ptr<double>() > 0)
 	{
+		cout << "Configuration 4" << endl;
 		R = R2;
 		t = -t;
 	}
+	
+	cout << R << endl;
+	cout << t << endl;
 	*/
 }
 

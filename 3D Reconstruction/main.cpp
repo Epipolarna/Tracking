@@ -63,6 +63,7 @@ int main()
 
 	// Select program state
 	programState = ePROGRAM_STATE::ESTIMATE3D;
+	fileName = "iteration1.2.alx";
 
 // The main program and it's 3 states
 //-----------------------------------
@@ -81,8 +82,8 @@ int main()
 	else
 	if(programState == ePROGRAM_STATE::LOADFROMFILE)
 	{
-		std::cout << "# Loading file..\n";
-		dinosaurModel.loadFromFile("iteration1.1.2.alx");
+		std::cout << "# Loading file \"" << fileName << "\"..\n";
+		dinosaurModel.loadFromFile(fileName);
 		std::cout << "# File loaded!\n";
 	}
 	else

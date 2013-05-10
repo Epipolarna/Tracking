@@ -1,11 +1,5 @@
 //#include "stdafx.h"
 
-
-#ifdef _MSC_VER
-#define _CRT_SECURE_NO_WARNINGS
-#endif
-
-
 #include <math.h>
 #include <time.h>
 #include <opencv\cvaux.h>
@@ -59,6 +53,7 @@ int main()
 	cv::Mat K = cv::Mat(3,3,CV_64FC1,Kdata);
 	NonLinear::NonLinear nonlin(K);
 	Estimate3D dinosaurModel;
+	CorrespondanceExtractor corrEx;
 	vector<vector<pointPair>> matchesVector;
 
 	// Select program state
@@ -68,15 +63,7 @@ int main()
 // The main program and it's 3 states
 //-----------------------------------
 	if(programState == ePROGRAM_STATE::CALCULATE_CORRESPONDANCES)
-	{
-		cv::namedWindow("win1");
-		cv::namedWindow("win2");
-	
-		// Read images into a vector
-		vector<Mat> imageList;
-		readImages(&imageList);
-		findMatches(&imageList, &matchesVector);
-		saveMatches(&matchesVector, "data.alx");
+	{		
 		std::cout << "Correspondances are computed and saved to file!\n";
 	}
 	else
@@ -90,16 +77,11 @@ int main()
 	if(programState == ePROGRAM_STATE::ESTIMATE3D)
 	{
 		// Load matches
-		loadMatches(&matchesVector, "data.alx");
+		//loadMatches(&matchesVector, "data.alx");
 
 		vector<Point2d> imagePoints1;
 		vector<Point2d> imagePoints2;
-		for (vector<pointPair>::iterator i = matchesVector.begin()->begin(); i < matchesVector.begin()->end(); i++)
-		{
-			imagePoints1.push_back(i->p1);
-			imagePoints2.push_back(i->p2);
-		}
-	
+		corrEx.getBAPoints(0, imagePoints1, imagePoints2);
 
 		// Pre Main loop
 		//--------------------
@@ -126,11 +108,7 @@ int main()
 				t_mainLoop = clock();
 			imagePoints1.clear();
 			imagePoints2.clear();
-			for (vector<pointPair>::iterator i = matchesVector[imageCounter].begin(); i < matchesVector[imageCounter].end(); i++)
-			{
-				imagePoints1.push_back(i->p1);
-				imagePoints2.push_back(i->p2);
-			}
+			corrEx.getBAPoints(imageCounter, imagePoints1, imagePoints2);
 			dinosaurModel.addView(imagePoints1, imagePoints2);
 			dinosaurModel.saveToFile("iteration"+std::to_string(version)+".1.alx");
 				std::cout << "# | Bundle adjustment started..\n";

@@ -339,7 +339,57 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d)
 	x23 = R2*x1 + t;
 	x24 = R2*x1 - t;
 
-	
+	double smallestDiff, diff[4], sign[4];
+	int cameraConfiguration = 0;
+	diff[0] = cv::norm(x1-x21);
+	diff[1] = cv::norm(x1-x22);
+	diff[2] = cv::norm(x1-x23);
+	diff[3] = cv::norm(x1-x24);
+	smallestDiff = diff[0];
+	sign[0] = *x21.row(2).col(0).ptr<double>();
+	sign[1] = *x22.row(2).col(0).ptr<double>();
+	sign[2] = *x23.row(2).col(0).ptr<double>();
+	sign[3] = *x24.row(2).col(0).ptr<double>();
+
+	for (int i = 1; i < 4; i++)
+	{
+		if ((diff[i] < smallestDiff) && (sign[i] > 0))
+		{
+			smallestDiff = diff[i];
+			cameraConfiguration = i;
+		}
+	}
+
+	cout << "Diff: " << smallestDiff << endl;
+
+	switch (cameraConfiguration)
+	{
+		case 0:
+			cout << "Configuration 1" << endl;
+			R = R1;
+			t = t;
+			break;
+
+		case 1:
+			cout << "Configuration 2" << endl;
+			R = R1;
+			t = -t;
+			break;
+
+		case 2:
+			cout << "Configuration 3" << endl;
+			R = R2;
+			t = t;
+			break;
+
+		case 3:
+			cout << "Configuration 4" << endl;
+			R = R2;
+			t = -t;
+			break;
+	}
+
+	/*
 	if ( *x21.row(2).col(0).ptr<double>() > 0)
 	{
 		R = R1;
@@ -360,6 +410,7 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d)
 		R = R2;
 		t = -t;
 	}
+	*/
 }
 
 

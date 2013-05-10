@@ -49,26 +49,30 @@ int main()
 	clock_t t_BA, t_mainLoop;
 	std::string fileName;
 	mFileName(fileName,"iteration",version,1.1,"alx");
-	double Kdata[9] = {	3217.328669180762, -78.606641008226180, 289.8672403229193,
+	
+	double Kdata[9] = {		3217.328669180762, -78.606641008226180, 289.8672403229193,
 							0,					2292.424143977958,  -1070.516234777778,
 							0,					0,					1};
 	cv::Mat K = cv::Mat(3,3,CV_64FC1,Kdata);
+	
 	NonLinear::NonLinear nonlin(K);
 	Estimate3D dinosaurModel;
 	CorrespondanceExtractor corrEx;
 	vector<vector<pointPair>> matchesVector;
 
 	// Select program state
+	//programState = ePROGRAM_STATE::CALCULATE_CORRESPONDANCES;
 	programState = ePROGRAM_STATE::ESTIMATE3D;
+	//programState = ePROGRAM_STATE::LOADFROMFILE;
+	
+	
 	fileName = "iteration1.2.alx";
 
 // The main program and it's 3 states
 //-----------------------------------
 	if(programState == ePROGRAM_STATE::CALCULATE_CORRESPONDANCES)
 	{		
-		corrEx.readImages();
-		corrEx.findMatches();
-		corrEx.saveMatches("data.alx");
+		corrEx.init("dinosaur");
 		std::cout << "Correspondances are computed and saved to file!\n";
 	}
 	else
@@ -126,7 +130,6 @@ int main()
 				std::cout << "# | Main loop time: " << mElapsedTime(t_mainLoop) << " sec\n";
 				std::cout << "# -----------------------------\n";
 		}
-
 	}
 
 	if(programState == LOADFROMFILE || programState == ESTIMATE3D)

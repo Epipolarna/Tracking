@@ -212,6 +212,51 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	}*/
 }
 
+void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2)
+{
+	GoldStandardOutput GO;
+	cv::Mat F = getGoldStandardF(p1,p2, cameras.back()->K, &GO);
+	cv::Point3d * p3d;
+	Camera * cam1 = cameras.back();
+	Camera * cam2 = new Camera();
+	cameras.push_back(cam2);
+	
+	// Estimate R and t for the cameras
+	/*vconcat(cam1->R, cv::Mat::zeros(1,3,CV_64FC1), cam1->C);
+	hconcat(cam1->C, cam1->t/cam1->t.at<float>(0,3), cam1->C);
+	cam1->P.at<float>(3,3) = 1;*/
+	cam2->id = cam1->id+1;
+	cam2->P = GO.P2;
+	decomposeProjectionMatrix(cam2->P, cam2->K, cam2->R, cam2->t);
+
+	// TODO: change coordinates of cam2 to the global coordinate system (the one which cam1 is in)
+
+	// Fill up the data hierarchy (visibility etc)
+	// Fill up the data hierarchy (visibility etc)
+	for(int n = 0; n < GO.point3D.size().width; n++)
+	{
+		p3d = new cv::Point3d(GO.point3D.at<double>(0,n), GO.point3D.at<double>(1,n), GO.point3D.at<double>(2,n));
+		if(isUnique3DPoint(cam1, GO.inlier1[n], &p3d))
+		{
+			visible3DPoint.push_back(Visible3DPoint(p3d, ObserverPair(cam1, cam2, pointPair(GO.inlier1[n],GO.inlier2[n]))));
+			cam1->imagePoints.push_back(GO.inlier1[n]);
+			cam2->imagePoints.push_back(GO.inlier2[n]);
+			cam1->visible3DPoints.push_back(p3d);
+			cam2->visible3DPoints.push_back(p3d);
+			cameraPair.back().pointPairs.push_back(pointPair(GO.inlier1[n], GO.inlier2[n]));
+			cameraPair.back().point3Ds.push_back(p3d);
+		}
+		else
+		{
+			// TODO: Only add the 3D points to the new camera, and add the pairs.. (etc..)
+			cam2->imagePoints.push_back(GO.inlier2[n]);
+			cam2->visible3DPoints.push_back(p3d);
+			cameraPair.back().pointPairs.push_back(pointPair(GO.inlier1[n], GO.inlier2[n]));
+			cameraPair.back().point3Ds.push_back(p3d);
+		}
+	}
+
+}
 
 bool isUnique3DPoint(Camera * cam, cv::Point2f p2D, cv::Point3d ** p3D)
 {

@@ -138,9 +138,21 @@ int main()
 		std::cout << "# Starting Visualizer...\n";
 		vis::Visualizer v = vis::Visualizer();
 		vector<Visible3DPoint> pvector = dinosaurModel.visible3DPoint;
+		vector<Mat> imageList;
+		readImages(&imageList);
+
 		for(vector<Visible3DPoint>::iterator it = pvector.begin(); it != pvector.end(); ++it){
 			cv::Point3d* whatIsThePoint = it->point3D;
-			v.addPoint(whatIsThePoint->x*scale,whatIsThePoint->y*scale,whatIsThePoint->z*scale);
+			int camer1ID = it->observerPair.front().camera1->id;
+			Point2d imageCoordinate;
+			imageCoordinate = it->observerPair.front().point2D.p1;
+
+			Mat image = imageList.at(camer1ID);
+			Mat patch = image(Rect(imageCoordinate.x-16,imageCoordinate.y-16,32,32));
+
+			cv::Vec3f coordinate = Vec3f(whatIsThePoint->x*scale, whatIsThePoint->y*scale, whatIsThePoint->z*scale);
+			v.addPoint(coordinate,patch);
+
 			//cout << *whatIsThePoint << endl;
 		}
 		std::cout << "# Visualizer finished, lets see some balls!\n";

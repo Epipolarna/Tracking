@@ -46,8 +46,6 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 
 	cam1->id = 0;
 	cam2->id = 1;
-	cam1->P = GO.P1;
-	cam2->P = GO.P2;
 	cam1->K = K;
 	cam2->K = K;
 
@@ -58,10 +56,6 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	cameraPair.back().F = F;
 	cameraPair.back().E = E;
 
-	std::cout << "P:\n" << cam1->P << "\n";
-	
-	using namespace std;
-	
 	int n = 5;
 	estimateRt(E, cam2->R, cam2->t, cv::Point3d(GO.point3D.at<double>(0,n), GO.point3D.at<double>(1,n), GO.point3D.at<double>(2,n)));
 	
@@ -73,16 +67,15 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	cv::hconcat(cam2->R, cam2->t, cam2->C);	
 	cam1->P = K*cam1->C;
 	cam2->P = K*cam2->C;
-
 	
 	//triangulate like a BAWS
 	cv:: Mat HomPoints3D;
 	cv::triangulatePoints(cam1->P, cam2->P, GO.inlier1, GO.inlier2, HomPoints3D);
 	HomPoints3D.convertTo(HomPoints3D, CV_64FC1);
 	
+	// Fill up the data hierarchy (visibility etc)
 	for(int n = 0; n < HomPoints3D.size().width; n++)
 	{
-		//cout << HomPoints3D.col(n) << endl;
 		p3d = new cv::Point3d(HomPoints3D.at<double>(0,n)/HomPoints3D.at<double>(3,n),
 							  HomPoints3D.at<double>(1,n)/HomPoints3D.at<double>(3,n),
 							  HomPoints3D.at<double>(2,n)/HomPoints3D.at<double>(3,n));
@@ -117,10 +110,29 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 	cameraPair.back().F = F;
 	cameraPair.back().E = E;
 
+	int n = 5;
+	estimateRt(E, cam2->R, cam2->t, cv::Point3d(GO.point3D.at<double>(0,n), GO.point3D.at<double>(1,n), GO.point3D.at<double>(2,n)));
+	
+	std::cout << "K: " << std::endl << K << std::endl;
+	std::cout << "R: " << std::endl << cam2->R << std::endl;
+	std::cout << "t: " << std::endl << cam2->t << std::endl;
+
+	cv::hconcat(cam1->R, cam1->t, cam1->C);
+	cv::hconcat(cam2->R, cam2->t, cam2->C);	
+	cam1->P = K*cam1->C;
+	cam2->P = K*cam2->C;
+	
+	//triangulate like a BAWS
+	cv:: Mat HomPoints3D;
+	cv::triangulatePoints(cam1->P, cam2->P, GO.inlier1, GO.inlier2, HomPoints3D);
+	HomPoints3D.convertTo(HomPoints3D, CV_64FC1);
+
 	// Fill up the data hierarchy (visibility etc)
-	for(int n = 0; n < GO.point3D.size().width; n++)
+	for(int n = 0; n < HomPoints3D.size().width; n++)
 	{
-		p3d = new cv::Point3d(GO.point3D.at<double>(0,n), GO.point3D.at<double>(1,n), GO.point3D.at<double>(2,n));
+		p3d = new cv::Point3d(HomPoints3D.at<double>(0,n)/HomPoints3D.at<double>(3,n),
+							  HomPoints3D.at<double>(1,n)/HomPoints3D.at<double>(3,n),
+							  HomPoints3D.at<double>(2,n)/HomPoints3D.at<double>(3,n));
 		if(isUnique3DPoint(cam1, GO.inlier1[n], &p3d))
 		{
 			visible3DPoint.push_back(Visible3DPoint(p3d, ObserverPair(cam1, cam2, pointPair(GO.inlier1[n],GO.inlier2[n]))));

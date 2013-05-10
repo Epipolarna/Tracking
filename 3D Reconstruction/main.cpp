@@ -39,10 +39,12 @@ void keyPoints2Points(vector<KeyPoint>& src, vector<Point>& dst )
 		dst.push_back(it->pt);
 	}
 }
+
 int main()
 {
 	// Variables
 	//--------------
+	int cameraAmount = 1;
 	int version = 1;
 	clock_t t_BA, t_mainLoop;
 	std::string fileName;
@@ -105,7 +107,7 @@ int main()
 	
 		// Main loop
 		//--------------------	
-		for(int imageCounter = 1; imageCounter < 1; imageCounter++)
+		for(int imageCounter = 1; imageCounter < cameraAmount; imageCounter++)
 		{
 				std::cout << "# Iteration " << imageCounter+1 << " started..\n";
 				t_mainLoop = clock();
@@ -129,12 +131,13 @@ int main()
 
 	if(programState == LOADFROMFILE || programState == ESTIMATE3D)
 	{
+		double scale = 100;
 		std::cout << "# Starting Visualizer...\n";
 		vis::Visualizer v = vis::Visualizer();
 		vector<Visible3DPoint> pvector = dinosaurModel.visible3DPoint;
 		for(vector<Visible3DPoint>::iterator it = pvector.begin(); it != pvector.end(); ++it){
 			cv::Point3d* whatIsThePoint = it->point3D;
-			v.addPoint(whatIsThePoint->x,whatIsThePoint->y,whatIsThePoint->z);
+			v.addPoint(whatIsThePoint->x*scale,whatIsThePoint->y*scale,whatIsThePoint->z*scale);
 			//cout << *whatIsThePoint << endl;
 		}
 		std::cout << "# Visualizer finished, lets see some balls!\n";

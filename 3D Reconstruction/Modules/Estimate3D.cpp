@@ -46,6 +46,8 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 
 	cam1->id = 0;
 	cam2->id = 1;
+	cam1->P = GO.P1;
+	cam2->P = GO.P2;
 	cam1->K = K;
 	cam2->K = K;
 
@@ -59,10 +61,32 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	std::cout << "P:\n" << cam1->P << "\n";
 	
 	using namespace std;
-	// Fill up the data hierarchy (visibility etc)
-	for(int n = 0; n < GO.point3D.size().width; n++)
+	
+	int n = 5;
+	estimateRt(E, cam2->R, cam2->t, cv::Point3d(GO.point3D.at<double>(0,n), GO.point3D.at<double>(1,n), GO.point3D.at<double>(2,n)));
+	
+	std::cout << "K: " << std::endl << K << std::endl;
+	std::cout << "R: " << std::endl << cam2->R << std::endl;
+	std::cout << "t: " << std::endl << cam2->t << std::endl;
+
+	cv::hconcat(cam1->R, cam1->t, cam1->C);
+	cv::hconcat(cam2->R, cam2->t, cam2->C);	
+	cam1->P = K*cam1->C;
+	cam2->P = K*cam2->C;
+
+	
+	//triangulate like a BAWS
+	cv:: Mat HomPoints3D;
+	cv::triangulatePoints(cam1->P, cam2->P, GO.inlier1, GO.inlier2, HomPoints3D);
+	HomPoints3D.convertTo(HomPoints3D, CV_64FC1);
+	
+	for(int n = 0; n < HomPoints3D.size().width; n++)
 	{
-		p3d = new cv::Point3d(GO.point3D.at<double>(0,n), GO.point3D.at<double>(1,n), GO.point3D.at<double>(2,n));
+		//cout << HomPoints3D.col(n) << endl;
+		p3d = new cv::Point3d(HomPoints3D.at<double>(0,n)/HomPoints3D.at<double>(3,n),
+							  HomPoints3D.at<double>(1,n)/HomPoints3D.at<double>(3,n),
+							  HomPoints3D.at<double>(2,n)/HomPoints3D.at<double>(3,n));
+		//cout << *p3d << endl;
 		visible3DPoint.push_back(Visible3DPoint(p3d, ObserverPair(cam1, cam2, pointPair(GO.inlier1[n],GO.inlier2[n]))));
 		
 		// Convert to C-normalized image coordinates
@@ -74,23 +98,13 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 		cameraPair.back().pointPairs.push_back(pointPair(GO.inlier1[n], GO.inlier2[n]));
 		cameraPair.back().point3Ds.push_back(p3d);
 	}
-
-	estimateRt(E, cam2->R, cam2->t, *p3d);
-	
-	std::cout << "K: " << std::endl << K << std::endl;
-	std::cout << "R: " << std::endl << cam2->R << std::endl;
-	std::cout << "t: " << std::endl << cam2->t << std::endl;
-
-	cv::hconcat(cam1->R, cam1->t, cam1->C);
-	cv::hconcat(cam2->R, cam2->t, cam2->C);	
-	cam1->P = K*cam1->C;
-	cam2->P = K*cam2->C;
 }
+
 
 void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2)
 {
 	GoldStandardOutput GO;
-	cv::Point3d * p3d;
+	cv::Point3d * p3d = 0;
 	cv::Mat F = getGoldStandardF(p1,p2, K, &GO);
 	cv::Mat E = K.t()*F*K;
 
@@ -282,18 +296,15 @@ cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2
 void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d)
 {
 	using namespace std;
-	cv::Mat K1de, K2de, R1de, R2de, t1de, t2de;
-
-	// KalasKlas R & t Algoritm
-	cv::Mat U, S, V, Vt, tHyp, W, R1, R2, x1, x21, x22, x23, x24;
+	cv::Mat U, S, V, Vt, W, R1, R2, C1, C21, C22, C23, C24, x1, x21, x22, x23, x24, y11, y21, y22, y23, y24;
 
 	// Decompose Essential matrix
 	cv::SVDecomp(E, S, U, Vt);
 	V = Vt.t();
 
 	// Translation is found as third column of V
-	tHyp = V.col(2);
-	cv::normalize(tHyp, tHyp);
+	t = V.col(2);
+	cv::normalize(t, t);
 
 	// Define W. Will be used to find R
 	double Wdata[] = {0, 1, 0,
@@ -306,96 +317,39 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d)
 	R2 = V*W*U.t();
 
 	// Pick a corresponding 3D point
+	//p3d = new cv::Point3d(GO.point3D.at<double>(0,9), GO.point3D.at<double>(1,9), GO.point3D.at<double>(2,9));
 	x1 = cv::Mat(p3d);
-	cout << "x1: " << x1 << endl;
+	
 
 	// Calculate position of 3D point relative the four posible cameras
-	x21 = R1*x1 + tHyp;
-	x22 = R1*x1 - tHyp;
-	x23 = R2*x1 + tHyp;
-	x24 = R2*x1 - tHyp;
+	x21 = R1*x1 + t;
+	x22 = R1*x1 - t;
+	x23 = R2*x1 + t;
+	x24 = R2*x1 - t;
 
-	cout << "x21: " << x21 << endl;
-	cout << "x22: " << x22 << endl;
-	cout << "x23: " << x23 << endl;
-	cout << "x24: " << x24 << endl;
-
-	double smallestDiff, diff[4], sign[4];
-	int cameraConfiguration = 0;
-	diff[0] = cv::norm(x1-x21);
-	diff[1] = cv::norm(x1-x22);
-	diff[2] = cv::norm(x1-x23);
-	diff[3] = cv::norm(x1-x24);
-	smallestDiff = diff[0];
-	sign[0] = *x21.row(2).col(0).ptr<double>();
-	sign[1] = *x22.row(2).col(0).ptr<double>();
-	sign[2] = *x23.row(2).col(0).ptr<double>();
-	sign[3] = *x24.row(2).col(0).ptr<double>();
-
-
-	for (int i = 1; i < 4; i++)
-	{
-		if ((diff[i] < smallestDiff) && (sign[i] > 0))
-		{
-			smallestDiff = diff[i];
-			cameraConfiguration = i;
-		}
-	}
-
-	cout << "Diff: " << smallestDiff << endl;
-
-	switch (cameraConfiguration)
-	{
-		case 0:
-			cout << "Configuration 1" << endl;
-			R = R1;
-			t = tHyp;
-			break;
-
-		case 1:
-			cout << "Configuration 2" << endl;
-			R = R1;
-			t = -tHyp;
-			break;
-
-		case 2:
-			cout << "Configuration 3" << endl;
-			R = R2;
-			t = tHyp;
-			break;
-
-		case 3:
-			cout << "Configuration 4" << endl;
-			R = R2;
-			t = -tHyp;
-			break;
-	}
-
-	/*
-	//triangulate like a BAWS
-	cv:: Mat HomPoints3D;
-	cv::triangulatePoints(C1Klas, C2Klas, GO.inlier1, GO.inlier2, HomPoints3D);
-	HomPoints3D.convertTo(HomPoints3D, CV_64FC1);
 	
-	for(int n = 0; n < HomPoints3D.size().width; n++)
+	if ( *x21.row(2).col(0).ptr<double>() > 0)
 	{
-		//cout << HomPoints3D.col(n) << endl;
-		p3d = new cv::Point3d(HomPoints3D.at<double>(0,n)/HomPoints3D.at<double>(3,n),
-							  HomPoints3D.at<double>(1,n)/HomPoints3D.at<double>(3,n),
-							  HomPoints3D.at<double>(2,n)/HomPoints3D.at<double>(3,n));
-		//cout << *p3d << endl;
-		visible3DPoint.push_back(Visible3DPoint(p3d, ObserverPair(cam1, cam2, pointPair(GO.inlier1[n],GO.inlier2[n]))));
-		
-		// Convert to C-normalized image coordinates
-		cam1->imagePoints.push_back(GO.inlier1[n]);
-		cam2->imagePoints.push_back(GO.inlier2[n]);
-
-		cam1->visible3DPoints.push_back(p3d);
-		cam2->visible3DPoints.push_back(p3d);
-		cameraPair.back().pointPairs.push_back(pointPair(GO.inlier1[n], GO.inlier2[n]));
-		cameraPair.back().point3Ds.push_back(p3d);
-	}*/
+		R = R1;
+		t = t;
+	}
+	else if ( *x22.row(2).col(0).ptr<double>() > 0)
+	{
+		R = R1;
+		t = -t;
+	}
+	else if ( *x23.row(2).col(0).ptr<double>() > 0)
+	{
+		R = R2;
+		t = t;
+	}
+	else if ( *x24.row(2).col(0).ptr<double>() > 0)
+	{
+		R = R2;
+		t = -t;
+	}
 }
+
 
 void Estimate3D::saveToFile(std::string path)
 {

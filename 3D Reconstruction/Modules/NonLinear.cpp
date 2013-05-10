@@ -274,6 +274,7 @@ namespace NonLinear
 		//Save data.
 		for(std::list<Camera*>::iterator it = views.begin(); it != views.end(); it++)
 		{
+			
 			Rodrigues((*it)->R, rVec);
 			data.rotations.push_back(rVec);
 			data.translations.push_back((*it)->t.rowRange(cv::Range(0,3)) / (*it)->t.ptr<double>()[3]);
@@ -311,9 +312,22 @@ namespace NonLinear
 
 
 		double* paramArray = params.data();
+		double accErr = 0;
+		std::vector<double> error;
+		error.resize(residualTerms);
+		
+		BAResiduals(paramArray, error.data(), (int)params.size(),residualTerms,&data);
+		for (int i = 0; i < residualTerms; i++)
+		{
+			accErr += pow(error[i],2);
+			//cout << error[i] << endl;
+			error[i] = 0;
+		}
+		//cout << "INITIAL ERROR PROPER: " << accErr << endl;
 		double info[LM_INFO_SZ];
 		int ret;
-		ret = dlevmar_dif(BAResiduals, paramArray, NULL, (int)params.size(),residualTerms,10000,NULL,info,NULL,NULL,&data);
+		
+		ret = dlevmar_dif(BAResiduals, paramArray, error.data(), (int)params.size(),residualTerms,10000,NULL,info,NULL,NULL,&data);
 		printf("Levenberg-Marquardt returned in %g iter, reason %g, output error %g with an initial error of [%g]\n", info[5], info[6], info[1], info[0]);
 	
 		//Rebuild

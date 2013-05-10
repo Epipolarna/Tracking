@@ -24,6 +24,9 @@
 using namespace cv;
 using namespace std;
 
+#define mFileName(stringSource, name, version, subversion, filetype) { std::stringstream ss; ss << name << version << '.' << subversion << filetype; stringSource = ss.str(); }
+#define mElapsedTime(t) ((float)(clock() - t))/CLOCKS_PER_SEC
+
 NonLinear::NonLinear nonlin;
 
 
@@ -38,6 +41,20 @@ void keyPoints2Points(vector<KeyPoint>& src, vector<Point>& dst )
 }
 int main()
 {
+	// Variables
+	//--------------
+	int version = 1;
+	clock_t t_BA, t_mainLoop;
+	std::string fileName;
+	mFileName(fileName,"iteration",version,1.1,"alx");
+	double Kdata[9] = {	3217.328669180762, -78.606641008226180, 289.8672403229193,
+							0,					2292.424143977958,  -1070.516234777778,
+							0,					0,					1};
+	cv::Mat K = cv::Mat(3,3,CV_64FC1,Kdata);
+
+	// Stuffs
+	//--------------
+
 	//namedWindow("win1");
 	//((namedWindow("win2");
 	
@@ -51,64 +68,65 @@ int main()
 	//saveMatches(&matchesVector, "data.alx");
 	loadMatches(&matchesVector, "data.alx");
 
-	vector<Point2d> bestPoints1;
-	vector<Point2d> bestPoints2;
-	vector<Point2d> bestPoints21;
-	vector<Point2d> bestPoints22;
+	vector<Point2d> imagePoints1;
+	vector<Point2d> imagePoints2;
 
 	for (vector<pointPair>::iterator i = matchesVector.begin()->begin(); i < matchesVector.begin()->end(); i++)
 	{
-		bestPoints1.push_back(i->p1);
-		bestPoints2.push_back(i->p2);
+		imagePoints1.push_back(i->p1);
+		imagePoints2.push_back(i->p2);
 	}
 	
-	// Tiger
-	//--------------------
-	Estimate3D dinosaurModel;
 
-	double Kdata[9] = {	3217.328669180762, -78.606641008226180, 289.8672403229193,
-							0,					2292.424143977958,  -1070.516234777778,
-							0,					0,					1};
-	cv::Mat K = cv::Mat(3,3,CV_64FC1,Kdata);
+	// Pre Main loop
+	//--------------------		
 	NonLinear::NonLinear nonlin(K);
-	dinosaurModel.init(bestPoints1, bestPoints2, K);
-	dinosaurModel.saveToFile("iteration1.alx");
-	dinosaurModel.clear();
-	dinosaurModel.loadFromFile("iteration1.alx");
-	dinosaurModel.saveToFile("iteration2.alx");
-
-
-	clock_t t;
-	t = clock();
+	Estimate3D dinosaurModel;
+	
+		std::cout << "Iteration " << 1 << " started..\n";	
+		t_mainLoop = clock();
+	dinosaurModel.init(imagePoints1, imagePoints2, K);
+	dinosaurModel.saveToFile(fileName);
+	
+		std::cout << "| Bundle adjustment started..\n";
+		t_BA = clock();
 	nonlin.BundleAdjust(dinosaurModel.cameras, &dinosaurModel.visible3DPoint);
-	std::cout << "Bundle adjustment time: " << ((float)(clock() - t))/CLOCKS_PER_SEC << std::endl;
+		std::cout << "| Bundle adjustment finished! \n";
+		std::cout << "|		Bundle adjustment time: " << mElapsedTime(t_BA) << " sec\n";
+		mFileName(fileName,"iteration",version,1.2,"alx");
+	dinosaurModel.saveToFile(fileName);
+			std::cout << "Iteration " << 1 << " Finished!\n";
+			std::cout << "| Main loop time: " << mElapsedTime(t_mainLoop) << " sec\n";
+			std::cout << "------------------------------";
 	
-	/* Taffligt försök till att läsa fler bilder.
-	vector<Point2d> alxPoints1;
-	vector<Point2d> alxPoints2;
-	int imCounter = 1;
-	do
+	// Main loop
+	//--------------------	
+	for(int imageCounter = 1; imageCounter < 1; imageCounter++)
 	{
-		
-		for (vector<pointPair>::iterator i = matchesVector[imCounter].begin(); i < matchesVector[imCounter].end(); i++)
+			std::cout << "Iteration " << imageCounter+1 << " started..\n";
+			t_mainLoop = clock();
+		imagePoints1.clear();
+		imagePoints2.clear();
+		for (vector<pointPair>::iterator i = matchesVector[imageCounter].begin(); i < matchesVector[imageCounter].end(); i++)
 		{
-			alxPoints1.push_back(i->p1);
-			alxPoints2.push_back(i->p2);
-
-			//cout << i->p1 << endl;
-			//cout << i->p2 << endl;
+			imagePoints1.push_back(i->p1);
+			imagePoints2.push_back(i->p2);
 		}
-		dinosaurModel.addView(alxPoints1, alxPoints2);
+		dinosaurModel.addView(imagePoints1, imagePoints2);
+			mFileName(fileName,"iteration",version,imageCounter+1.1,"alx");
+		dinosaurModel.saveToFile(fileName);
+			std::cout << "| Bundle adjustment started..\n";
+			t_BA = clock();
 		nonlin.BundleAdjust(dinosaurModel.cameras, &dinosaurModel.visible3DPoint);
+			std::cout << "| Bundle adjustment finished! \n";
+			std::cout << "|		Bundle adjustment time: " << mElapsedTime(t_BA) << " sec\n";
+			mFileName(fileName,"iteration",version,imageCounter+1.2,"alx");
+		dinosaurModel.saveToFile(fileName);
 		
-		imCounter++;
-	} while(imCounter < 9);*/
-	
-	Camera * cam2 = dinosaurModel.cameras.back();
-	cout << "P2:\n " << cam2->P << "\n";
-	cout << "K:\n " << cam2->K << "\n";
-	cout << "R:\n " << cam2->R << "\n";
-	cout << "t:\n " << cam2->t << "\n";
+			std::cout << "Iteration " << imageCounter+1 << " Finished!\n";
+			std::cout << "| Main loop time: " << mElapsedTime(t_mainLoop) << " sec\n";
+			std::cout << "------------------------------";
+	}
 	vis::Visualizer v = vis::Visualizer();
 	vector<Visible3DPoint> pvector = dinosaurModel.visible3DPoint;
 	for(vector<Visible3DPoint>::iterator it = pvector.begin(); it != pvector.end(); ++it){

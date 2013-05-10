@@ -46,8 +46,6 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 
 	cam1->id = 0;
 	cam2->id = 1;
-	cam1->P = GO.P1;
-	cam2->P = GO.P2;
 	cam1->K = K;
 	cam2->K = K;
 
@@ -78,38 +76,33 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	}
 
 	estimateRt(E, cam2->R, cam2->t, *p3d);
-
-	cout << "K: " << endl << K << endl;
-	cout << "R: " << endl << cam2->R << endl;
-	cout << "t: " << endl << cam2->t << endl;
-
-	cv::hconcat(cam1->R, cam1->t, cam1->P);
-	cv::hconcat(cam2->R, cam2->t, cam2->P);
 	
-	cam1->P = K*cam1->P;
-	cam2->P = K*cam2->P;
+	std::cout << "K: " << std::endl << K << std::endl;
+	std::cout << "R: " << std::endl << cam2->R << std::endl;
+	std::cout << "t: " << std::endl << cam2->t << std::endl;
+
+	cv::hconcat(cam1->R, cam1->t, cam1->C);
+	cv::hconcat(cam2->R, cam2->t, cam2->C);	
+	cam1->P = K*cam1->C;
+	cam2->P = K*cam2->C;
 }
 
 void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2)
 {
 	GoldStandardOutput GO;
-	cv::Mat F = getGoldStandardF(p1,p2, cameras.back()->K, &GO);
 	cv::Point3d * p3d;
+	cv::Mat F = getGoldStandardF(p1,p2, K, &GO);
+	cv::Mat E = K.t()*F*K;
+
 	Camera * cam1 = cameras.back();
 	Camera * cam2 = new Camera();
 	cameras.push_back(cam2);
 	
-	// Estimate R and t for the cameras
-	/*vconcat(cam1->R, cv::Mat::zeros(1,3,CV_64FC1), cam1->C);
-	hconcat(cam1->C, cam1->t/cam1->t.at<float>(0,3), cam1->C);
-	cam1->P.at<float>(3,3) = 1;*/
 	cam2->id = cam1->id+1;
-	cam2->P = GO.P2;
-	decomposeProjectionMatrix(cam2->P, cam2->K, cam2->R, cam2->t);
+	cameraPair.push_back(CameraPair(cam1,cam2));
+	cameraPair.back().F = F;
+	cameraPair.back().E = E;
 
-	// TODO: change coordinates of cam2 to the global coordinate system (the one which cam1 is in)
-
-	// Fill up the data hierarchy (visibility etc)
 	// Fill up the data hierarchy (visibility etc)
 	for(int n = 0; n < GO.point3D.size().width; n++)
 	{
@@ -134,6 +127,16 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 		}
 	}
 
+	// Estimate R and t for the cameras
+	estimateRt(E, cam2->R, cam2->t, *p3d);
+
+	// Change coordinates of cam2 to the global coordinate system (the one which cam1 is in)	
+	cv::hconcat(cam2->R*cam1->R, cam2->t+cam1->t, cam2->C);	
+	cam2->P = K*cam2->C;
+
+	std::cout << "K: " << std::endl << K << std::endl;
+	std::cout << "R: " << std::endl << cam2->R << std::endl;
+	std::cout << "t: " << std::endl << cam2->t << std::endl;
 }
 
 bool isUnique3DPoint(Camera * cam, cv::Point2f p2D, cv::Point3d ** p3D)

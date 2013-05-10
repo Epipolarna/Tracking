@@ -64,6 +64,9 @@ int main()
 //-----------------------------------
 	if(programState == ePROGRAM_STATE::CALCULATE_CORRESPONDANCES)
 	{		
+		corrEx.readImages();
+		corrEx.findMatches();
+		corrEx.saveMatches("data.alx");
 		std::cout << "Correspondances are computed and saved to file!\n";
 	}
 	else
@@ -77,7 +80,7 @@ int main()
 	if(programState == ePROGRAM_STATE::ESTIMATE3D)
 	{
 		// Load matches
-		//loadMatches(&matchesVector, "data.alx");
+		corrEx.loadMatches("data.alx");
 
 		vector<Point2d> imagePoints1;
 		vector<Point2d> imagePoints2;

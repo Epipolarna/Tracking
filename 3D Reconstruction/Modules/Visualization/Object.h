@@ -1,6 +1,7 @@
 #pragma once
 #include <opencv2\core\core.hpp>
 #include "Model.h"
+#include "Texture.h"
 
 using namespace cv;
 
@@ -14,6 +15,10 @@ public:
 
 	void draw(void);
 	void updateMatrices();
+
+
+	Texture *tex;
+	int textureSize;
 
 	GLuint program;
 	Vec3f scale;

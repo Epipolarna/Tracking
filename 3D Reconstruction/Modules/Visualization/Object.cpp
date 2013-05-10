@@ -6,9 +6,10 @@ namespace vis{
 Object::Object(GLuint p, Model* nm, float nx, float ny, float nz){
 	program = p;
 	position = Vec3f(nx,ny,nz);
-	scale = Vec3f(1.0,1.0,1.0);
+	scale = Vec3f(0.5,0.5,0.5);
 	rotAngles = Vec3f(0,0,0);
 	m = nm;
+	tex = NULL;
 }
 
 
@@ -21,6 +22,11 @@ void Object::draw(void){
 	updateMatrices();
 	glUniformMatrix4fv(glGetUniformLocation(program, "scaleTrans"), 1, GL_TRUE, scaleTrans.ptr<GLfloat>());
 	glUniformMatrix4fv(glGetUniformLocation(program, "objectRot"), 1, GL_TRUE, totalRot.ptr<GLfloat>());
+
+	if(tex != NULL){
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, tex->refId);
+	}
 	m->draw(program);
 }
 

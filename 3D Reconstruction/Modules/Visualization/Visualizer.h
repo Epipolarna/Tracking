@@ -16,13 +16,13 @@
 #include "VisualisationDisplayCameraClass.h"
 #include "Model.h"
 #include "Object.h"
+#include "Texture.h"
 
 
 using namespace std;
 using namespace cv;
 
 namespace vis{
-
 
 class Visualizer{
 
@@ -31,18 +31,17 @@ public:
 	~Visualizer(void);
 
 	void addPoint(GLfloat x, GLfloat y, GLfloat z);
+	void addPoint(Vec3f, Mat texture);
 	void addCamera(Mat externalParameters);
 
 	void mainLoop();
-
 private:
 	
 	void initGL(void);
 	void uploadGeometry(void);
 	void generateSphere(void);
 	void redraw(void);
-
-
+	GLuint* imageToTexture(Mat texture);
 
 	//variables
 	Shader shader;

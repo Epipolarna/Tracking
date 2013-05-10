@@ -54,6 +54,14 @@ void Visualizer::addPoint(GLfloat x, GLfloat y, GLfloat z){
 	plottedPoints.push_back(Object(shader.programRef,sphereModel,x,y,z));
 }
 
+void Visualizer::addPoint(Vec3f pos, Mat texture){
+	Object newPoint = Object(shader.programRef,sphereModel,pos[0],pos[1],pos[2]);
+
+	Texture *tex = new Texture();
+	tex->dataFromMatrix(texture);
+	newPoint.tex = tex;
+	plottedPoints.push_back(newPoint);
+}
 
 void Visualizer::mainLoop(){
 	bool running = true;

@@ -11,8 +11,11 @@ void main(void){
 
 	const vec3 light = vec3(0.5,1.0,0.5);
 	const vec4 color = vec4(1.0,0.5,1.0,1.0);
+	
+	float ambientCoeff = 0.5;
+	float diffuseCoeff = 0.5;
 
-	float shade = dot(normalize(exNormal),light);
+	float diffuseComponent = dot(normalize(exNormal),normalize(light));
 
-	outColor = color;
+	outColor = (ambientCoeff + diffuseCoeff*diffuseComponent) * color;
 }

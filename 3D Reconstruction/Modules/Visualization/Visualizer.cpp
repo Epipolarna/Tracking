@@ -37,10 +37,10 @@ Visualizer::~Visualizer(void){
 }
 
 void Visualizer::addCamera(Mat externalParameters){
-
-	float x = externalParameters.at<float>(0,3);
-	float y = externalParameters.at<float>(1,3);
-	float z = externalParameters.at<float>(2,3);
+	
+	float x = externalParameters.at<double>(0,3);
+	float y = externalParameters.at<double>(1,3);
+	float z = externalParameters.at<double>(2,3);
 
 	Object newCamera = Object(shader.programRef,boxModel,x,y,z);
 

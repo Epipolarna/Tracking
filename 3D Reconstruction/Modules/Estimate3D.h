@@ -2,13 +2,15 @@
 #define _ESTIMATE3D_H_
 
 #include <iostream>
-#include <opencv\cv.h>
-#include "Camera.h"
-#include "Modules/NonLinear.h"
-#include <time.h>
+#include <algorithm>
+#include <vector>
 #include <string>
 #include <sstream>
 #include <map>
+#include <time.h>
+#include <opencv\cv.h>
+#include "Camera.h"
+#include "Modules/NonLinear.h"
 #include "Parser.h"
 
 /* Estimate3D
@@ -54,6 +56,7 @@ public:
 	cv::Mat K;	//Internal Camera parameters
 	std::vector<View> views;
 
+private:
 	Parser parser;
 public:
 	Estimate3D(void);
@@ -66,13 +69,14 @@ public:
 	void saveToFile(std::string path);
 	void loadFromFile(std::string path);
 
+	
+	bool isUnique3DPoint(cv::Point3d ** p3D);
+
 	void clear();
 };
 
 void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d);
 
-// Checks is p3D is new to cam. If it isn't then it is pointed to the old one ((*p3D) = old)
-bool isUnique3DPoint(Camera * cam, cv::Point2f p2D, cv::Point3d ** p3D);
 
 
 cv::Mat crossop(cv::Mat vector);

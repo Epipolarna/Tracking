@@ -44,7 +44,7 @@ int main()
 {
 	// Variables
 	//--------------
-	int cameraAmount = 1;
+	int cameraAmount = 2;
 	int version = 1;
 	clock_t t_BA, t_mainLoop;
 	std::string fileName;
@@ -62,11 +62,10 @@ int main()
 
 	// Select program state
 	//programState = ePROGRAM_STATE::CALCULATE_CORRESPONDANCES;
-	programState = ePROGRAM_STATE::ESTIMATE3D;
-	//programState = ePROGRAM_STATE::LOADFROMFILE;
+	//programState = ePROGRAM_STATE::ESTIMATE3D;
+	programState = ePROGRAM_STATE::LOADFROMFILE;
 	
-	
-	fileName = "iteration1.2.alx";
+	fileName = "iteration2.1.alx";
 
 // The main program and it's 3 states
 //-----------------------------------
@@ -119,12 +118,12 @@ int main()
 			imagePoints2.clear();
 			corrEx.getBAPoints(imageCounter, imagePoints1, imagePoints2);
 			dinosaurModel.addView(imagePoints1, imagePoints2);
-			dinosaurModel.saveToFile("iteration"+std::to_string(version)+".1.alx");
+			dinosaurModel.saveToFile("iteration"+std::to_string(imageCounter+1)+".1.alx");
 				std::cout << "# | Bundle adjustment started..\n";
 				t_BA = clock();
 			nonlin.BundleAdjust(dinosaurModel.cameras, &dinosaurModel.visible3DPoint);
 				std::cout << "# |	Bundle adjustment time: " << mElapsedTime(t_BA) << " sec\n";
-			dinosaurModel.saveToFile("iteration"+std::to_string(version)+".2.alx");
+			dinosaurModel.saveToFile("iteration"+std::to_string(imageCounter+1)+".2.alx");
 		
 				std::cout << "# Iteration " << imageCounter+1 << " Finished!\n";
 				std::cout << "# | Main loop time: " << mElapsedTime(t_mainLoop) << " sec\n";
@@ -138,8 +137,11 @@ int main()
 		std::cout << "# Starting Visualizer...\n";
 		vis::Visualizer v = vis::Visualizer();
 		vector<Visible3DPoint> pvector = dinosaurModel.visible3DPoint;
-		vector<Mat> imageList;
-		readImages(&imageList);
+		corrEx.readImages("data/dinosaur/im (", 37, ").ppm");
+		vector<Mat> imageList = corrEx.imageList;
+
+		for(std::list<Camera*>::iterator i = dinosaurModel.cameras.begin(); i != dinosaurModel.cameras.end(); i++)
+			v.addCamera((*i)->C);
 
 		for(vector<Visible3DPoint>::iterator it = pvector.begin(); it != pvector.end(); ++it){
 			cv::Point3d* whatIsThePoint = it->point3D;
@@ -148,7 +150,7 @@ int main()
 			imageCoordinate = it->observerPair.front().point2D.p1;
 
 			Mat image = imageList.at(camer1ID);
-			Mat patch = image(Rect(imageCoordinate.x-16,imageCoordinate.y-16,32,32));
+			Mat patch = image(Rect(imageCoordinate.x,imageCoordinate.y,2,2));
 
 			cv::Vec3f coordinate = Vec3f(whatIsThePoint->x*scale, whatIsThePoint->y*scale, whatIsThePoint->z*scale);
 			v.addPoint(coordinate,patch);

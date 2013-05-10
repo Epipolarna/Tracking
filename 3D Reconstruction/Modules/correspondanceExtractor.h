@@ -35,7 +35,7 @@ public:
 
 	cv::Mat K;
 
-private:
+public:
 	std::vector<cv::Mat> imageList;
 	std::vector< std::vector<pointPair> > matchesVector;
 

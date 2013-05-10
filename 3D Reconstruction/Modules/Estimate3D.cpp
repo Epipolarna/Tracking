@@ -112,28 +112,29 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 
 	int n = 5;
 	estimateRt(E, cam2->R, cam2->t, cv::Point3d(GO.point3D.at<double>(0,n), GO.point3D.at<double>(1,n), GO.point3D.at<double>(2,n)));
-	
+	// Change coordinates of cam2 to the global coordinate system (the one which cam1 is in)	
+	cv::hconcat(cam2->R*cam1->R, cam2->t+cam1->t, cam2->C);	
+	cam2->P = K*cam2->C;
+
 	std::cout << "K: " << std::endl << K << std::endl;
 	std::cout << "R: " << std::endl << cam2->R << std::endl;
 	std::cout << "t: " << std::endl << cam2->t << std::endl;
 
-	cv::hconcat(cam1->R, cam1->t, cam1->C);
-	cv::hconcat(cam2->R, cam2->t, cam2->C);	
-	cam1->P = K*cam1->C;
-	cam2->P = K*cam2->C;
 	
 	//triangulate like a BAWS
 	cv:: Mat HomPoints3D;
 	cv::triangulatePoints(cam1->P, cam2->P, GO.inlier1, GO.inlier2, HomPoints3D);
 	HomPoints3D.convertTo(HomPoints3D, CV_64FC1);
 
+	cv::Mat a,c,r;
+	int m = 1;
 	// Fill up the data hierarchy (visibility etc)
 	for(int n = 0; n < HomPoints3D.size().width; n++)
 	{
 		p3d = new cv::Point3d(HomPoints3D.at<double>(0,n)/HomPoints3D.at<double>(3,n),
 							  HomPoints3D.at<double>(1,n)/HomPoints3D.at<double>(3,n),
 							  HomPoints3D.at<double>(2,n)/HomPoints3D.at<double>(3,n));
-		if(isUnique3DPoint(cam1, GO.inlier1[n], &p3d))
+		if(isUnique3DPoint(&p3d))
 		{
 			visible3DPoint.push_back(Visible3DPoint(p3d, ObserverPair(cam1, cam2, pointPair(GO.inlier1[n],GO.inlier2[n]))));
 			cam1->imagePoints.push_back(GO.inlier1[n]);
@@ -142,6 +143,10 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 			cam2->visible3DPoints.push_back(p3d);
 			cameraPair.back().pointPairs.push_back(pointPair(GO.inlier1[n], GO.inlier2[n]));
 			cameraPair.back().point3Ds.push_back(p3d);
+			/*a = cv::Mat(*p3d);
+			c = cam1->R*a + cam1->t;	// Change coordinate system to the global coordinate system(the one of the initial first camera)
+			*p3d = cv::Point3d(c);
+			*/
 		}
 		else
 		{
@@ -150,24 +155,48 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 			cam2->visible3DPoints.push_back(p3d);
 			cameraPair.back().pointPairs.push_back(pointPair(GO.inlier1[n], GO.inlier2[n]));
 			cameraPair.back().point3Ds.push_back(p3d);
+			std::cout << m << ") Unique point found!";
+			m++;
 		}
 	}
 
 	// Estimate R and t for the cameras
-	estimateRt(E, cam2->R, cam2->t, *p3d);
+	//estimateRt(E, cam2->R, cam2->t, *p3d);
 
-	// Change coordinates of cam2 to the global coordinate system (the one which cam1 is in)	
-	cv::hconcat(cam2->R*cam1->R, cam2->t+cam1->t, cam2->C);	
-	cam2->P = K*cam2->C;
-
-	std::cout << "K: " << std::endl << K << std::endl;
-	std::cout << "R: " << std::endl << cam2->R << std::endl;
-	std::cout << "t: " << std::endl << cam2->t << std::endl;
 }
 
-bool isUnique3DPoint(Camera * cam, cv::Point2f p2D, cv::Point3d ** p3D)
+
+bool LessThanVisible3DPoint(Visible3DPoint & left, Visible3DPoint & right) { return point3dLessThan()(*left.point3D, *right.point3D); }
+
+bool Estimate3D::isUnique3DPoint(cv::Point3d ** p3D)
 {
-	// TODO: Loop through cam's image points and find a match to p2D. Optionaly: find such match that additionally has a close p3D..
+	double margin = 0.1;
+	cv::Point3d * closestMatch = 0;
+	double minError = 1000000000;
+	int e;
+
+	//std::sort(visible3DPoint.begin(), visible3DPoint.end(), LessThanVisible3DPoint);
+
+	for(std::vector<Visible3DPoint>::iterator i = visible3DPoint.begin(); i != visible3DPoint.end(); i++)
+	{
+		if( i->point3D->x < (**p3D).x+margin && (**p3D).x-margin < i->point3D->x &&
+			i->point3D->y < (**p3D).y+margin && (**p3D).y-margin < i->point3D->y &&
+			i->point3D->z < (**p3D).z+margin && (**p3D).z-margin < i->point3D->z)
+		{
+			if(e = i->point3D->x*(**p3D).x + i->point3D->y*(**p3D).y + i->point3D->z*(**p3D).z < minError)
+			{
+				minError = e;
+				closestMatch = i->point3D;
+			}
+		}
+	}
+
+	if(closestMatch != 0)
+	{
+		delete *p3D;
+		*p3D = closestMatch;
+		return false;
+	}
 
 	return true;
 }
@@ -247,9 +276,6 @@ cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2
 		{
 			inliers1.push_back(points1[i]);
 			inliers2.push_back(points2[i]);
-
-			//std::cout << points1[i] << std::endl;
-			//std::cout << points2[i] << std::endl;
 		}
 	}
 	//Get epipolar point coordinates for P2 estimation
@@ -398,7 +424,7 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d)
 	cout << "R2: " << R2 << endl;
 	cout << "t :" << t << endl;
 	cout << cv::determinant(R) << endl;
-	/*
+	
 	if ( *x21.row(2).col(0).ptr<double>() > 0)
 	{
 		cout << "Configuration 1" << endl;
@@ -423,10 +449,14 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d)
 		R = R2;
 		t = -t;
 	}
+	else
+	{
+		std::cout << "!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n - - - HELP, no R & t found?! - - -\n!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+	}
 	
 	cout << R << endl;
 	cout << t << endl;
-	*/
+	
 }
 
 

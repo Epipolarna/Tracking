@@ -336,7 +336,7 @@ namespace NonLinear
 		for(std::list<Camera*>::iterator it = views.begin(); it != views.end(); it++)
 		{
 			Rodrigues(*itRot,(*it)->R);
-			vconcat(*itTrans,data.one,(*it)->t);
+			//vconcat(*itTrans,data.one,(*it)->t); NO U HOMOGENEOUS!
 			hconcat((*it)->R,*itTrans,(*it)->C);
 			(*it)->P = this->K *  (*it)->C;
 			itTrans++;

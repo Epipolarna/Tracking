@@ -5,12 +5,7 @@ using namespace cv;
 
 CorrespondanceExtractor::CorrespondanceExtractor()
 {
-	if(!loadMatches("data.alx"))
-	{
-		readImages();
-		findMatches();
-		saveMatches("data.alx");
-	}
+	
 }
 
 void CorrespondanceExtractor::readImages()

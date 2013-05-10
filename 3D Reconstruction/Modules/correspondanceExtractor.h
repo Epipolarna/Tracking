@@ -25,6 +25,7 @@ class CorrespondanceExtractor
 {
 public:
 	CorrespondanceExtractor();
+	void init();
 	void readImages();
 	void findMatches();
 	void saveMatches(char* filename);

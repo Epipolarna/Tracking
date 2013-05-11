@@ -55,7 +55,7 @@ namespace NonLinear
 		cv::Mat P;		
 
 		cv::Mat K;
-		std::vector<cv::Point3f> float2DPs;
+		std::vector<cv::Point3f> float2Ps;
 		std::vector<cv::Point3f> float3DPs;
 		std::vector<cv::Mat> rotations;
 		std::vector<cv::Mat> translations;

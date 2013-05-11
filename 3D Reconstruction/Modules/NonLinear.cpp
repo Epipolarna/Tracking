@@ -209,8 +209,15 @@ namespace NonLinear
 			//Extract rotation and translation vectors
 			//setDataRange(p,data->rVec.ptr<double>(),i*6,i*6+3);
 			//setDataRange(p,data->t.ptr<double>(),i*6+3,(i+1)*6);
-			setDataRange(p,data->rotations[i].ptr<double>(),i*6,i*6+3);
-			setDataRange(p,data->translations[i].ptr<double>(),i*6+3,(i+1)*6);
+			if (i != 0)
+			{
+				setDataRange(p,data->rotations[i].ptr<double>(),(i-1)*6,(i-1)*6+3);
+				setDataRange(p,data->translations[i].ptr<double>(),(i-1)*6+3,(i+0)*6);
+			}
+			
+			
+			//setDataRange(p,data->rotations[i].ptr<double>(),i*6,i*6+3);
+			//setDataRange(p,data->translations[i].ptr<double>(),i*6+3,(i+1)*6);
 			//cout << "rVec: " << data->rVec << endl;
 			//cout << "tVec: " << data->t << endl;
 			
@@ -418,9 +425,11 @@ namespace NonLinear
 		std::vector<cv::Mat>::iterator itRot = data.rotations.begin();
 		for(std::list<Camera*>::iterator it = views.begin(); it != views.end(); it++)
 		{
-			Rodrigues(*itRot,(*it)->R);
+			cout << "final translation: " << (*itTrans) << endl;
+			cout << "final rotation: " << (*itRot) << endl;
+			Rodrigues((*itRot),(*it)->R);
 			//vconcat(*itTrans,data.one,(*it)->t); NO U HOMOGENEOUS!
-			hconcat((*it)->R,*itTrans,(*it)->C);
+			hconcat((*it)->R,(*itTrans),(*it)->C);
 			(*it)->P = this->K *  (*it)->C;
 			itTrans++;
 			itRot++;

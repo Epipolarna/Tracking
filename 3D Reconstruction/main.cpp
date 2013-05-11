@@ -44,16 +44,19 @@ int main()
 {
 	// Variables
 	//--------------
-	int cameraAmount = 2;
+	int cameraAmount = 1;
 	int version = 1;
 	clock_t t_BA, t_mainLoop;
 	std::string fileName;
 	mFileName(fileName,"iteration",version,1.1,"alx");
 	
+	/*
 	double Kdata[9] = {		3217.328669180762, -78.606641008226180, 289.8672403229193,
 							0,					2292.424143977958,  -1070.516234777778,
 							0,					0,					1};
 	cv::Mat K = cv::Mat(3,3,CV_64FC1,Kdata);
+	*/
+	cv::Mat K = cv::Mat::eye(3,3,CV_64FC1);
 	
 	NonLinear::NonLinear nonlin(K);
 	Estimate3D dinosaurModel;
@@ -62,8 +65,8 @@ int main()
 
 	// Select program state
 	//programState = ePROGRAM_STATE::CALCULATE_CORRESPONDANCES;
-	//programState = ePROGRAM_STATE::ESTIMATE3D;
-	programState = ePROGRAM_STATE::LOADFROMFILE;
+	programState = ePROGRAM_STATE::ESTIMATE3D;
+	//programState = ePROGRAM_STATE::LOADFROMFILE;
 	
 	fileName = "iteration2.1.alx";
 
@@ -85,7 +88,7 @@ int main()
 	if(programState == ePROGRAM_STATE::ESTIMATE3D)
 	{
 		// Load matches
-		corrEx.loadMatches("data.alx");
+		corrEx.loadMatches("data_test.alx");
 
 		vector<Point2d> imagePoints1;
 		vector<Point2d> imagePoints2;
@@ -180,6 +183,9 @@ int main()
 		v.addPoint(cv::Vec3f(10,0,0), patch);
 		v.addPoint(cv::Vec3f(0,10,0), patch);
 		v.addPoint(cv::Vec3f(0,0,10), patch);
+		v.addPoint(cv::Vec3f(5,0,0), patch);
+		v.addPoint(cv::Vec3f(0,5,0), patch);
+		v.addPoint(cv::Vec3f(0,0,5), patch);
 		
 
 

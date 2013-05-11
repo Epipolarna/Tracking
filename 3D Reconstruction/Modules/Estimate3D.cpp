@@ -56,6 +56,8 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	cv::Mat F = getGoldStandardF(p1,p2, K, &GO);
 	//cv::Mat F = getGoldStandardF(p1Cnorm,p2Cnorm, K, &GO);
 
+	std::cout << "GoldF: " << F << "\n";
+
 	cv::Mat RGold = GO.P2.rowRange(cv::Range(0,3)).colRange(cv::Range(0,3));
 	cv::Mat tGold = GO.P2.rowRange(cv::Range(0,3)).colRange(cv::Range(3,4));
 

@@ -23,6 +23,7 @@ public:
 	GLuint program;
 	Vec3f scale;
 	Vec3f position;
+	Vec3f color;
 
 	Vec3f rotAngles;
 

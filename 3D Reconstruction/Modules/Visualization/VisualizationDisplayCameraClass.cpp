@@ -2,8 +2,8 @@
 
 VisualisationDisplayCameraClass::VisualisationDisplayCameraClass()
 {
-	position		= cv::Vec3f(0, 0, 0);
-	lookAtVector	= cv::Vec3f(0, 0, 10);
+	position		= cv::Vec3f(15, 0, 15);
+	lookAtVector	= cv::Vec3f(0, 0, 0);
 	upVector		= cv::Vec3f(0, 1, 0);
 
 	sensitivity = 0.025f;

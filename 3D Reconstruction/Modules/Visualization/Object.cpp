@@ -22,6 +22,7 @@ void Object::draw(void){
 	updateMatrices();
 	glUniformMatrix4fv(glGetUniformLocation(program, "scaleTrans"), 1, GL_TRUE, scaleTrans.ptr<GLfloat>());
 	glUniformMatrix4fv(glGetUniformLocation(program, "objectRot"), 1, GL_TRUE, totalRot.ptr<GLfloat>());
+	glUniform3fv(glGetUniformLocation(program, "color"), 1, cv::Mat(color).ptr<GLfloat>());
 
 	if(tex != NULL){
 		glActiveTexture(GL_TEXTURE0);

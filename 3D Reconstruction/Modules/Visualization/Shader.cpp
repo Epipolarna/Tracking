@@ -101,7 +101,7 @@ void Shader::loadShader(std::string vertexShaderFile, std::string fragmentShader
 	assert(linkStatus != 0);
 	//cout << "link status is: " << linkStatus << endl;
 
-	glUseProgram(programRef);
+	//glUseProgram(programRef);
 
 	//cout << "glUseProgram error is: 0x" << hex << glGetError() << endl;
 

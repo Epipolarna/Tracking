@@ -154,9 +154,35 @@ int main()
 
 			cv::Vec3f coordinate = Vec3f(whatIsThePoint->x*scale, whatIsThePoint->y*scale, whatIsThePoint->z*scale);
 			v.addPoint(coordinate,patch);
-
 			//cout << *whatIsThePoint << endl;
 		}
+	
+		Mat image = imageList.back();
+		Mat patch = image(Rect(0,0,2,2));
+		/*
+		cout << "Patch: " << patch << endl;
+		char colorR[3] = {1,0,0};
+		char colorG[3] = {0,1,0};
+		char colorB[3] = {0,0,1};
+							
+		cv::Mat red = cv::imread("red.jpg", CV_LOAD_IMAGE_ANYCOLOR);
+		cv::Mat green = cv::imread("green.jpg", CV_LOAD_IMAGE_ANYCOLOR);
+		cv::Mat blue = cv::imread("blue.jpg", CV_LOAD_IMAGE_ANYCOLOR);
+							
+		//cv::Mat c1 = cv::Mat(1,1, , colorR);
+		cv::Mat c2 = cv::Mat(1,1, patch.type(), colorG);
+		cv::Mat c3 = cv::Mat(1,1, patch.type(), colorB);
+
+		//cout << "c1: " << c1 << endl;
+		cout << "c2: " << c2 << endl;
+		cout << "c3: " << c3 << endl;
+		*/
+		v.addPoint(cv::Vec3f(10,0,0), patch);
+		v.addPoint(cv::Vec3f(0,10,0), patch);
+		v.addPoint(cv::Vec3f(0,0,10), patch);
+		
+
+
 		std::cout << "# Visualizer finished, lets see some balls!\n";
 		v.mainLoop();
 

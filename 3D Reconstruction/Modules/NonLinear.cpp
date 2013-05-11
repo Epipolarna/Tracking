@@ -406,7 +406,7 @@ namespace NonLinear
 		std::vector<double> error;
 		error.resize(residualTerms);
 		
-		BAResiduals2(paramArray, error.data(), (int)params.size(),residualTerms,&data);
+		BAResiduals(paramArray, error.data(), (int)params.size(),residualTerms,&data);
 		for (int i = 0; i < residualTerms; i++)
 		{
 			accErr += pow(error[i],2);
@@ -417,7 +417,7 @@ namespace NonLinear
 		double info[LM_INFO_SZ];
 		int ret;
 		
-		ret = dlevmar_dif(BAResiduals2, paramArray, error.data(), (int)params.size(),residualTerms,10000,NULL,info,NULL,NULL,&data);
+		ret = dlevmar_dif(BAResiduals, paramArray, error.data(), (int)params.size(),residualTerms,10000,NULL,info,NULL,NULL,&data);
 		printf("Levenberg-Marquardt returned in %g iter, reason %g, output error %g with an initial error of [%g]\n", info[5], info[6], info[1], info[0]);
 	
 		//Rebuild

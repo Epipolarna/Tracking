@@ -18,11 +18,11 @@ cameraToWorld = @(R,t) [R' -R'*t; 0 0 0 1]
 t1 = [0 0 0]';
 R1 = eye(3);
 t2 = -[1 0 0]';
-R2 = Rx(0.1);%Rx(0.3)*Ry(0.2)*Rz(0.1)
+R2 = Rx(0);%Rx(0.3)*Ry(0.2)*Rz(0.1)
 K = eye(3);
 
 C1 = K*[eye(3) zeros(3,1)]
-C2 = K*[R t]
+C2 = K*[R2 t2]
 
 %% 3D points
 
@@ -33,7 +33,7 @@ p3D = [-1 -1  2
         0  1  2
         0  3  2
         2  1  2
-        2  3  2]*0.5
+        2  3  2]
 
 p3DHom = [p3D ones(8,1)]
     
@@ -59,7 +59,7 @@ plot3(p3D(:,1), p3D(:,2), p3D(:,3), 'x');
 plot3(n1(1), n1(2), n1(3), 'or');
 plot3(n2(1), n2(2), n2(3), 'og');
 plot3(p1(:,1), p1(:,2), zeros(size(p1(:,1))), 'xr');
-plot3(p1(:,2), p2(:,2), zeros(size(p2(:,1))), 'xg');
+plot3(p2(:,2), p2(:,2), zeros(size(p2(:,1))), 'dg');
 
 
 

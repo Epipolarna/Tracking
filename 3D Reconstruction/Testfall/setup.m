@@ -35,10 +35,15 @@ p3D = [-1 -1  2
         2  1  2
         2  3  2]
 
+% sine
 x = -1:0.1:3.1;
-p3D = [x;sin(3.1*x);sin(x)+2]'
+p3D = [x;sin(3.1*x);sin(x)+2]';
 
-p3DHom = [p3D ones(length(p3D),1)]
+% circle
+x = 0:0.1:(2*pi)
+p3D = [cos(x)' sin(x)' 2*ones(size(x))'];
+
+p3DHom = [p3D ones(length(p3D),1)];
     
 %% Visualize
 
@@ -78,7 +83,12 @@ diff = p3D-p3D_
 diff_norm = norm(diff)
 
 
-%% 
+%% F, E
 
+F = fmatrix_stls(p1,p2)
+E = K'*F*K
+
+
+%% 
 
        

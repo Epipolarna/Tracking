@@ -41,7 +41,7 @@ p3D = [x;sin(3.1*x);sin(x)+2]';
 
 % circle
 x = 0:0.1:(2*pi)
-p3D = [cos(x)' sin(x)' 2*ones(size(x))'];
+p3D = [cos(x)' sin(x)' (2+0.25*sin(3*x))'];
 
 p3DHom = [p3D ones(length(p3D),1)];
     
@@ -91,6 +91,14 @@ F = fmatrix_stls(p1,p2)
 E = K'*F*K
 
 
-%% 
+%% Save to file
+
+fid = fopen('data_test.alx','wt');
+fprintf(fid,'# Correspondances for each imagepair in sequnce\n');
+fprintf(fid,'# Imagepair 1\n');
+for n = 1:length(imagePair1)
+   fprintf(fid,'p %0.4f %0.4f %0.4f %0.4f\n',imagePair1(n,1),imagePair1(n,2),imagePair1(n,3),imagePair1(n,4)); 
+end
+fclose(fid);
 
        

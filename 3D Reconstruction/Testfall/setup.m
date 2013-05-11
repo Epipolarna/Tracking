@@ -69,6 +69,8 @@ plot3(p2(:,1), p2(:,2), zeros(size(p2(:,1))), 'dg');
 plot3(n1(1), n1(2), n1(3), 'om');
 plot3(n2(1), n2(2), n2(3), 'oc');
 
+imagePair1 = [p1 p2]
+
 %% Triangulate points - (verification)
 
 % Linear

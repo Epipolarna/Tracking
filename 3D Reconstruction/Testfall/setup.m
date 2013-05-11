@@ -112,6 +112,24 @@ diff_norm = norm(diff)
 F = fmatrix_stls(p1,p2)
 E = K'*F*K
 
+Ferror = 0;
+F1error = 0;
+% Calculate F error
+for i = 1:length(p1)
+    Ferror = Ferror + abs(p1(i,:)*F*p2(i,:)');
+end
+
+Ferror
+
+%% Extract R and t from E
+
+W = [ 0 1 0;
+     -1 0 0;
+      0 0 1];
+  
+[U S V] = svd(E);
+t = V(:,3);
+
 
 %% Save to file
 

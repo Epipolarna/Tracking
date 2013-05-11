@@ -38,13 +38,26 @@ Visualizer::~Visualizer(void){
 
 void Visualizer::addCamera(Mat externalParameters){
 	
+	Mat C = externalParameters;
+
+	Mat R = C.rowRange(Range(0,3)).colRange(Range(0,3));
+	Mat t = C.rowRange(Range(0,3)).colRange(Range(3,4));
+
+	Mat pos = -R.t()*t;
+
+	float x = pos.at<double>(0,0);
+	float y = pos.at<double>(1,0);
+	float z = pos.at<double>(2,0);
+
+	/*
 	float x = externalParameters.at<double>(0,3);
 	float y = externalParameters.at<double>(1,3);
 	float z = externalParameters.at<double>(2,3);
+	*/
 
 	Object newCamera = Object(shader.programRef,boxModel,x,y,z);
 
-	newCamera.scale = Vec3f(2,1,1);
+	newCamera.scale = Vec3f(2,2,0.5);
 	newCamera.totalRot = externalParameters(Rect(0,0,2,2));
 
 	cameras.push_back(newCamera);

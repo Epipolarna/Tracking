@@ -90,7 +90,7 @@ int main()
 
 		vector<Point2d> imagePoints1;
 		vector<Point2d> imagePoints2;
-		corrEx.getBAPoints(1, imagePoints1, imagePoints2);
+		corrEx.getBAPoints(3, imagePoints1, imagePoints2);
 
 		// Pre Main loop
 		//--------------------

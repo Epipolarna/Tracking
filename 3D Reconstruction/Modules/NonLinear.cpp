@@ -219,18 +219,18 @@ namespace NonLinear
 			
 			//setDataRange(p,data->rotations[i].ptr<double>(),i*6,i*6+3);
 			//setDataRange(p,data->translations[i].ptr<double>(),i*6+3,(i+1)*6);
-			//cout << "rVec: " << data->rotations[i]<< endl;
+			cout << "rVec: " << data->rotations[i] << endl;
 			//cout << "tVec: " << data->translations[i] << endl;
 			
-			Rodrigues(data->rotations[i], data->R);
-			//cout << "R: " << data->R << endl;
+			Rodrigues(data->rotations[i].clone(), data->R);
+			cout << "R: " << data->R << endl;
 			hconcat(cv::Mat::eye(3,3,CV_64FC1), -1*data->translations[i].clone(), data->C);
-			//cout <<"C matrix " << data->C << endl;
+			cout <<"C matrix " << data->C << endl;
 			data->C = data->R.t()*data->C;
-			//cout << "C: " << data->C << endl;
-			//cout << "K: " << data->K << endl;
+			cout << "C: " << data->C << endl;
+			cout << "K: " << data->K << endl;
 			data->P = data->K * data->C;
-			//cout << "P: " << data->P << endl;
+			cout << "P: " << data->P << endl;
 			// for all visible 3D points, calculate the reprojection error
 			for(int j = 0; j < data->points3D[i].size(); j++)
 			{
@@ -366,8 +366,24 @@ namespace NonLinear
 		//Save data.
 		for(std::list<Camera*>::iterator it = views.begin(); it != views.end(); it++)
 		{
-			
 			Rodrigues((*it)->R.clone(), rVec);
+			cout << "first R: " << (*it)->R.clone() << endl;
+			
+			/*
+			if(norm(rVec) > 3.14159265)
+			{
+				rVec = (rVec + 3.14159265);
+			}
+			Rodrigues(rVec, data.R);
+			cout << "New Rod R: " << data.R << endl;
+			*/
+			Quaternion q((*it)->R.clone());
+			cv::Mat r = q.toMat();
+			cv::Mat R = q.toR();
+			cout << "Q.R: " << R << "\n";
+			cout << "Q.r: " << r << "\n";
+			
+			cout << "First rVec: " << rVec << endl;
 			data.rotations.push_back(rVec.clone());
 			data.translations.push_back((*it)->t.clone());
 			data.imagePoints.push_back(&((*it)->imagePoints));
@@ -420,8 +436,8 @@ namespace NonLinear
 		double info[LM_INFO_SZ];
 		int ret;
 		
-		ret = dlevmar_dif(BAResiduals, paramArray, error.data(), (int)params.size(),residualTerms,10000,NULL,info,NULL,NULL,&data);
-		printf("Levenberg-Marquardt returned in %g iter, reason %g, output error %g with an initial error of [%g]\n", info[5], info[6], info[1], info[0]);
+		//ret = dlevmar_dif(BAResiduals, paramArray, error.data(), (int)params.size(),residualTerms,10000,NULL,info,NULL,NULL,&data);
+		//printf("Levenberg-Marquardt returned in %g iter, reason %g, output error %g with an initial error of [%g]\n", info[5], info[6], info[1], info[0]);
 	
 		//Rebuild
 		itTrans = data.translations.begin();
@@ -440,6 +456,181 @@ namespace NonLinear
 	
 	}
 
+	
+	/*
+Quaternion::Quaternion(cv::Mat Rvec)
+{ 
+	q0 = std::cos(Rvec.ptr<double>()[0]/2);
+	q1 = std::sin(Rvec.ptr<double>()[0]/2)*Rvec.ptr<double>()[1];
+	q2 = std::sin(Rvec.ptr<double>()[0]/2)*Rvec.ptr<double>()[2];
+	q3 = std::sin(Rvec.ptr<double>()[0]/2)*Rvec.ptr<double>()[3];
+}
 
+
+Quaternion::Quaternion(cv::Mat quarternion)
+{ 
+	q0 = quarternion.ptr<double>()[0];
+	q1 = quarternion.ptr<double>()[1];
+	q2 = quarternion.ptr<double>()[2];
+	q3 = quarternion.ptr<double>()[3];
+	normalize();
+}
+*/
+double sign(double x)
+{
+	return x ? x/std::abs(x) : x;
+}
+
+
+cv::Mat Quaternion::toMat()
+{
+	cv::Mat rtrn(4,1,CV_64FC1);
+	rtrn.ptr<double>()[0] = q[0];
+	rtrn.ptr<double>()[1] = q[1];
+	rtrn.ptr<double>()[2] = q[2];
+	rtrn.ptr<double>()[3] = q[3];
+	return rtrn.clone();
+}
+
+Quaternion::Quaternion(cv::Mat R)
+{
+	const float trace = 1.0f + R.ptr<double>()[0] + R.ptr<double>()[4] + R.ptr<double>()[8];
+
+	if (trace > 0.00001f)
+	{
+		const float s = sqrt(trace) * 2;
+		Quaternion(
+			(R.ptr<double>()[7] - R.ptr<double>()[5]) / s,
+			(R.ptr<double>()[2] - R.ptr<double>()[6]) / s,
+			(R.ptr<double>()[3] - R.ptr<double>()[1]) / s,
+			s / 4);
+	}
+	else if (R.ptr<double>()[0] > R.ptr<double>()[4] && R.ptr<double>()[0] > R.ptr<double>()[8])
+	{
+		const float s = sqrt(1.0f + R.ptr<double>()[0] - R.ptr<double>()[4] - R.ptr<double>()[8]) * 2;
+		Quaternion(
+			s / 4,
+			(R.ptr<double>()[3] + R.ptr<double>()[1]) / s,
+			(R.ptr<double>()[2] + R.ptr<double>()[6]) / s,
+			(R.ptr<double>()[7] - R.ptr<double>()[5]) / s);
+	}
+	else if (R.ptr<double>()[4] > R.ptr<double>()[8])
+	{
+		const float s = sqrt(1.0f + R.ptr<double>()[4] - R.ptr<double>()[0] - R.ptr<double>()[8]) * 2;
+		Quaternion(
+			(R.ptr<double>()[3] + R.ptr<double>()[1]) / s,
+			s / 4,
+			(R.ptr<double>()[7] + R.ptr<double>()[5]) / s,
+			(R.ptr<double>()[2] - R.ptr<double>()[6]) / s);
+	}
+	else
+	{
+		const float s = sqrt(1.0f + R.ptr<double>()[8] - R.ptr<double>()[0] - R.ptr<double>()[4]) * 2;
+		Quaternion(
+			(R.ptr<double>()[2] + R.ptr<double>()[6]) / s,
+			(R.ptr<double>()[7] + R.ptr<double>()[5]) / s,
+			s / 4,
+			(R.ptr<double>()[3] - R.ptr<double>()[1]) / s);
+	}
+	normalize();
+}
+
+/*
+
+double ReciprocalSqrt( double x ) {
+	long i;
+	double y, r;
+	y = x * 0.5f;
+	i = *(long *)( &x );
+	i = 0x5f3759df - ( i >> 1 );
+	r = *(double *)( &i );
+	r = r * ( 1.5f - r * r * y );
+	return r;
+}
+
+Quaternion::Quaternion(cv::Mat R)
+{
+	q[0] = (  R.ptr<double>()[0] + R.ptr<double>()[4] + R.ptr<double>()[8] + 1 ) / 4;
+	q[1] = (  R.ptr<double>()[0] - R.ptr<double>()[4] - R.ptr<double>()[8] + 1 ) / 4;
+	q[2] = ( -R.ptr<double>()[0] + R.ptr<double>()[4] - R.ptr<double>()[8] + 1 ) / 4;
+	q[3] = ( -R.ptr<double>()[0] - R.ptr<double>()[4] + R.ptr<double>()[8] + 1 ) / 4;
+
+	if(q[0] < 0) q[0] = 0;
+	if(q[1] < 0) q[1] = 0;
+	if(q[2] < 0) q[2] = 0;
+	if(q[3] < 0) q[3] = 0;
+
+	q[0] = std::sqrt(q[0]);
+	q[1] = std::sqrt(q[1]);
+	q[2] = std::sqrt(q[2]);
+	q[3] = std::sqrt(q[3]);
+
+	if(q[0] >= q[1] && q[0] >= q[2] && q[0] >= q[3]) {
+		q[0] *= +1.0f;
+		q[1] *= sign(R.ptr<double>()[7] - R.ptr<double>()[5]);
+		q[2] *= sign(R.ptr<double>()[2] - R.ptr<double>()[6]);
+		q[3] *= sign(R.ptr<double>()[3] - R.ptr<double>()[1]);
+	} else if(q[1] >= q[0] && q[1] >= q[2] && q[1] >= q[3]) {
+		q[0] *= sign(R.ptr<double>()[7] - R.ptr<double>()[5]);
+		q[1] *= +1.0f;
+		q[2] *= sign(R.ptr<double>()[3] + R.ptr<double>()[1]);
+		q[3] *= sign(R.ptr<double>()[2] + R.ptr<double>()[6]);
+	} else if(q[2] >= q[0] && q[2] >= q[1] && q[2] >= q[3]) {
+		q[0] *= sign(R.ptr<double>()[2] - R.ptr<double>()[6]);
+		q[1] *= sign(R.ptr<double>()[3] + R.ptr<double>()[1]);
+		q[2] *= +1.0f;
+		q[3] *= sign(R.ptr<double>()[7] + R.ptr<double>()[5]);
+	} else if(q[3] >= q[0] && q[3] >= q[1] && q[3] >= q[2]) {
+		q[0] *= sign(R.ptr<double>()[3] - R.ptr<double>()[1]);
+		q[1] *= sign(R.ptr<double>()[6] + R.ptr<double>()[2]);
+		q[2] *= sign(R.ptr<double>()[7] + R.ptr<double>()[5]);
+		q[3] *= +1.0f;
+	} else {
+		std::cout << "! AIDS IN QUATERNION :(((( Quaternions closed\n";
+	}
+	normalize();
+}
+*/
+
+
+void Quaternion::normalize()
+{
+	q[0] /= norm();
+	q[1] /= norm();
+	q[2] /= norm();
+	q[3] /= norm();
+}
+
+cv::Mat Quaternion::toR()
+{
+	cv::Mat rtrn(3,3,CV_64FC1);
+	normalize();
+	rtrn.ptr<double>()[0] = 1 - 2*(q[1]*q[1] - q[2]*q[2]);
+	rtrn.ptr<double>()[1] = 2*(q[0]*q[1] - q[3]*q[2]);
+	rtrn.ptr<double>()[2] = 2*(q[0]*q[2] + q[3]*q[1]);
+	rtrn.ptr<double>()[3] = 2*(q[0]*q[1] + q[3]*q[2]);
+	rtrn.ptr<double>()[4] = 1 - 2*(q[0]*q[0] - q[2]*q[2]);
+	rtrn.ptr<double>()[5] = 2*(q[1]*q[2] + q[3]*q[0]);
+	rtrn.ptr<double>()[6] = 2*(q[0]*q[2] - q[3]*q[1]);
+	rtrn.ptr<double>()[7] = 2*(q[1]*q[2] - q[3]*q[0]);
+	rtrn.ptr<double>()[8] = 1 - 2*(q[0]*q[0] - q[1]*q[1]);
+	
+	/*
+	rtrn.ptr<double>()[0] = q[0]*q[0] + q[1]*q[1] - q[2]*q[2] - q[3]*q[3];
+	rtrn.ptr<double>()[1] = 2*(q[1]*q[2] - q[0]*q[3]);
+	rtrn.ptr<double>()[2] = 2*(q[1]*q[3] + q[0]*q[2]);
+	rtrn.ptr<double>()[3] = 2*(q[1]*q[2] + q[0]*q[3]);
+	rtrn.ptr<double>()[4] = q[0]*q[0] - q[1]*q[1] + q[2]*q[2] - q[3]*q[3];
+	rtrn.ptr<double>()[5] = 2*(q[2]*q[3] - q[0]*q[1]);
+	rtrn.ptr<double>()[6] = 2*(q[1]*q[3] - q[0]*q[2]);
+	rtrn.ptr<double>()[7] = 2*(q[2]*q[3] + q[0]*q[1]);
+	rtrn.ptr<double>()[8] = q[0]*q[0] - q[1]*q[1] - q[2]*q[2] + q[3]*q[3];*/
+	return rtrn.clone();
+}
+
+double Quaternion::norm()
+{
+	return std::sqrt(q[0]*q[0] + q[1]*q[1] + q[2]*q[2] + q[3]*q[3]);
+}
 	
 }

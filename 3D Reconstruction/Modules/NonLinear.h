@@ -85,6 +85,25 @@ namespace NonLinear
 		
 		
 	};
+
+	class Quaternion
+	{
+	public:
+		double q[4];
+	public:
+		Quaternion() { q[0] = q[1] = q[2] = q[3] = 0; }
+		Quaternion(double q0, double q1, double q2, double q3) { q[0] = q0; q[1] = q1; q[2] = q2; q[3] = q3; }
+		//Quaternion(cv::Mat Rvec);	// Rvec[0] = alpha, Rvec[1] = n1, Rvec[2] = n2, Rvec[3] = n3 (n = normalized axis)
+		//Quaternion(cv::Mat quarternion);	// quarternion[0..3] = q0,q1,q2,q3
+		Quaternion(cv::Mat R);	// R = 3x3 Rotation matrix
+		
+		void normalize();
+		cv::Mat toR();	// 3x3 Rotation matrix
+		cv::Mat toMat();	// 1x4 matrix [q0..q3]
+
+		double norm();	// For internal use, should always return 1 externally
+	};
+
 }
 
 

@@ -18,7 +18,7 @@ cameraToWorld = @(R,t) [R' -R'*t; 0 0 0 1]
 t1 = [0 0 0]';
 R1 = eye(3);
 t2 = -[1 0 0]';
-R2 = Rx(0.1)*Rx(0.3)*Ry(0.2)*Rz(0.1)
+R2 = Rx(0.25)
 K = eye(3);
 
 C1 = K*[eye(3) zeros(3,1)]
@@ -69,24 +69,24 @@ plot3(p2(:,1), p2(:,2), zeros(size(p2(:,1))), 'dg');
 plot3(n1(1), n1(2), n1(3), 'om');
 plot3(n2(1), n2(2), n2(3), 'oc');
 
-imagePair1 = [p1 p2]
+imagePair1 = [p1 p2]    % p1,p2 are image coordinate pairs
 
 %% Adjust image planes to World 
 
 p1Hom = (C1*p3DHom')'
-p1 = [p1Hom(:,1) p1Hom(:,2) p1Hom(:,3)]./[p1Hom(:,3) p1Hom(:,3) p1Hom(:,3)]   % Inhomogenous
-p1Camera = [p1 ones(length(p1), 1)]
+%p1 = [p1Hom(:,1) p1Hom(:,2) p1Hom(:,3)]./[p1Hom(:,3) p1Hom(:,3) p1Hom(:,3)]
+p1Camera = [p1 ones(length(p1), 2)]
 C1tw = cameraToWorld(R1, t1)
 
 p2Hom = (C2*p3DHom')'
-p2 = [p2Hom(:,1) p2Hom(:,2) p2Hom(:,3)]./[p2Hom(:,3) p2Hom(:,3) p2Hom(:,3)]   % Inhomogenous
-p2Camera = [p2 ones(length(p2), 1)]
+%p2 = [p2Hom(:,1) p2Hom(:,2) p2Hom(:,3)]./[p2Hom(:,3) p2Hom(:,3) p2Hom(:,3)]
+p2Camera = [p2 ones(length(p2), 2)]
 C2tw = cameraToWorld(R2, t2)
 
 p2World = C2tw*p2Camera'
 p1World = C1tw*p1Camera'
 
-figure(1); clf; hold on;
+figure(2); clf; hold on;
 plot3(p3D(:,1), p3D(:,2), p3D(:,3), 'x');
 plot3(p1World(1,:), p1World(2,:), p1World(3,:), 'xr');
 plot3(p2World(1,:), p2World(2,:), p2World(3,:), 'dg');
@@ -142,4 +142,22 @@ end
 fprintf(fid,'# Partly Done\n');
 fclose(fid);
 
-       
+
+%% --------------------------------------
+%% Multiple cameras
+%% --------------------------------------
+
+%% Definitions
+t1 = [0 0 0]';
+R1 = eye(3);
+
+t2 = -[1 0 0]';
+R2 = Rx(0.1);
+
+t2 = -[1 1 0]';
+R2 = Rx(0.2);
+
+K = eye(3);
+
+C1 = K*[eye(3) zeros(3,1)]
+C2 = K*[R2 t2]       

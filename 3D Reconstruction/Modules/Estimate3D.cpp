@@ -50,11 +50,14 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 
 	// Convert to camNormalized points
 	cv::vector<cv::Point2d> p1Cnorm, p2Cnorm;
-	standardToNormalizedCoordinates(p1, K, p1Cnorm);
-	standardToNormalizedCoordinates(p2, K, p2Cnorm);
+	//standardToNormalizedCoordinates(p1, K, p1Cnorm);
+	//standardToNormalizedCoordinates(p2, K, p2Cnorm);
 
 	cv::Mat F = getGoldStandardF(p1,p2, K, &GO);
 	//cv::Mat F = getGoldStandardF(p1Cnorm,p2Cnorm, K, &GO);
+	
+	standardToNormalizedCoordinates(p1, K, GO.inlier1);
+	standardToNormalizedCoordinates(p2, K, GO.inlier2);
 
 	std::cout << "GoldF: " << F << "\n";
 
@@ -81,7 +84,7 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	cameraPair.back().E = E;
 
 	int n = 5;
-	estimateRt(E, cam2->R, cam2->t, cv::Point3d(GO.point3D.at<double>(0,n), GO.point3D.at<double>(1,n), GO.point3D.at<double>(2,n)));
+	estimateRt(E, cam2->R, cam2->t, GO.inlier1.front(), GO.inlier2.front());
 	
 	std::cout << "The World According to Master Klas: " << std::endl;
 	std::cout << "K: " << std::endl << K << std::endl;
@@ -147,7 +150,7 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 	cameraPair.back().E = E;
 
 	int n = 5;
-	estimateRt(E, cam2->R, cam2->t, cv::Point3d(GO.point3D.at<double>(0,n), GO.point3D.at<double>(1,n), GO.point3D.at<double>(2,n)));
+	estimateRt(E, cam2->R, cam2->t, GO.inlier1.front(), GO.inlier2.front());
 	// Change coordinates of cam2 to the global coordinate system (the one which cam1 is in)	
 	cv::hconcat(cam2->R*cam1->R, cam2->t+cam1->t, cam2->C);	
 	cam2->P = K*cam2->C;
@@ -334,7 +337,8 @@ cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2
 	
 	//std::cout << "Inlier percentage  " << (double)inliers1.size()/(double)points1.size()*100 << std::endl;
 	//std::cout << "Fundamental Matrix: " << F << std::endl;
-	//nonlin.goldStandardRefine(F.clone(), inliers1,inliers2);
+	std::cout << "OpenCV F before GS: " << F.clone()/F.at<double>(2,2) << std::endl;
+	nonlin.goldStandardRefine(F.clone()/F.at<double>(2,2), inliers1,inliers2);
 	
 	
 	//Actual call to the nonlinear part of the goldstandard estimation
@@ -344,11 +348,12 @@ cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2
 	F = F/F.at<double>(2,2);	// Normalize
 	std::cout << "Gold standard nonlin time: " << ((float)(clock() - t))/CLOCKS_PER_SEC << std::endl;
 
-	//std::cout << "Refined Fundamental Matrix: " << F << std::endl;
+	std::cout << "Refined Fundamental Matrix: " << F/F.at<double>(2,2) << std::endl;
 	//std::cout << "det(F): " << determinant(F) << std::endl;
 	//return F/F.at<double>(2,2);
 	//std::cout << "\n\n";
-	//nonlin.goldStandardRefine(F, inliers1,inliers2);
+	std::cout << "OpenCV F AFTER GS: " << F.clone()/F.at<double>(2,2) << std::endl;
+	nonlin.goldStandardRefine(F.clone(), inliers1,inliers2);
 
 	//std::cout << "Refined Fundamental Matrix: " << F << std::endl;
 	//std::cout << "det(F): " << determinant(F) << std::endl;
@@ -358,8 +363,8 @@ cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2
 	{
 		Gout->P1 = P1;
 		Gout->P2 = P2;
-		Gout->inlier1 = cv::vector<cv::Point2f>(inliers1.begin(), inliers1.end());
-		Gout->inlier2 = cv::vector<cv::Point2f>(inliers2.begin(), inliers2.end());
+		Gout->inlier1 = cv::vector<cv::Point2d>(inliers1.begin(), inliers1.end());
+		Gout->inlier2 = cv::vector<cv::Point2d>(inliers2.begin(), inliers2.end());
 		Gout->point3D = normalized3Dpoints;
 	}
 
@@ -367,10 +372,12 @@ cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2
 }
 
 
-void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d)
+void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f p2)
 {
 	using namespace std;
-	cv::Mat U, S, V, Vt, W, R1, R2, C1, C21, C22, C23, C24, x1, x21, x22, x23, x24, y11, y21, y22, y23, y24;
+	cv::Mat U, S, V, Vt, W, R1, R2, C1, C21, C22, C23, C24, x1, x2, x3, x4, x21, x22, x23, x24, y11, y21, y22, y23, y24;
+
+	
 
 	// Decompose Essential matrix
 	cv::SVDecomp(E, S, U, Vt);
@@ -390,23 +397,79 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d)
 	R1 = V*W.t()*U.t();
 	R2 = V*W*U.t();
 
-	// Pick a corresponding 3D point
-	//p3d = new cv::Point3d(GO.point3D.at<double>(0,9), GO.point3D.at<double>(1,9), GO.point3D.at<double>(2,9));
-	x1 = cv::Mat(p3d);
+	C1 = cv::Mat::eye(3,4,CV_64FC1);
+
+	// Create the 4 possible cameras
+	cv::hconcat(R1, t, C21);
+	cv::hconcat(R1,-t, C22);
+	cv::hconcat(R2, t, C23);
+	cv::hconcat(R2,-t, C24);
+
+	// Triangulate the 4 possible 3D-points
+	cv::triangulatePoints(C1, C21, cv::Mat(p1), cv::Mat(p2), x1);
+	cv::triangulatePoints(C1, C22, cv::Mat(p1), cv::Mat(p2), x2);
+	cv::triangulatePoints(C1, C23, cv::Mat(p1), cv::Mat(p2), x3);
+	cv::triangulatePoints(C1, C24, cv::Mat(p1), cv::Mat(p2), x4);
+
+	x1.convertTo(x1, CV_64FC1);
+	x2.convertTo(x2, CV_64FC1);
+	x3.convertTo(x3, CV_64FC1);
+	x4.convertTo(x4, CV_64FC1);
+
+	x1 = x1.rowRange(cv::Range(0,3)).clone()/x1.at<double>(3,0);
+	x2 = x2.rowRange(cv::Range(0,3)).clone()/x2.at<double>(3,0);
+	x3 = x3.rowRange(cv::Range(0,3)).clone()/x3.at<double>(3,0);
+	x4 = x4.rowRange(cv::Range(0,3)).clone()/x4.at<double>(3,0);
 	
 	// Calculate position of 3D point relative the four posible cameras
 	x21 = R1*x1 + t;
-	x22 = R1*x1 - t;
-	x23 = R2*x1 + t;
-	x24 = R2*x1 - t;
+	x22 = R1*x2 - t;
+	x23 = R2*x3 + t;
+	x24 = R2*x4 - t;
 
-	/*
-	cout << x1 << endl;
-	cout << x21 << endl;
-	cout << x22 << endl;
-	cout << x23 << endl;
-	cout << x24 << endl;
-	*/
+	
+	cout << "x1: " << x1 << endl;
+	cout << "x21: " << x21 << endl;
+	cout << "x2: " << x2 << endl;
+	cout << "x22: " << x22 << endl;
+	cout << "x3: " << x3 << endl;
+	cout << "x23: " << x23 << endl;
+	cout << "x4: " << x4 << endl;
+	cout << "x24: " << x24 << endl;
+
+	if ( x21.at<double>(2,0) > 0 && x1.at<double>(2,0) > 0 )
+	{
+		cout << "Configuration 1" << endl;
+		R = R1;
+		t = t;
+	}
+	else if ( x22.at<double>(2,0) > 0 && x2.at<double>(2,0) > 0 )
+	{
+		cout << "Configuration 2" << endl;
+		R = R1;
+		t = -t;
+	}
+	else if ( x23.at<double>(2,0) > 0 && x3.at<double>(2,0) > 0 )
+	{
+		cout << "Configuration 3" << endl;
+		R = R2;
+		t = t;
+	}
+	else if ( x24.at<double>(2,0) > 0 && x4.at<double>(2,0) > 0 )
+	{
+		cout << "Configuration 4" << endl;
+		R = R2;
+		t = -t;
+	}
+	else
+	{
+		std::cout << "!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n - - - HELP, no R & t found?! - - -\n!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+	}
+	
+	return;
+
+
+
 
 	double smallestDiff, diff[4], sign[4];
 	int cameraConfiguration = 0;
@@ -462,7 +525,7 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d)
 	//cout << "R2: " << R2 << endl;
 	//cout << "t :" << t << endl;
 	//cout << cv::determinant(R) << endl;
-	
+	/*
 	if ( *x21.row(2).col(0).ptr<double>() > 0)
 	{
 		cout << "Configuration 1" << endl;
@@ -491,7 +554,7 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d)
 	{
 		std::cout << "!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n - - - HELP, no R & t found?! - - -\n!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 	}
-	
+	*/
 	//cout << R << endl;
 	//cout << t << endl;
 	

@@ -18,7 +18,6 @@
 using namespace cv;
 using namespace std;
 
-#define mFileName(stringSource, name, version, subversion, filetype) { std::stringstream ss; ss << name << version << '.' << subversion << filetype; stringSource = ss.str(); }
 #define mElapsedTime(t) ((float)(clock() - t))/CLOCKS_PER_SEC
 
 NonLinear::NonLinear nonlin;
@@ -48,15 +47,14 @@ int main()
 	int version = 1;
 	clock_t t_BA, t_mainLoop;
 	std::string fileName;
-	mFileName(fileName,"iteration",version,1.1,"alx");
 	
-	/*
+	
 	double Kdata[9] = {		3217.328669180762, -78.606641008226180, 289.8672403229193,
 							0,					2292.424143977958,  -1070.516234777778,
 							0,					0,					1};
 	cv::Mat K = cv::Mat(3,3,CV_64FC1,Kdata);
-	*/
-	cv::Mat K = cv::Mat::eye(3,3,CV_64FC1);
+	
+	//cv::Mat K = cv::Mat::eye(3,3,CV_64FC1);
 	
 	NonLinear::NonLinear nonlin(K);
 	Estimate3D dinosaurModel;
@@ -68,7 +66,7 @@ int main()
 	programState = ePROGRAM_STATE::ESTIMATE3D;
 	//programState = ePROGRAM_STATE::LOADFROMFILE;
 	
-	fileName = "iteration2.1.alx";
+	fileName = "iteration1.2.alx";
 
 // The main program and it's 3 states
 //-----------------------------------
@@ -88,11 +86,11 @@ int main()
 	if(programState == ePROGRAM_STATE::ESTIMATE3D)
 	{
 		// Load matches
-		corrEx.loadMatches("data_test.alx");
+		corrEx.loadMatches("data.alx");
 
 		vector<Point2d> imagePoints1;
 		vector<Point2d> imagePoints2;
-		corrEx.getBAPoints(0, imagePoints1, imagePoints2);
+		corrEx.getBAPoints(1, imagePoints1, imagePoints2);
 
 		// Pre Main loop
 		//--------------------
@@ -106,7 +104,7 @@ int main()
 		nonlin.BundleAdjust(dinosaurModel.cameras, &dinosaurModel.visible3DPoint);
 			std::cout << "# | Bundle adjustment finished! \n";
 			std::cout << "# |		Bundle adjustment time: " << mElapsedTime(t_BA) << " sec\n";
-		dinosaurModel.saveToFile("iteration"+std::to_string(1)+".2.alx");
+ 		dinosaurModel.saveToFile("iteration"+std::to_string(1)+".2.alx");
 				std::cout << "# Iteration " << 1 << " Finished!\n";
 				std::cout << "# | Main loop time: " << mElapsedTime(t_mainLoop) << " sec\n";
 				std::cout << "# -----------------------------\n";
@@ -136,7 +134,7 @@ int main()
 
 	if(programState == LOADFROMFILE || programState == ESTIMATE3D)
 	{
-		double scale = 100;
+		double scale = 50;
 		std::cout << "# Starting Visualizer...\n";
 		vis::Visualizer v = vis::Visualizer();
 		vector<Visible3DPoint> pvector = dinosaurModel.visible3DPoint;

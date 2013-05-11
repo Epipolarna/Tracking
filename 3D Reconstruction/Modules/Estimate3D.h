@@ -75,7 +75,7 @@ public:
 	void clear();
 };
 
-void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d);
+void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f p2);
 void standardToNormalizedCoordinates(cv::vector<cv::Point2d> & inP, cv::Mat K, cv::vector<cv::Point2d> & outP);
 
 
@@ -97,7 +97,7 @@ cv::Mat crossOperator(cv::Mat X);
 struct GoldStandardOutput
 {
 	cv::Mat P1,P2;
-	cv::vector<cv::Point2f> inlier1,inlier2;
+	cv::vector<cv::Point2d> inlier1,inlier2;
 	cv::Mat point3D;	// 3xN
 };
 

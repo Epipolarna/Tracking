@@ -74,7 +74,7 @@ namespace NonLinear
 
 		//tempPoints3D = Mat(3,adata->nPoints3D,CV_64FC1,&p[12]);
 		adata->points3D = Mat(3,adata->nPoints3D,CV_64FC1,&p[12]);
-		adata->F = Mat(3,3,CV_64FC1,p);
+		//adata->F = Mat(3,3,CV_64FC1,p);
 		
 		setDataRange(p,adata->C2.ptr<double>(),0,12);
 
@@ -137,6 +137,7 @@ namespace NonLinear
 		cv::Mat M(adata.C2.clone(), cv::Range(0, 3), cv::Range(0, 3));
 		cv::Mat F(3,3,CV_64FC1);
 		F = crossop(adata.C2.col(3))*M;
+		cout << "Fundamental Matrix: " << F << endl;
 		return F;
 	}
 
@@ -197,9 +198,9 @@ namespace NonLinear
 
 		for(std::vector<Visible3DPoint>::iterator it = data->all3DPoints->begin(); it != data->all3DPoints->end(); it++)
 		{
-			it->point3D->x = p[data->nViews*6 + 3*pointIdx];
-			it->point3D->y = p[data->nViews*6 + 3*pointIdx + 1];
-			it->point3D->z = p[data->nViews*6 + 3*pointIdx + 2];
+			it->point3D->x = p[(data->nViews-1)*6 + 3*pointIdx];
+			it->point3D->y = p[(data->nViews-1)*6 + 3*pointIdx + 1];
+			it->point3D->z = p[(data->nViews-1)*6 + 3*pointIdx + 2];
 			pointIdx++;
 		}
 
@@ -218,12 +219,14 @@ namespace NonLinear
 			
 			//setDataRange(p,data->rotations[i].ptr<double>(),i*6,i*6+3);
 			//setDataRange(p,data->translations[i].ptr<double>(),i*6+3,(i+1)*6);
-			//cout << "rVec: " << data->rVec << endl;
-			//cout << "tVec: " << data->t << endl;
+			//cout << "rVec: " << data->rotations[i]<< endl;
+			//cout << "tVec: " << data->translations[i] << endl;
 			
 			Rodrigues(data->rotations[i], data->R);
 			//cout << "R: " << data->R << endl;
-			hconcat(data->R, data->translations[i], data->C);
+			hconcat(cv::Mat::eye(3,3,CV_64FC1), -1*data->translations[i].clone(), data->C);
+			//cout <<"C matrix " << data->C << endl;
+			data->C = data->R.t()*data->C;
 			//cout << "C: " << data->C << endl;
 			//cout << "K: " << data->K << endl;
 			data->P = data->K * data->C;
@@ -410,10 +413,10 @@ namespace NonLinear
 		for (int i = 0; i < residualTerms; i++)
 		{
 			accErr += pow(error[i],2);
-			//cout << error[i] << endl;
+			//cout << "Pixel error: " <<  error[i] << endl;
 			error[i] = 0;
 		}
-		//cout << "INITIAL ERROR PROPER: " << accErr << endl;
+		cout << "INITIAL ERROR: " << accErr << endl;
 		double info[LM_INFO_SZ];
 		int ret;
 		

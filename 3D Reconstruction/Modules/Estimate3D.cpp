@@ -31,12 +31,34 @@ cv::Mat crossMat(cv::Mat in)
 	return out;
 }
 
+void standardToNormalizedCoordinates(cv::vector<cv::Point2d> & inP, cv::Mat K, cv::vector<cv::Point2d> & outP)
+{
+	cv::Mat Kinv = K.inv();
+	for (cv::vector<cv::Point2d>::iterator i = inP.begin(); i != inP.end(); i++)
+	{
+		cv::Mat p = cv::Mat(*i);
+		cv::vconcat(p, 1, p);
+		p = Kinv*p;
+		outP.push_back(cv::Point2d(p.rowRange(cv::Range(0,2)).clone()));
+	}
+}
 
 void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2, cv::Mat & K_)
 {
 	K = K_.clone();
 	GoldStandardOutput GO;
+
+	// Convert to camNormalized points
+	cv::vector<cv::Point2d> p1Cnorm, p2Cnorm;
+	standardToNormalizedCoordinates(p1, K, p1Cnorm);
+	standardToNormalizedCoordinates(p2, K, p2Cnorm);
+
 	cv::Mat F = getGoldStandardF(p1,p2, K, &GO);
+	//cv::Mat F = getGoldStandardF(p1Cnorm,p2Cnorm, K, &GO);
+
+	cv::Mat RGold = GO.P2.rowRange(cv::Range(0,3)).colRange(cv::Range(0,3));
+	cv::Mat tGold = GO.P2.rowRange(cv::Range(0,3)).colRange(cv::Range(3,4));
+
 	cv::Mat E = K.t()*F*K;
 	cv::Point3d * p3d;
 	Camera * cam1 = new Camera();
@@ -59,14 +81,22 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	int n = 5;
 	estimateRt(E, cam2->R, cam2->t, cv::Point3d(GO.point3D.at<double>(0,n), GO.point3D.at<double>(1,n), GO.point3D.at<double>(2,n)));
 	
+	std::cout << "The World According to Master Klas: " << std::endl;
 	std::cout << "K: " << std::endl << K << std::endl;
 	std::cout << "R: " << std::endl << cam2->R << std::endl;
 	std::cout << "t: " << std::endl << cam2->t << std::endl;
+	std::cout << "The World According to Master GoldStandard: " << std::endl;
+	std::cout << "RGold: " << std::endl << RGold << std::endl;
+	std::cout << "tGold: " << std::endl << tGold << std::endl;
 
 	cv::hconcat(cam1->R, cam1->t, cam1->C);
 	cv::hconcat(cam2->R, cam2->t, cam2->C);	
 	cam1->P = K*cam1->C;
 	cam2->P = K*cam2->C;
+
+	// P1 innehåller en C matris
+	//cam1->C = GO.P1;
+	//cam2->C = GO.P2;
 	
 	//triangulate like a BAWS
 	cv:: Mat HomPoints3D;
@@ -93,11 +123,15 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	}
 }
 
-
 void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2)
 {
 	GoldStandardOutput GO;
 	cv::Point3d * p3d = 0;
+
+	// Convert to camNormalized points
+	cv::vector<cv::Point2d> p1Cnorm, p2Cnorm;
+	standardToNormalizedCoordinates(p1, K, p1Cnorm);
+
 	cv::Mat F = getGoldStandardF(p1,p2, K, &GO);
 	cv::Mat E = K.t()*F*K;
 
@@ -364,12 +398,14 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d)
 	x23 = R2*x1 + t;
 	x24 = R2*x1 - t;
 
+	/*
 	cout << x1 << endl;
 	cout << x21 << endl;
 	cout << x22 << endl;
 	cout << x23 << endl;
 	cout << x24 << endl;
-	
+	*/
+
 	double smallestDiff, diff[4], sign[4];
 	int cameraConfiguration = 0;
 	diff[0] = cv::norm(x1-x21);
@@ -420,10 +456,10 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d)
 			break;
 	}
 	
-	cout << "R1: " << R1 << endl;
-	cout << "R2: " << R2 << endl;
-	cout << "t :" << t << endl;
-	cout << cv::determinant(R) << endl;
+	//cout << "R1: " << R1 << endl;
+	//cout << "R2: " << R2 << endl;
+	//cout << "t :" << t << endl;
+	//cout << cv::determinant(R) << endl;
 	
 	if ( *x21.row(2).col(0).ptr<double>() > 0)
 	{
@@ -454,8 +490,8 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point3d& p3d)
 		std::cout << "!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n - - - HELP, no R & t found?! - - -\n!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 	}
 	
-	cout << R << endl;
-	cout << t << endl;
+	//cout << R << endl;
+	//cout << t << endl;
 	
 }
 

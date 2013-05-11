@@ -97,8 +97,9 @@ fid = fopen('data_test.alx','wt');
 fprintf(fid,'# Correspondances for each imagepair in sequnce\n');
 fprintf(fid,'# Imagepair 1\n');
 for n = 1:length(imagePair1)
-   fprintf(fid,'p %0.4f %0.4f %0.4f %0.4f\n',imagePair1(1,1),imagePair1(1,2),imagePair1(1,3),imagePair1(1,4)); 
+   fprintf(fid,'p %0.4f %0.4f %0.4f %0.4f\n',imagePair1(n,1),imagePair1(n,2),imagePair1(n,3),imagePair1(n,4)); 
 end
+fprintf(fid,'# Partly Done\n');
 fclose(fid);
 
        

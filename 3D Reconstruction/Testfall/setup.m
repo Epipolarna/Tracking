@@ -35,6 +35,9 @@ p3D = [-1 -1  2
         2  1  2
         2  3  2]
 
+x = -1:0.4:2;
+p3D = [x;sin(x);x+2]'
+
 p3DHom = [p3D ones(8,1)]
     
 %% Visualize
@@ -59,7 +62,7 @@ plot3(p3D(:,1), p3D(:,2), p3D(:,3), 'x');
 plot3(n1(1), n1(2), n1(3), 'or');
 plot3(n2(1), n2(2), n2(3), 'og');
 plot3(p1(:,1), p1(:,2), zeros(size(p1(:,1))), 'xr');
-plot3(p2(:,2), p2(:,2), zeros(size(p2(:,1))), 'dg');
+plot3(p2(:,1), p2(:,2), zeros(size(p2(:,1))), 'dg');
 
 
 

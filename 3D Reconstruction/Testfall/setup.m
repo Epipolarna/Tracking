@@ -36,8 +36,14 @@ p3D = [-1 -1  2
         
 %% Visualize
 
-figure(1); clf;
+n1 = cameraCenter(R1,t1);
+n2 = cameraCenter(R2,t2);
+
+figure(1); clf; hold on;
 plot3(p3D(:,1), p3D(:,2), p3D(:,3), 'x');
+plot3(n1(1), n1(2), n1(3), 'or');
+plot3(n2(1), n2(2), n2(3), 'og');
+
 
 
        

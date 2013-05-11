@@ -56,8 +56,8 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	cv::Mat F = getGoldStandardF(p1,p2, K, &GO);
 	//cv::Mat F = getGoldStandardF(p1Cnorm,p2Cnorm, K, &GO);
 	
-	standardToNormalizedCoordinates(p1, K, GO.inlier1);
-	standardToNormalizedCoordinates(p2, K, GO.inlier2);
+	standardToNormalizedCoordinates(GO.inlier1, K, p1Cnorm);
+	standardToNormalizedCoordinates(GO.inlier2, K, p2Cnorm);
 
 	std::cout << "GoldF: " << F << "\n";
 
@@ -84,7 +84,7 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	cameraPair.back().E = E;
 
 	int n = 5;
-	estimateRt(E, cam2->R, cam2->t, GO.inlier1.front(), GO.inlier2.front());
+	estimateRt(E, cam2->R, cam2->t, p1Cnorm.front(), p2Cnorm.front());
 	
 	std::cout << "The World According to Master Klas: " << std::endl;
 	std::cout << "K: " << std::endl << K << std::endl;

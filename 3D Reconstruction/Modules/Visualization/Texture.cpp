@@ -30,13 +30,13 @@ namespace vis{
 
 	void Texture::upload(){
 		glGenTextures(1, &refId);
-		cout << "texture error0 is: 0x" << hex << glGetError() << endl;
+		//cout << "texture error0 is: 0x" << hex << glGetError() << endl;
 		glBindTexture(GL_TEXTURE_2D, refId);
-		cout << "texture error1 is: 0x" << hex << glGetError() << endl;
+		//cout << "texture error1 is: 0x" << hex << glGetError() << endl;
 		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		cout << "texture error2 is: 0x" << hex << glGetError() << endl;
+		//cout << "texture error2 is: 0x" << hex << glGetError() << endl;
 
 		glTexImage2D(GL_TEXTURE_2D,0,GL_RGB,xSize,ySize,0,GL_RGB,GL_UNSIGNED_BYTE,textureData);
-		cout << "texture error3 is: 0x" << hex << glGetError() << endl;
+		//cout << "texture error3 is: 0x" << hex << glGetError() << endl;
 	}
 }

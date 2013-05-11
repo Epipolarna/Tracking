@@ -14,11 +14,13 @@ Rz = @(theta) [ cos(theta) -sin(theta) 0
 %% Definitions
 t = [1 2 3]';
 R = Rx(0.3)*Ry(0.2)*Rz(0.1)
+K = eye(3);
 
-C1 = [eye(3) zeros(3,1)]
-C2 = [R t]
+C1 = K*[eye(3) zeros(3,1)]
+C2 = K*[R t]
 
 %% 3D points
 
 p3D = [2 2 2
+       
        

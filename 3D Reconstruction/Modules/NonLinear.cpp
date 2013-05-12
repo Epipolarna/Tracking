@@ -214,12 +214,13 @@ namespace NonLinear
 			Rodrigues(data->rotations[i].clone(), data->R);
 			//cout << "R: " << data->R << endl;
 			hconcat(cv::Mat::eye(3,3,CV_64FC1), data->translations[i].clone(), data->C);
-			//cout <<"C matrix " << data->C << endl;
+			//cout << "C matrix: \n" << data->C << endl;
+			cout << "R matrix: \n" << data->R << endl;
 			data->C = data->R * data->C;
-			//cout << "C: " << data->C << endl;
-			//cout << "K: " << data->K << endl;
+			cout << "C: \n" << data->C << endl;
+			cout << "K: \n" << data->K << endl;
 			data->P = data->K * data->C;
-			//cout << "P: " << data->P << endl;
+			cout << "P: \n" << data->P << endl;
 			// for all visible 3D points, calculate the reprojection error
 			for(int j = 0; j < data->points3D[i].size(); j++)
 			{
@@ -261,19 +262,14 @@ namespace NonLinear
 		// For all cameras
 		for (int i = 0; i < data->rotations.size(); i++)
 		{
-			//Extract rotation and translation vectors
-			//setDataRange(p,data->rVec.ptr<double>(),i*6,i*6+3);
-			//setDataRange(p,data->t.ptr<double>(),i*6+3,(i+1)*6);
-			//cout << "R: " << data->rotations[i] << endl;
-			//cout << "t: " << data->translations[i] << endl;
-			//for(int k = 0; k < 6; k++)
-			//{
-				//cout << "the fucking params: " <<  p[6*i + k] << std::endl;
-			//}
-			if (i != 0)
+			// Don't change first translation
+			if (i == 1)
+				setDataRange(p,data->rotations[i].ptr<double>(),0,3);
+			// Optimize over rotations and translations
+			if (i > 1)
 			{
-				setDataRange(p,data->rotations[i].ptr<double>(),(i-1)*6,(i-1)*6+3);
-				setDataRange(p,data->translations[i].ptr<double>(),(i-1)*6+3,(i+0)*6);
+				setDataRange(p,data->translations[i].ptr<double>(), 3+6*(i-2), (i-1)*6);
+				setDataRange(p,data->rotations[i].ptr<double>(), (i-1)*6, (i-1)*6+3);
 			}
 				//cout << "rVec: " << data->rVec << endl;
 			//cout << "tVec: " << data->t << endl;
@@ -422,8 +418,8 @@ namespace NonLinear
 		double info[LM_INFO_SZ];
 		int ret;
 		
-		ret = dlevmar_dif(BAResiduals, paramArray, error.data(), (int)params.size(),residualTerms,10000,NULL,info,NULL,NULL,&data);
-		printf("Levenberg-Marquardt returned in %g iter, reason %g, output error %g with an initial error of [%g]\n", info[5], info[6], info[1], info[0]);
+		//ret = dlevmar_dif(BAResiduals, paramArray, error.data(), (int)params.size(),residualTerms,10000,NULL,info,NULL,NULL,&data);
+		//printf("Levenberg-Marquardt returned in %g iter, reason %g, output error %g with an initial error of [%g]\n", info[5], info[6], info[1], info[0]);
 	
 		//Rebuild
 		std::vector<cv::Mat>::iterator itTrans = data.translations.begin();
@@ -442,6 +438,108 @@ namespace NonLinear
 		} 
 	
 	}
+	
+	struct PnPData
+	{
+		cv::Mat rVec, tVec, temp2DPoint, temp3DPoint;
+		cv::Mat R,C,P,K;
+		std::vector<Point3d*>* worldPoints;
+		std::vector<Point2d>* imagePoints;
 
+	};
+
+	void geometricPnPError(double* p, double* error, int m, int n, void* dataPointer)
+	{
+		PnPData* data = static_cast<PnPData*>(dataPointer);
+		data->rVec.ptr<double>()[0] = p[0];
+		data->rVec.ptr<double>()[1] = p[1];
+		data->rVec.ptr<double>()[2] = p[2];
+		data->tVec.ptr<double>()[0] = p[3];
+		data->tVec.ptr<double>()[1] = p[4];
+		data->tVec.ptr<double>()[2] = p[5];
+
+		Rodrigues(data->rVec, data->R);
+		hconcat(data->R, data->tVec, data->C);
+		data->P = data->K * data->C;
+		
+		int errorIdx = 0;
+		for (int i = 0; i < data->imagePoints->size(); i++)
+		{
+			data->temp3DPoint.ptr<double>()[0] = (*data->worldPoints)[i]->x;
+			data->temp3DPoint.ptr<double>()[1] = (*data->worldPoints)[i]->y;
+			data->temp3DPoint.ptr<double>()[2] = (*data->worldPoints)[i]->z;
+			data->temp3DPoint.ptr<double>()[3] = 1;
+
+			data->temp2DPoint = data->P * data->temp3DPoint;
+
+			error[errorIdx] = (*data->imagePoints)[i].x - data->temp2DPoint.ptr<double>()[0] / data->temp2DPoint.ptr<double>()[2];
+			error[errorIdx + 1] = (*data->imagePoints)[i].x - data->temp2DPoint.ptr<double>()[1] / data->temp2DPoint.ptr<double>()[2];
+			errorIdx += 2;		
+		}
+	}
+
+	void NonLinear::PnPSolver(Camera& cam) // minimize reprojecton error over R and t
+	{
+		PnPData data;
+		data.K = this->K;
+		data.rVec = cv::Mat(3,1, CV_64FC1);
+		data.tVec = cv::Mat(3,1, CV_64FC1);
+		data.temp2DPoint = cv::Mat(3,1, CV_64FC1);
+		data.temp3DPoint = cv::Mat(4,1, CV_64FC1);
+		data.R = cv::Mat(3,3,CV_64FC1);
+		data.C = cv::Mat(3,4, CV_64FC1);
+		data.P = cv::Mat(3,4, CV_64FC1);
+		data.worldPoints = &cam.visible3DPoints;
+		data.imagePoints = &cam.imagePoints;
+		Rodrigues(cam.R, data.rVec);
+		data.tVec = cam.t.clone();
+
+		std::vector<double> params;
+		params.push_back(data.rVec.ptr<double>()[0]);
+		params.push_back(data.rVec.ptr<double>()[1]);
+		params.push_back(data.rVec.ptr<double>()[2]);
+		params.push_back(data.tVec.ptr<double>()[0]);
+		params.push_back(data.tVec.ptr<double>()[1]);
+		params.push_back(data.tVec.ptr<double>()[2]);
+
+		double* paramArray = params.data();
+		double info[LM_INFO_SZ];
+		int ret;
+		ret = dlevmar_dif(geometricPnPError, paramArray, NULL, 6,(int)data.imagePoints->size(),10000,NULL,info,NULL,NULL,&data);
+		printf("Levenberg-Marquardt returned in %g iter, reason %g, output error %g with an initial error of [%g]\n", info[5], info[6], info[1], info[0]);
+		
+		Rodrigues(data.rVec, cam.R);
+		cam.t = data.tVec.clone();
+		cam.C = data.C.clone();
+		cam.P = data.P.clone();
+
+	}
+
+
+	/*
+	void PnPSolver(CameraPair& cams)
+	{
+		std::vector<cv::Point2d> Points1, Points2, CnormP1, CnormP2, distCoeffs;
+		std::vector<cv::Point3d> Points3D;
+		cv::Mat rVec, tVec;
+		for (std::vector<pointPair>::iterator it = cams.pointPairs.begin(); it != cams.pointPairs.end(); ++it)
+		{
+			Points1.push_back(it->p1);
+			Points2.push_back(it->p2);
+		}
+		
+		NormalizedCoordinates(Points1, K, CnormP1);
+		standardToNormalizedCoordinates(Points2, K, CnormP2);
+		for (std::vector<Point3d*>::iterator it = cams.point3Ds.begin(); it != cams.point3Ds.end(); it++)
+		{
+			Points3D.push_back(*(*it));
+		}
+		Rodrigues(cams.camera2->R, rVec);
+		bool derp = solvePnP(Points3D, CnormP2, cv::Mat::eye(3,3, CV_64FC1), distCoeffs, rVec, tVec, true);
+		tVec = tVec.rowRange(Range(0,3)).clone() / tVec.ptr<double>()[3];
+		rVec.convertTo(rVec, CV_64FC1);
+		Rodrigues(rVec, cams.camera2->R);
+		tVec.convertTo(cams.camera2->t, CV_64FC1);
+	}*/
 	
 }

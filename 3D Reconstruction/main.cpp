@@ -48,12 +48,19 @@ int main()
 	clock_t t_BA, t_mainLoop;
 	std::string fileName;
 	
-	
+	// Dinosaur K
+	/*
 	double Kdata[9] = {		3217.328669180762, -78.606641008226180, 289.8672403229193,
 							0,					2292.424143977958,  -1070.516234777778,
 							0,					0,					1};
-	cv::Mat K = cv::Mat(3,3,CV_64FC1,Kdata);
 	
+	*/
+
+	double Kdata[9] = { 666.2647,   -1.9125,    399.0122,
+						0,			672.7446,	265.9638,
+						0,          0,			1.0000};
+	
+	cv::Mat K = cv::Mat(3,3,CV_64FC1,Kdata);
 	//cv::Mat K = cv::Mat::eye(3,3,CV_64FC1);
 	
 	NonLinear::NonLinear nonlin(K);
@@ -87,7 +94,7 @@ int main()
 	{
 		// Load matches
 
-		corrEx.loadMatches("data_test_2(withK).alx");
+		corrEx.loadMatches("modelHouse.alx");
 
 		vector<Point2d> imagePoints1;
 		vector<Point2d> imagePoints2;

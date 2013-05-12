@@ -370,30 +370,7 @@ namespace NonLinear
 			cv::Mat R = (*it)->R.clone();
 			cout << "first R: \n" << R << endl << endl;
 			cout << "det(R): \n" << determinant(R) << endl << endl;
-			/*
-			if(determinant(R) < 0)
-			{
-				cout << "!det == -1, fixin'\n";
-				R.col(2) *= -1;
-				cout << "now: det(R): \n" << determinant(R) << endl << endl;
-			}
-			cout << "R*R': \n" << R*R.t() << endl << endl;
-			*/
-			/*
-			if(norm(rVec) > 3.14159265)
-			{
-				rVec = (rVec + 3.14159265);
-			}
-			Rodrigues(rVec, data.R);
-			cout << "New Rod R: " << data.R << endl;
 			
-			Quaternion q(R);
-			cv::Mat Qr = q.toMat();
-			cv::Mat QR = q.toR();
-			cout << "Q.R: \n" << QR << "\n\n";
-			cout << "Q.r: \n" << Qr << "\n\n";
-			cout << "First rVec: " << rVec << endl;
-			*/
 			data.rotations.push_back(rVec.clone());
 			data.translations.push_back((*it)->t.clone());
 			data.imagePoints.push_back(&((*it)->imagePoints));
@@ -439,7 +416,7 @@ namespace NonLinear
 		for (int i = 0; i < residualTerms; i++)
 		{
 			accErr += pow(error[i],2);
-			//cout << "Pixel error: " <<  error[i] << endl;
+			cout << "Pixel error: " <<  error[i] << endl;
 			error[i] = 0;
 		}
 		cout << "INITIAL ERROR: " << accErr << endl;

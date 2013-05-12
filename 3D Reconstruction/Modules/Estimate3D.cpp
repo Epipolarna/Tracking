@@ -72,7 +72,7 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	cam2->K = K;
 
 	estimateRt(E, cam2->R, cam2->t, p1Cnorm.front(), p2Cnorm.front());
-	
+		
 	std::cout << "The World According to Master Klas: " << std::endl;
 	std::cout << "K: " << std::endl << K << std::endl;
 	std::cout << "R: " << std::endl << cam2->R << std::endl;
@@ -402,10 +402,7 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f 
 	// Calculate R
 	R1 = V*W.t()*U.t();
 	R2 = V*W*U.t();
-
-	R1 = R1.t();
-	R2 = R2.t();
-
+	
 	// Same initial, only sign should differ
 	t2 = t1;
 	
@@ -492,6 +489,7 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f 
 	{
 		std::cout << "!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n - - - ERROR: no R & t found?! - - -\n!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 	}
+	//R = R.t();
 	
 	std::cout << "Chosen t: \n" << t << "\n";
 	std::cout << "Chosen R: \n" << R << "\n";

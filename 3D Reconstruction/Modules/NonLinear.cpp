@@ -547,7 +547,7 @@ Quaternion::Quaternion(cv::Mat R)
 			W = (mat[3] - mat[1] ) / S;
 		}
 	}
-	//normalize();
+	normalize();	// Better safe than sorry. But it shouldn't be needed unless faulty rusty rotation matrix..
 }
 
 

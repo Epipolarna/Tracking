@@ -12,6 +12,7 @@
 #include <fstream>
 
 extern std::ofstream errorFile;
+extern std::ofstream logFile;
 
 namespace NonLinear
 {

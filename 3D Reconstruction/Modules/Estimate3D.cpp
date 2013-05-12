@@ -155,23 +155,12 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 	std::cout << "RGold: " << std::endl << RGold << std::endl;
 	std::cout << "tGold: " << std::endl << tGold << std::endl;
 
-	cam2->R = cam2->R*cam1->R;
-	cam2->t = cam2->t + cam1->t;
-
 	cv::hconcat(cam2->R, cam2->t, cam2->C);	
-
 	cam2->P = K*cam2->C;
 
 	cameraPair.push_back(CameraPair(cam1,cam2));
 	cameraPair.back().F = F;
 	cameraPair.back().E = E;
-
-	std::cout << "cam1->R " << std::endl << cam1->R << std::endl;
-	std::cout << "cam1->t " << std::endl << cam1->t << std::endl;
-	std::cout << "cam1->C " << std::endl << cam1->C << std::endl;
-	std::cout << "cam2->R " << std::endl << cam2->R << std::endl;
-	std::cout << "cam2->t " << std::endl << cam2->t << std::endl;
-	std::cout << "cam2->C " << std::endl << cam2->C << std::endl;
 
 	//triangulate like a BAWS
 	cv:: Mat HomPoints3D;
@@ -188,7 +177,7 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 		p3d = new cv::Point3d(HomPoints3D.at<double>(0,n)/HomPoints3D.at<double>(3,n),
 							  HomPoints3D.at<double>(1,n)/HomPoints3D.at<double>(3,n),
 							  HomPoints3D.at<double>(2,n)/HomPoints3D.at<double>(3,n));
-		if(isUnique3DPoint(&p3d))
+		if(isUnique3DPoint(&p3d, cam1, GO.inlier1[n]))
 		{
 			visible3DPoint.push_back(Visible3DPoint(p3d, ObserverPair(cam1, cam2, pointPair(GO.inlier1[n],GO.inlier2[n]))));
 
@@ -220,8 +209,20 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 
 bool LessThanVisible3DPoint(Visible3DPoint & left, Visible3DPoint & right) { return point3dLessThan()(*left.point3D, *right.point3D); }
 
-bool Estimate3D::isUnique3DPoint(cv::Point3d ** p3D)
+bool Estimate3D::isUnique3DPoint(cv::Point3d ** p3D, Camera * c, cv::Point2d & p2D)
 {
+	for(int n = 0; n < c->imagePoints.size(); n++)
+	{
+		if(c->imagePoints[n] == p2D)
+		{
+			delete *p3D;
+			*p3D = c->visible3DPoints[n];
+			return false;
+		}
+	}
+	return true;
+
+	/*
 	double margin = 0.1;
 	cv::Point3d * closestMatch = 0;
 	double minError = 1000000000;
@@ -251,6 +252,7 @@ bool Estimate3D::isUnique3DPoint(cv::Point3d ** p3D)
 	}
 
 	return true;
+	*/
 }
 
 cv::Mat cameraFromFundamentalMatrix(cv::Mat & F)

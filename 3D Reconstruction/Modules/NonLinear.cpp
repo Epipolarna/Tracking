@@ -9,6 +9,7 @@ using namespace std;
 
 
 
+std::ofstream logFile;
 std::ofstream errorFile;
 
 namespace NonLinear
@@ -447,7 +448,8 @@ namespace NonLinear
 			cout << "final rotation: " << (*itRot) << endl;
 			Rodrigues((*itRot),(*it)->R);
 			cout << "final rotation: \n" << (*it)->R << endl << endl;
-			(*it)->t = (*itTrans); // NO U HOMOGENEOUS!
+			//vconcat(*itTrans,data.one,(*it)->t); NO U HOMOGENEOUS!
+			*itTrans = (*it)->t.clone();
 			hconcat((*it)->R,(*itTrans),(*it)->C);
 			(*it)->P = this->K *  (*it)->C;
 			itTrans++;

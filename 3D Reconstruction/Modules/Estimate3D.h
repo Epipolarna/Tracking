@@ -55,7 +55,6 @@ public:
 	std::vector<CameraPair> cameraPair;
 	cv::Mat K;	//Internal Camera parameters
 	std::vector<View> views;
-	std::vector<int> numberOfNew3DPoints;
 
 private:
 	Parser parser;
@@ -71,7 +70,7 @@ public:
 	void loadFromFile(std::string path);
 
 	
-	bool isUnique3DPoint(cv::Point3d ** p3D);
+	bool isUnique3DPoint(cv::Point3d ** p3D, Camera * c, cv::Point2d & p2D);
 
 	void clear();
 };

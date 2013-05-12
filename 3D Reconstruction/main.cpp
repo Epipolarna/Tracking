@@ -45,7 +45,7 @@ int main()
 {
 	// Variables
 	//--------------
-	int cameraAmount = 4;
+	int cameraAmount = 6;
 	int version = 1;
 	clock_t t_BA, t_mainLoop;
 	std::string fileName;
@@ -104,7 +104,7 @@ int main()
 	{
 		// Load matches
 
-		corrEx.loadMatches("dinosaur.alx");
+		corrEx.loadMatches("data_test_3.alx");
 		//corrEx.loadMatches("dinosaur.alx");
 
 		vector<Point2d> imagePoints1;
@@ -193,7 +193,11 @@ int main()
 		vector<Mat> imageList = corrEx.imageList;
 
 		for(std::list<Camera*>::iterator i = dinosaurModel.cameras.begin(); i != dinosaurModel.cameras.end(); i++)
+		{
+			(*i)->t *= scale;
+			cv::hconcat((*i)->R, (*i)->t, (*i)->C);
 			v.addCamera((*i)->C);
+		}
 
 		for(vector<Visible3DPoint>::iterator it = pvector.begin(); it != pvector.end(); ++it){
 			cv::Point3d* whatIsThePoint = it->point3D;
@@ -259,7 +263,7 @@ int main()
 		std::cout << "\n# Welcome to the stand alone viewer 1.0\n################################\n\n";
 		std::cout << "Enter filename (xxx#.#.alx, only the xxx are needed)> ";
 		std::getline(cin, name);
-		fileName = name + "1.2.alx";
+		fileName = name + "2.2.alx";
 		std::cout << "Enter starting scale> ";
 		std::cin >> scale;
 		std::cout << "# Loading file \"" << fileName << "\"..\n";
@@ -508,9 +512,13 @@ void loadFromFile(vis::Visualizer & v, std::string & filename, Estimate3D & dino
 {
 	v.plottedPoints.clear();
 	v.cameras.clear();
-
+		
 	for(std::list<Camera*>::iterator i = dinosaurModel.cameras.begin(); i != dinosaurModel.cameras.end(); i++)
+	{
+		(*i)->t *= scale;
+		cv::hconcat((*i)->R, (*i)->t, (*i)->C);
 		v.addCamera((*i)->C);
+	}
 
 	for(vector<Visible3DPoint>::iterator it = dinosaurModel.visible3DPoint.begin(); it != dinosaurModel.visible3DPoint.end(); ++it){
 		cv::Point3d* whatIsThePoint = it->point3D;

@@ -11,3 +11,5 @@ Navigation:
 	Dec. scale:  	* Mouse xbutton2 click
 					* subtraction-key on keyboard
 	Reload file:	* F5
+	
+	Free the mouse:	* alt+tab to other window (lose focus)

@@ -9,10 +9,13 @@
 #include <libs/levmar/levmar.h> //<<<---- numera på sven.
 #include "Camera.h"
 #include "Estimate3D.h"
+#include <fstream>
 
+extern std::ofstream errorFile;
 
 namespace NonLinear
 {
+	
 	struct goldStandardData
 	{
 		int nPoints;
@@ -79,14 +82,13 @@ namespace NonLinear
 		void goldStandardRefine(cv::Mat F, std::vector<cv::Point2d> points1, std::vector<cv::Point2d> points2);
 		cv::Mat goldNonLin(cv::Mat F, cv::Mat C1, cv::Mat C2, cv::Mat point3D, std::vector<cv::Point2d> points1, std::vector<cv::Point2d> points2);
 		void BundleAdjust(std::list<Camera*>& views, std::vector<Visible3DPoint>* all3DPoints);
-		void PnPSolver(Camera& cam);
+		void PnPSolver();
 	private:
 		// Hard-coded in constructor
 		cv::Mat K;
 		
 		
 	};
-	//
 
 	class Quaternion
 	{

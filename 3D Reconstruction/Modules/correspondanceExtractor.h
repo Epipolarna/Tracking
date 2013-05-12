@@ -33,11 +33,13 @@ public:
 
 	void getBAPoints(int imagePair, std::vector<cv::Point2d>& BAPoints1, std::vector<cv::Point2d>& BAPoints2);
 
-	cv::Mat K;
+	void generateChains();
 
 public:
+	cv::Mat K;
 	std::vector<cv::Mat> imageList;
 	std::vector< std::vector<pointPair> > matchesVector;
+	
 
 };
 

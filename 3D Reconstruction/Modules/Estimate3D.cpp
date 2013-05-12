@@ -155,8 +155,8 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 	std::cout << "RGold: " << std::endl << RGold << std::endl;
 	std::cout << "tGold: " << std::endl << tGold << std::endl;
 	
+	 cam2->t = cam2->R*cam1->t + cam2->t;
 	 cam2->R = cam2->R*cam1->R;
-	 cam2->t = cam2->t + cam1->t;
 
 	 cv::hconcat(cam2->R, cam2->t, cam2->C); 
 	 cam2->P = K*cam2->C;
@@ -249,7 +249,7 @@ bool Estimate3D::isUnique3DPoint(cv::Point3d ** p3D, Camera * c, cv::Point2d & p
 	}
 
 	
-	double margin = 0.1;
+	double margin = 0.05;
 	cv::Point3d * closestMatch = 0;
 	double minError = 1000000000;
 	int e;

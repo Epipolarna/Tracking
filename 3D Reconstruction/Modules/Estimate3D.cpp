@@ -174,20 +174,32 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 
 	//triangulate like a BAWS
 	cv:: Mat HomPoints3D;
+	std::vector<cv::Point3d> point3D;
 	cv::triangulatePoints(cam1->P, cam2->P, GO.inlier1, GO.inlier2, HomPoints3D);
 	HomPoints3D.convertTo(HomPoints3D, CV_64FC1);
+	for(int n = 0; n < HomPoints3D.size().width; n++)
+		point3D.push_back(cv::Point3d( HomPoints3D.at<double>(0,n)/HomPoints3D.at<double>(3,n),
+									   HomPoints3D.at<double>(1,n)/HomPoints3D.at<double>(3,n),
+									   HomPoints3D.at<double>(2,n)/HomPoints3D.at<double>(3,n)));
 	
-	cv::Point3d * p3d;
+	std::vector<int> inlierMask;
+	NonLinear::PnPSolver(*cam2, GO.inlier2, point3D, inlierMask);
 
+	std::cout << "inlierMask.size(): " << inlierMask.size() << "\n";
+	std::cout << "point3D.size(): " << point3D.size() << "\n";
+	std::cout << "cam2->R " << std::endl << cam2->R << std::endl;
+	std::cout << "cam2->t " << std::endl << cam2->t << std::endl;
+	std::cout << "cam2->C " << std::endl << cam2->C << std::endl;
+	cv::Point3d * p3d;
 	cv::Mat a,c,r;
 	int m = 1;
 	int nonUniqueAmount = 0;
 	// Fill up the data hierarchy (visibility etc)
-	for(int n = 0; n < HomPoints3D.size().width; n++)
+	int n;
+	for(int i = 0; i < inlierMask.size(); i++)
 	{
-		p3d = new cv::Point3d(HomPoints3D.at<double>(0,n)/HomPoints3D.at<double>(3,n),
-							  HomPoints3D.at<double>(1,n)/HomPoints3D.at<double>(3,n),
-							  HomPoints3D.at<double>(2,n)/HomPoints3D.at<double>(3,n));
+		n = inlierMask[i];
+		p3d = new cv::Point3d(point3D[n]);
 		if(isUnique3DPoint(&p3d, cam1, GO.inlier1[n]))
 		{
 			visible3DPoint.push_back(Visible3DPoint(p3d, ObserverPair(cam1, cam2, pointPair(GO.inlier1[n],GO.inlier2[n]))));

@@ -91,6 +91,7 @@ namespace NonLinear
 		
 	};
 
+	void PnPSolver(Camera & cam, std::vector<cv::Point2d> & point2d, std::vector<cv::Point3d> & point3d, std::vector<int> & inlierIndices);
 }
 
 

@@ -458,4 +458,27 @@ namespace NonLinear
 	
 	}
 
+	
+	void PnPSolver(Camera & cam, std::vector<cv::Point2d> & point2d, std::vector<cv::Point3d> & point3d, std::vector<int> & inlierIndices)
+	{
+		std::vector<cv::Point2d> CnormPd;
+		std::vector<cv::Point2f> CnormPf;
+		std::vector<cv::Point3f> Points3df;
+		cv::Mat rVec, tVec;
+		standardToNormalizedCoordinates(point2d, cam.K, CnormPd);
+		for(int i = 0; i < CnormPd.size(); i++)
+		{
+			CnormPf.push_back(Point2f(CnormPd[i]));
+			Points3df.push_back(Point3f(point3d[i]));
+		}
+		Rodrigues(cam.R, rVec);
+		tVec = cam.t.clone();
+		solvePnPRansac(Points3df, CnormPf, cv::Mat::eye(3,3, CV_64FC1), cv::Mat(), rVec, tVec, true, 10000, 5.0, 100, inlierIndices);
+		tVec = tVec.rowRange(Range(0,3)).clone() / tVec.ptr<double>()[3];
+		rVec.convertTo(rVec, CV_64FC1);
+		tVec.convertTo(tVec, CV_64FC1);
+		//Rodrigues(rVec, cam.R);
+		//cam.t = tVec.clone();
+	}
+
 }

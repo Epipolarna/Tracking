@@ -5,7 +5,7 @@ namespace vis{
 
 Visualizer::Visualizer(void){
 
-	displayWindow = new sf::Window(sf::VideoMode(800,800),"Visualization");
+	displayWindow = new sf::RenderWindow(sf::VideoMode(800,800),"Visualization");
 	initGL();
 	string pointV = string("point.vert");
 	string pointF = string("point.frag");
@@ -38,26 +38,13 @@ Visualizer::~Visualizer(void){
 
 void Visualizer::addCamera(Mat externalParameters){
 	
-	Mat C = externalParameters;
-
-	Mat R = C.rowRange(Range(0,3)).colRange(Range(0,3));
-	Mat t = C.rowRange(Range(0,3)).colRange(Range(3,4));
-
-	Mat pos = -R.t()*t;
-
-	float x = pos.at<double>(0,0);
-	float y = pos.at<double>(1,0);
-	float z = pos.at<double>(2,0);
-
-	/*
 	float x = externalParameters.at<double>(0,3);
 	float y = externalParameters.at<double>(1,3);
 	float z = externalParameters.at<double>(2,3);
-	*/
 
 	Object newCamera = Object(shader.programRef,boxModel,x,y,z);
 
-	newCamera.scale = Vec3f(2,2,0.5);
+	newCamera.scale = Vec3f(2,1,1);
 	newCamera.totalRot = externalParameters(Rect(0,0,2,2));
 
 	cameras.push_back(newCamera);
@@ -78,6 +65,7 @@ void Visualizer::addPoint(Vec3f pos, Mat texture){
 
 void Visualizer::mainLoop(){
 	bool running = true;
+	bool lockMouse = false;
 	int dx, dy; 
 	dx = dy = 0;
 	cout << "visualizer started..." << endl;
@@ -95,12 +83,19 @@ void Visualizer::mainLoop(){
 			}else if(event.type == sf::Event::KeyPressed){
 				if(event.key.code == sf::Keyboard::Escape)
 					running = false;
-			}
+			}else if(event.type == sf::Event::GainedFocus)
+				lockMouse = true;
+			else if(event.type == sf::Event::LostFocus)
+				lockMouse = false;
 		}
-		dx = sf::Mouse::getPosition(*displayWindow).x - displayWindow->getSize().x / 2;
-		dy = sf::Mouse::getPosition(*displayWindow).y - displayWindow->getSize().y / 2;
-		dy = -dy;
-		sf::Mouse::setPosition(sf::Vector2i(displayWindow->getSize().x / 2, displayWindow->getSize().y / 2),  *displayWindow);
+		if(lockMouse)
+		{
+			dx = sf::Mouse::getPosition(*displayWindow).x - displayWindow->getSize().x / 2;
+			dy = sf::Mouse::getPosition(*displayWindow).y - displayWindow->getSize().y / 2;
+			dy = -dy;
+			sf::Mouse::setPosition(sf::Vector2i(displayWindow->getSize().x / 2, displayWindow->getSize().y / 2),  *displayWindow);
+			cam.updatePosition(dx, dy);
+		}
 		cam.updatePosition(dx, dy);
 		dx = dy = 0;
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

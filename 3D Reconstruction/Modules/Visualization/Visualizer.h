@@ -4,6 +4,7 @@
 #include <GL\GL.h>
 #include <GL\GLU.h>
 #include <SFML/Window.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/OpenGL.hpp>
 #include <opencv2\core\core.hpp>
 #include <iomanip>
@@ -35,7 +36,7 @@ public:
 	void addCamera(Mat externalParameters);
 
 	void mainLoop();
-private:
+public:
 	
 	void initGL(void);
 	void uploadGeometry(void);
@@ -45,7 +46,7 @@ private:
 
 	//variables
 	Shader shader;
-	sf::Window* displayWindow;
+	sf::RenderWindow * displayWindow;
 	vector<Object> plottedPoints;
 	vector<Object> cameras;
 	GLfloat* mdl;

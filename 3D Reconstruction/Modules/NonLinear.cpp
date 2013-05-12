@@ -447,7 +447,7 @@ namespace NonLinear
 			cout << "final rotation: " << (*itRot) << endl;
 			Rodrigues((*itRot),(*it)->R);
 			cout << "final rotation: \n" << (*it)->R << endl << endl;
-			//vconcat(*itTrans,data.one,(*it)->t); NO U HOMOGENEOUS!
+			(*it)->t = (*itTrans); // NO U HOMOGENEOUS!
 			hconcat((*it)->R,(*itTrans),(*it)->C);
 			(*it)->P = this->K *  (*it)->C;
 			itTrans++;

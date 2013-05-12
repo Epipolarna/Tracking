@@ -1,0 +1,12 @@
+Reads files of the type 'alx' and they should be formated as <name><iteration>.<minor>.alx
+where <iteration> is an integer greater than 0 and minor is 1 or 2 (1 = before BA, 2 = after BA)
+
+Navigation:
+	Next file:  	* Mouse right click
+					* Right keyboard arrow
+	Previous file:  * Mouse left click
+					* Left keyboard arrow
+	Inc. scale:  	* Mouse xbutton1 click
+					* addition-key on keyboard
+	Dec. scale:  	* Mouse xbutton2 click
+					* subtraction-key on keyboard

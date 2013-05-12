@@ -424,7 +424,7 @@ namespace NonLinear
 		for (int i = 0; i < residualTerms; i++)
 		{
 			accErr += pow(error[i],2);
-			cout << "Pixel error: " <<  error[i] << endl;
+			//cout << "Pixel error: " <<  error[i] << endl;
 			errorFile << "\t[" << n++ << "]: " << error[i] << "\n";
 			error[i] = 0;
 		}

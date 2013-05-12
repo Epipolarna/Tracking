@@ -154,13 +154,23 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 	std::cout << "The World According to Master GoldStandard: " << std::endl;
 	std::cout << "RGold: " << std::endl << RGold << std::endl;
 	std::cout << "tGold: " << std::endl << tGold << std::endl;
+	
+	 cam2->R = cam2->R*cam1->R;
+	 cam2->t = cam2->t + cam1->t;
 
-	cv::hconcat(cam2->R, cam2->t, cam2->C);	
-	cam2->P = K*cam2->C;
+	 cv::hconcat(cam2->R, cam2->t, cam2->C); 
+	 cam2->P = K*cam2->C;
 
-	cameraPair.push_back(CameraPair(cam1,cam2));
-	cameraPair.back().F = F;
-	cameraPair.back().E = E;
+	 cameraPair.push_back(CameraPair(cam1,cam2));
+	 cameraPair.back().F = F;
+	 cameraPair.back().E = E;
+
+	 std::cout << "cam1->R " << std::endl << cam1->R << std::endl;
+	 std::cout << "cam1->t " << std::endl << cam1->t << std::endl;
+	 std::cout << "cam1->C " << std::endl << cam1->C << std::endl;
+	 std::cout << "cam2->R " << std::endl << cam2->R << std::endl;
+	 std::cout << "cam2->t " << std::endl << cam2->t << std::endl;
+	 std::cout << "cam2->C " << std::endl << cam2->C << std::endl;
 
 	//triangulate like a BAWS
 	cv:: Mat HomPoints3D;
@@ -171,6 +181,7 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 
 	cv::Mat a,c,r;
 	int m = 1;
+	int nonUniqueAmount = 0;
 	// Fill up the data hierarchy (visibility etc)
 	for(int n = 0; n < HomPoints3D.size().width; n++)
 	{
@@ -195,6 +206,7 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 		}
 		else
 		{
+			nonUniqueAmount++;
 			// TODO: Only add the 3D points to the new camera, and add the pairs.. (etc..)
 			cam2->imagePoints.push_back(GO.inlier2[n]);
 			cam2->visible3DPoints.push_back(p3d);
@@ -204,6 +216,9 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 			m++;
 		}
 	}
+	std::cout << "\n\n" << nonUniqueAmount << " non unique found!! :D\n\n";
+	errorFile << "Number of connections (nonUnique): " << nonUniqueAmount << "\n";
+	logFile << "Number of connections (nonUnique): " << nonUniqueAmount << "\n";
 }
 
 
@@ -213,16 +228,15 @@ bool Estimate3D::isUnique3DPoint(cv::Point3d ** p3D, Camera * c, cv::Point2d & p
 {
 	for(int n = 0; n < c->imagePoints.size(); n++)
 	{
-		if(c->imagePoints[n] == p2D)
+		if(cv::norm(c->imagePoints[n] - p2D) < 10)
 		{
 			delete *p3D;
 			*p3D = c->visible3DPoints[n];
 			return false;
 		}
 	}
-	return true;
 
-	/*
+	
 	double margin = 0.1;
 	cv::Point3d * closestMatch = 0;
 	double minError = 1000000000;
@@ -232,15 +246,10 @@ bool Estimate3D::isUnique3DPoint(cv::Point3d ** p3D, Camera * c, cv::Point2d & p
 
 	for(std::vector<Visible3DPoint>::iterator i = visible3DPoint.begin(); i != visible3DPoint.end(); i++)
 	{
-		if( i->point3D->x < (**p3D).x+margin && (**p3D).x-margin < i->point3D->x &&
-			i->point3D->y < (**p3D).y+margin && (**p3D).y-margin < i->point3D->y &&
-			i->point3D->z < (**p3D).z+margin && (**p3D).z-margin < i->point3D->z)
+		if(norm(*i->point3D - (**p3D)) < margin)
 		{
-			if(e = i->point3D->x*(**p3D).x + i->point3D->y*(**p3D).y + i->point3D->z*(**p3D).z < minError)
-			{
-				minError = e;
-				closestMatch = i->point3D;
-			}
+			minError = norm(*i->point3D - (**p3D));
+			closestMatch = i->point3D;
 		}
 	}
 
@@ -251,8 +260,9 @@ bool Estimate3D::isUnique3DPoint(cv::Point3d ** p3D, Camera * c, cv::Point2d & p
 		return false;
 	}
 
+	
+
 	return true;
-	*/
 }
 
 cv::Mat cameraFromFundamentalMatrix(cv::Mat & F)
@@ -316,7 +326,7 @@ cv::Mat getGoldStandardF(cv::vector<cv::Point2d> & points1, cv::vector<cv::Point
 	cv::vector<uchar> inlierMask;
 	cv::Mat P1,P2,dinoHomPoints;
 	// inital Fhat
-	cv::Mat F = findFundamentalMat(points1, points2, CV_FM_RANSAC, RANSAC_threshold, 0.90, inlierMask);
+	cv::Mat F = findFundamentalMat(points1, points2, CV_FM_RANSAC, RANSAC_threshold, 0.99, inlierMask);
 
 	//Extract the inliers in the data
 	cv::vector<cv::Point2d> inliers1;

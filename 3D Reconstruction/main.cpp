@@ -20,7 +20,7 @@ using namespace std;
 
 #define mElapsedTime(t) ((float)(clock() - t))/CLOCKS_PER_SEC
 
-NonLinear::NonLinear nonlin;
+//NonLinear::NonLinear nonlin;
 void loadFromFile(vis::Visualizer & v, std::string & filename, Estimate3D & dinosaurModel, CorrespondanceExtractor & corrEx, double scale);
 
 enum ePROGRAM_STATE
@@ -45,19 +45,16 @@ int main()
 {
 	// Variables
 	//--------------
-	int cameraAmount = 1;
+	int cameraAmount = 4;
 	int version = 1;
 	clock_t t_BA, t_mainLoop;
 	std::string fileName;
 	
-	// Dinosaur K
-	
+	// Dinosaur K	
 	double Kdata[9] = {		3217.328669180762, -78.606641008226180, 289.8672403229193,
 							0,					2292.424143977958,  -1070.516234777778,
 							0,					0,					1};
 	
-	
-
 	/*
 	double Kdata[9] = { 666.2647,   -1.9125,    399.0122,
 						0,			672.7446,	265.9638,
@@ -71,7 +68,16 @@ int main()
 	CorrespondanceExtractor corrEx;
 	vector<vector<pointPair>> matchesVector;
 
-	// Select program state
+	// Debugging
+	errorFile = std::ofstream();
+	errorFile.open("error.txt");
+	if(!errorFile)
+		std::cout << "Error to open \"error.txt\"!!\n";
+	logFile = std::ofstream();
+	logFile.open("log.txt");
+	if(!logFile)
+		std::cout << "Error to open \"log.txt\"!!\n";
+// Select program state
 	//programState = ePROGRAM_STATE::STAND_ALONE_VIEWER;
 	//programState = ePROGRAM_STATE::CALCULATE_CORRESPONDANCES;
 	programState = ePROGRAM_STATE::ESTIMATE3D;
@@ -98,20 +104,22 @@ int main()
 	{
 		// Load matches
 
-		corrEx.loadMatches("data.alx");
+		corrEx.loadMatches("dinosaur.alx");
 		//corrEx.loadMatches("dinosaur.alx");
 
 		vector<Point2d> imagePoints1;
 		vector<Point2d> imagePoints2;
-		corrEx.getBAPoints(10, imagePoints1, imagePoints2);
+		corrEx.getBAPoints(0, imagePoints1, imagePoints2);
 
 		// Pre Main loop
 		//--------------------
+				errorFile << "======================================\n>> Iteration 1 <<\n======================================\n";
+				logFile << "======================================\n>> Iteration 1 <<\n======================================\n";
 			std::cout << "# Iteration " << 1 << " started..\n";	
 			t_mainLoop = clock();
 		dinosaurModel.init(imagePoints1, imagePoints2, K);
 		dinosaurModel.saveToFile("iteration"+std::to_string(1)+".1.alx");
-	
+
 			std::cout << "# | Bundle adjustment started..\n";
 			t_BA = clock();
 		nonlin.BundleAdjust(dinosaurModel.cameras, &dinosaurModel.visible3DPoint);
@@ -121,12 +129,25 @@ int main()
 				std::cout << "# Iteration " << 1 << " Finished!\n";
 				std::cout << "# | Main loop time: " << mElapsedTime(t_mainLoop) << " sec\n";
 				std::cout << "# -----------------------------\n";
+
+		
+		//debug
+		int n = 0;
+		for(std::list<Camera*>::iterator i = dinosaurModel.cameras.begin(); i != dinosaurModel.cameras.end(); i++)
+		{
+			logFile << "Camera " << n << ".C:\n" << (*i)->C << "\n";
+			logFile << "Camera " << n << ".t:\n" << (*i)->t << "\n";
+			logFile << "\n";
+			n++;
+		}
 	
 		// Main loop
 		//--------------------	
 		for(int imageCounter = 1; imageCounter < cameraAmount; imageCounter++)
 		{
 				std::cout << "# Iteration " << imageCounter+1 << " started..\n";
+				errorFile << "\n\n======================================\n>> Iteration " << std::to_string(imageCounter+1) << " <<\n======================================\n";
+				logFile << "\n\n======================================\n>> Iteration " << std::to_string(imageCounter+1) << " <<\n======================================\n";
 				t_mainLoop = clock();
 			imagePoints1.clear();
 			imagePoints2.clear();
@@ -142,8 +163,23 @@ int main()
 				std::cout << "# Iteration " << imageCounter+1 << " Finished!\n";
 				std::cout << "# | Main loop time: " << mElapsedTime(t_mainLoop) << " sec\n";
 				std::cout << "# -----------------------------\n";
+
+				
+		
+			//debug
+			int n = 0;
+			for(std::list<Camera*>::iterator i = dinosaurModel.cameras.begin(); i != dinosaurModel.cameras.end(); i++)
+			{
+				logFile << "Camera " << n << ".C:\n" << (*i)->C << "\n";
+				logFile << "Camera " << n << ".t:\n" << (*i)->t << "\n";
+				logFile << "\n";
+				n++;
+			}
 		}
 	}
+
+	errorFile.close();
+	logFile.close();
 
 
 	if(1); else  // No more viewing here, use the Stand alone "3D reconstruction viewer"

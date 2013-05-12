@@ -48,24 +48,19 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	K = K_.clone();
 	GoldStandardOutput GO;
 
-	// Convert to camNormalized points
-	cv::vector<cv::Point2d> p1Cnorm, p2Cnorm;
-	//standardToNormalizedCoordinates(p1, K, p1Cnorm);
-	//standardToNormalizedCoordinates(p2, K, p2Cnorm);
-
 	cv::Mat F = getGoldStandardF(p1,p2, K, &GO);
-	//cv::Mat F = getGoldStandardF(p1Cnorm,p2Cnorm, K, &GO);
-	
-	standardToNormalizedCoordinates(GO.inlier1, K, p1Cnorm);
-	standardToNormalizedCoordinates(GO.inlier2, K, p2Cnorm);
-
-	std::cout << "GoldF: " << F << "\n";
+	cv::Mat E = K.t()*F*K;
 
 	cv::Mat RGold = GO.P2.rowRange(cv::Range(0,3)).colRange(cv::Range(0,3));
 	cv::Mat tGold = GO.P2.rowRange(cv::Range(0,3)).colRange(cv::Range(3,4));
 
-	cv::Mat E = K.t()*F*K;
-	cv::Point3d * p3d;
+	std::cout << "GoldF: " << F << "\n";
+
+	// Convert to camNormalized points
+	cv::vector<cv::Point2d> p1Cnorm, p2Cnorm;
+	standardToNormalizedCoordinates(GO.inlier1, K, p1Cnorm);
+	standardToNormalizedCoordinates(GO.inlier2, K, p2Cnorm);
+
 	Camera * cam1 = new Camera();
 	Camera * cam2 = new Camera();
 	cameras.push_back(cam1);
@@ -76,14 +71,6 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	cam1->K = K;
 	cam2->K = K;
 
-	cam1->R = cv::Mat::eye(3, 3, CV_64FC1);
-	cam1->t = cv::Mat::zeros(3, 1, CV_64FC1);
-
-	cameraPair.push_back(CameraPair(cam1,cam2));
-	cameraPair.back().F = F;
-	cameraPair.back().E = E;
-
-	int n = 5;
 	estimateRt(E, cam2->R, cam2->t, p1Cnorm.front(), p2Cnorm.front());
 	
 	std::cout << "The World According to Master Klas: " << std::endl;
@@ -94,21 +81,26 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	std::cout << "RGold: " << std::endl << RGold << std::endl;
 	std::cout << "tGold: " << std::endl << tGold << std::endl;
 
+	cam1->R = cv::Mat::eye(3, 3, CV_64FC1);
+	cam1->t = cv::Mat::zeros(3, 1, CV_64FC1);
+
 	cv::hconcat(cam1->R, cam1->t, cam1->C);
 	cv::hconcat(cam2->R, cam2->t, cam2->C);	
 	cam1->P = K*cam1->C;
 	cam2->P = K*cam2->C;
 
-	// P1 innehåller en C matris
-	//cam1->C = GO.P1;
-	//cam2->C = GO.P2;
-	
+	cameraPair.push_back(CameraPair(cam1,cam2));
+	cameraPair.back().F = F;
+	cameraPair.back().E = E;
+
 	//triangulate like a BAWS
 	cv:: Mat HomPoints3D;
 	cv::triangulatePoints(cam1->P, cam2->P, GO.inlier1, GO.inlier2, HomPoints3D);
 	HomPoints3D.convertTo(HomPoints3D, CV_64FC1);
 	
 	// Fill up the data hierarchy (visibility etc)
+	cv::Point3d * p3d;
+	int n = 5;
 	for(int n = 0; n < HomPoints3D.size().width; n++)
 	{
 		p3d = new cv::Point3d(HomPoints3D.at<double>(0,n)/HomPoints3D.at<double>(3,n),
@@ -128,42 +120,54 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	}
 }
 
+
 void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2)
 {
 	GoldStandardOutput GO;
-	cv::Point3d * p3d = 0;
-
-	// Convert to camNormalized points
-	cv::vector<cv::Point2d> p1Cnorm, p2Cnorm;
-	standardToNormalizedCoordinates(p1, K, p1Cnorm);
 
 	cv::Mat F = getGoldStandardF(p1,p2, K, &GO);
 	cv::Mat E = K.t()*F*K;
 
+	cv::Mat RGold = GO.P2.rowRange(cv::Range(0,3)).colRange(cv::Range(0,3));
+	cv::Mat tGold = GO.P2.rowRange(cv::Range(0,3)).colRange(cv::Range(3,4));
+
+	std::cout << "GoldF: " << F << "\n";
+
+	// Convert to camNormalized points
+	cv::vector<cv::Point2d> p1Cnorm, p2Cnorm;
+	standardToNormalizedCoordinates(GO.inlier1, K, p1Cnorm);
+	standardToNormalizedCoordinates(GO.inlier2, K, p2Cnorm);
+
 	Camera * cam1 = cameras.back();
 	Camera * cam2 = new Camera();
 	cameras.push_back(cam2);
+
+	cam2->id = cam1->id + 1;
+	cam2->K = K;
+
+	estimateRt(E, cam2->R, cam2->t, p1Cnorm.front(), p2Cnorm.front());
 	
-	cam2->id = cam1->id+1;
+	std::cout << "The World According to Master Klas: " << std::endl;
+	std::cout << "K: " << std::endl << K << std::endl;
+	std::cout << "R: " << std::endl << cam2->R << std::endl;
+	std::cout << "t: " << std::endl << cam2->t << std::endl;
+	std::cout << "The World According to Master GoldStandard: " << std::endl;
+	std::cout << "RGold: " << std::endl << RGold << std::endl;
+	std::cout << "tGold: " << std::endl << tGold << std::endl;
+
+	cv::hconcat(cam2->R, cam2->t, cam2->C);	
+	cam2->P = K*cam2->C;
+
 	cameraPair.push_back(CameraPair(cam1,cam2));
 	cameraPair.back().F = F;
 	cameraPair.back().E = E;
 
-	int n = 5;
-	estimateRt(E, cam2->R, cam2->t, GO.inlier1.front(), GO.inlier2.front());
-	// Change coordinates of cam2 to the global coordinate system (the one which cam1 is in)	
-	cv::hconcat(cam2->R*cam1->R, cam2->t+cam1->t, cam2->C);	
-	cam2->P = K*cam2->C;
-
-	std::cout << "K: " << std::endl << K << std::endl;
-	std::cout << "R: " << std::endl << cam2->R << std::endl;
-	std::cout << "t: " << std::endl << cam2->t << std::endl;
-
-	
 	//triangulate like a BAWS
 	cv:: Mat HomPoints3D;
 	cv::triangulatePoints(cam1->P, cam2->P, GO.inlier1, GO.inlier2, HomPoints3D);
 	HomPoints3D.convertTo(HomPoints3D, CV_64FC1);
+	
+	cv::Point3d * p3d;
 
 	cv::Mat a,c,r;
 	int m = 1;
@@ -176,8 +180,10 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 		if(isUnique3DPoint(&p3d))
 		{
 			visible3DPoint.push_back(Visible3DPoint(p3d, ObserverPair(cam1, cam2, pointPair(GO.inlier1[n],GO.inlier2[n]))));
+
 			cam1->imagePoints.push_back(GO.inlier1[n]);
 			cam2->imagePoints.push_back(GO.inlier2[n]);
+
 			cam1->visible3DPoints.push_back(p3d);
 			cam2->visible3DPoints.push_back(p3d);
 			cameraPair.back().pointPairs.push_back(pointPair(GO.inlier1[n], GO.inlier2[n]));
@@ -198,10 +204,6 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 			m++;
 		}
 	}
-
-	// Estimate R and t for the cameras
-	//estimateRt(E, cam2->R, cam2->t, *p3d);
-
 }
 
 
@@ -301,22 +303,26 @@ cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2
 	cv::vector<uchar> inlierMask;
 	cv::Mat P1,P2,dinoHomPoints;
 	// inital Fhat
-	cv::Mat F = findFundamentalMat(points1, points2, CV_FM_RANSAC, RANSAC_threshold, 0.99, inlierMask);
+	cv::Mat F = findFundamentalMat(points1, points2, CV_FM_RANSAC, RANSAC_threshold, 0.90, inlierMask);
 
 	//Extract the inliers in the data
 	cv::vector<cv::Point2d> inliers1;
 	cv::vector<cv::Point2d> inliers2;
 
-	//std::cout << "nu börjar det\n";
+	// Limit the number of points to reduce calculations
+	int pointLimit = 100;
 
 	for (int i = 0; i < inlierMask.size(); ++i)
 	{
-		if(inlierMask[i] != 0)
+		if(inlierMask[i] != 0 && inliers1.size() < pointLimit)
 		{
 			inliers1.push_back(points1[i]);
 			inliers2.push_back(points2[i]);
 		}
 	}
+
+	std::cout << "RANSAC reduced " << points1.size() << " points to " << inliers1.size() << std::endl;
+
 	//Get epipolar point coordinates for P2 estimation
 	cv::SVD singval = cv::SVD(F,cv::SVD::FULL_UV);
 	cv::Mat eppoint2 = singval.u.col(2);

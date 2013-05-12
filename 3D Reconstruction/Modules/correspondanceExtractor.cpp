@@ -12,12 +12,12 @@ void CorrespondanceExtractor::init(std::string dataSet)
 {
 	if (dataSet == "dinosaur")
 	{
-		if (!loadMatches(dataSet + ".alx"))
-		{
-			readImages("data/dinosaur2/im (", 37, ").ppm");
+		//if (!loadMatches(dataSet + ".alx"))
+		//{
+			readImages("data/dinosaur/im (", 37, ").ppm");
 			findMatches();
 			saveMatches(dataSet + ".alx");
-		}
+		//}
 		double Kdata[9] = {	3217.328669180762, -78.606641008226180, 289.8672403229193,
 							0,					2292.424143977958,  -1070.516234777778,
 							0,					0,					1};
@@ -31,15 +31,24 @@ void CorrespondanceExtractor::readImages(string prefix, int numberOfImages, stri
 	//string prefix = directory + "/im (";
 	//string postfix = ").ppm";
 	string fileName;
-
-	for(int fileNo = 1; fileNo <= numberOfImages ;fileNo++)
+	int step = 1;
+	int fileNo = 1;
+	
+	for(int counter = 1; counter <= numberOfImages ; counter++)
 	{    
+		if (fileNo > numberOfImages)
+		{
+			fileNo = fileNo - numberOfImages;
+		}
+
 		fileName = prefix + to_string(fileNo) + postfix;
 
 		cout << "Filename: " << fileName << endl;
 		imageList.push_back(imread(fileName));
 		if(imageList.back().empty())
 			cout << "\t Could not read file!\n";
+
+		fileNo = fileNo + step;
     }
 
 	/*
@@ -75,9 +84,9 @@ void CorrespondanceExtractor::findMatches()
 	// FEATURES
 
 	// ---------- HARRIS detector -----------
-	int		maxNumberOfFeatures =	100;		// Maximum number of features to return
-	double	qualityLevel =			0.005;		// Remove features with worse than 99 % of the best eigenvalue,			0.01
-	double	minDistance =			20;			// Minimal Euclidiean distance between features,						3
+	int		maxNumberOfFeatures =	200;		// Maximum number of features to return
+	double	qualityLevel =			0.01;		// Remove features with worse than 99 % of the best eigenvalue,			0.01
+	double	minDistance =			15;			// Minimal Euclidiean distance between features,						3
 	int		blockSize =				7;			// Size of averaging mask when calculating neighbourhood covariance,	3
 	bool	useHarris =				true;		// Use Harris or die,													false
 	double	k =						0.04;		// Parameter for Harris detector: Har(x,y) = det - k * trace^2,			0.04
@@ -98,7 +107,7 @@ void CorrespondanceExtractor::findMatches()
 	int descriptorSize = 64;	// Size of descriptor = 16, 32 or 64
 	BriefDescriptorExtractor descriptorExtractor(descriptorSize);
 	*/
-		
+	
 	// ---------- SIFT Descriptor -----------
 	double magnification =		3;			// 3
 	bool isNormalize =			true;		// true
@@ -106,7 +115,6 @@ void CorrespondanceExtractor::findMatches()
 	SiftDescriptorExtractor descriptorExtractor(magnification, isNormalize, recalculateAngles);
 
 	// MATCHER
-
 	BFMatcher matcher(NORM_L2, true);
 
 	Mat image1;
@@ -125,30 +133,12 @@ void CorrespondanceExtractor::findMatches()
 
 	for (vector<Mat>::iterator i = imageList.begin(); i < imageList.end() - 1; i++)
 	{
-		
-		//image1 = *i;
-		//image2 = *(i+1);		
-		
-		//imshow("win1", image1);
-		//imshow("win2", image2);
-		//waitKey(0);
-
-		//featureDetector.detect(image1, keypoints1);
-		//featureDetector.detect(image2, keypoints2);
 		featureDetector.detect(*i, keypoints1);
 		featureDetector.detect(*(i+1), keypoints2);
 
-		//drawKeypoints(image1, keypoints1, featureImage1);
-		//drawKeypoints(image2, keypoints2, featureImage2);
 		drawKeypoints(*i, keypoints1, featureImage1);
 		drawKeypoints(*(i+1), keypoints2, featureImage2);
 
-		//imshow("win1", featureImage1);
-		//imshow("win2", featureImage2);
-		//waitKey(0);
-
-		//descriptorExtractor.compute(image1, keypoints1, descriptors1);
-		//descriptorExtractor.compute(image2, keypoints2, descriptors2);
 		descriptorExtractor.compute(*i, keypoints1, descriptors1);
 		descriptorExtractor.compute(*(i+1), keypoints2, descriptors2);
 
@@ -165,15 +155,10 @@ void CorrespondanceExtractor::findMatches()
 			}
 		}
 
-		//vector<Point2d> bestPoints1;
-		//vector<Point2d> bestPoints2;
-
 		vector<pointPair> pointPairs;
 
 		for (int k=0; k<matches.size(); k++)
 		{
-			//bestPoints1.push_back(keypoints1[matches[k].queryIdx].pt);
-			//bestPoints2.push_back(keypoints2[matches[k].trainIdx].pt);
 
 			pointPair temp;
 			temp.p1.x = keypoints1[matches[k].queryIdx].pt.x;

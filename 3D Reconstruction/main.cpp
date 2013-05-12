@@ -98,12 +98,12 @@ int main()
 	{
 		// Load matches
 
-		corrEx.loadMatches("dinosaur.alx");
+		corrEx.loadMatches("data.alx");
 		//corrEx.loadMatches("dinosaur.alx");
 
 		vector<Point2d> imagePoints1;
 		vector<Point2d> imagePoints2;
-		corrEx.getBAPoints(0, imagePoints1, imagePoints2);
+		corrEx.getBAPoints(10, imagePoints1, imagePoints2);
 
 		// Pre Main loop
 		//--------------------
@@ -207,7 +207,7 @@ int main()
 		v.mainLoop();
 
 	}
-	else
+
 	if(programState == ePROGRAM_STATE::STAND_ALONE_VIEWER)
 	{
 		double scale = 1;
@@ -463,6 +463,7 @@ int main()
 	}
 
 	waitKey(0);
+	std::cin.get();
 	return 0;
 }
 
@@ -470,6 +471,7 @@ int main()
 void loadFromFile(vis::Visualizer & v, std::string & filename, Estimate3D & dinosaurModel, CorrespondanceExtractor & corrEx, double scale)
 {
 	v.plottedPoints.clear();
+	v.cameras.clear();
 
 	for(std::list<Camera*>::iterator i = dinosaurModel.cameras.begin(); i != dinosaurModel.cameras.end(); i++)
 		v.addCamera((*i)->C);

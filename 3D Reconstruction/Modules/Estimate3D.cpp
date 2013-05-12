@@ -183,7 +183,9 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 									   HomPoints3D.at<double>(2,n)/HomPoints3D.at<double>(3,n)));
 	
 	std::vector<int> inlierMask;
-	NonLinear::PnPSolver(*cam2, GO.inlier2, point3D, inlierMask);
+	//NonLinear::PnPSolver(*cam2, GO.inlier2, point3D, inlierMask);
+	for(int n = 0; n < point3D.size(); n++)
+		inlierMask.push_back(n);
 
 	std::cout << "inlierMask.size(): " << inlierMask.size() << "\n";
 	std::cout << "point3D.size(): " << point3D.size() << "\n";
@@ -437,8 +439,8 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f 
 	// Calculate R
 	R1 = V*W.t()*U.t();
 	R2 = V*W*U.t();
-	R1 = R1.t();
-	R2 = R2.t();
+	//R1 = R1.t();
+	//R2 = R2.t();
 
 	
 	// Same initial, only sign should differ
@@ -527,7 +529,8 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f 
 	{
 		std::cout << "!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n - - - ERROR: no R & t found?! - - -\n!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 	}
-	//R = R.t();
+	R = R.t();
+	t = -R.t()*t;
 	
 	std::cout << "Chosen t: \n" << t << "\n";
 	std::cout << "Chosen R: \n" << R << "\n";

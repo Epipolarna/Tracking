@@ -155,12 +155,23 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 	std::cout << "RGold: " << std::endl << RGold << std::endl;
 	std::cout << "tGold: " << std::endl << tGold << std::endl;
 
+	cam2->R = cam2->R*cam1->R;
+	cam2->t = cam2->t + cam1->t;
+
 	cv::hconcat(cam2->R, cam2->t, cam2->C);	
+
 	cam2->P = K*cam2->C;
 
 	cameraPair.push_back(CameraPair(cam1,cam2));
 	cameraPair.back().F = F;
 	cameraPair.back().E = E;
+
+	std::cout << "cam1->R " << std::endl << cam1->R << std::endl;
+	std::cout << "cam1->t " << std::endl << cam1->t << std::endl;
+	std::cout << "cam1->C " << std::endl << cam1->C << std::endl;
+	std::cout << "cam2->R " << std::endl << cam2->R << std::endl;
+	std::cout << "cam2->t " << std::endl << cam2->t << std::endl;
+	std::cout << "cam2->C " << std::endl << cam2->C << std::endl;
 
 	//triangulate like a BAWS
 	cv:: Mat HomPoints3D;

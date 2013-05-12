@@ -38,14 +38,30 @@ Visualizer::~Visualizer(void){
 
 void Visualizer::addCamera(Mat externalParameters){
 	
+	/*
 	float x = externalParameters.at<double>(0,3);
 	float y = externalParameters.at<double>(1,3);
 	float z = externalParameters.at<double>(2,3);
+	*/
+
+	Mat R = externalParameters.rowRange(Range(0,3)).colRange(Range(0,3));
+	Mat t = externalParameters.rowRange(Range(0,3)).colRange(Range(3,4));
+
+	cout << "C " << endl << externalParameters << endl;
+	cout << "R " << endl << R << endl;
+	cout << "t " << endl << t << endl;
+
+	Mat camCenter = -R.t()*t;
+
+	float x = camCenter.at<double>(0,3);
+	float y = camCenter.at<double>(1,3);
+	float z = camCenter.at<double>(2,3);
 
 	Object newCamera = Object(shader.programRef,boxModel,x,y,z);
 
 	newCamera.scale = Vec3f(2,1,1);
-	newCamera.totalRot = externalParameters(Rect(0,0,2,2));
+	//newCamera.totalRot = externalParameters(Rect(0,0,2,2));
+	newCamera.totalRot = R.t();
 
 	cameras.push_back(newCamera);
 }

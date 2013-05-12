@@ -86,11 +86,12 @@ int main()
 	if(programState == ePROGRAM_STATE::ESTIMATE3D)
 	{
 		// Load matches
-		corrEx.loadMatches("data.alx");
+
+		corrEx.loadMatches("data_test_2(withK).alx");
 
 		vector<Point2d> imagePoints1;
 		vector<Point2d> imagePoints2;
-		corrEx.getBAPoints(3, imagePoints1, imagePoints2);
+		corrEx.getBAPoints(0, imagePoints1, imagePoints2);
 
 		// Pre Main loop
 		//--------------------
@@ -134,7 +135,7 @@ int main()
 
 	if(programState == LOADFROMFILE || programState == ESTIMATE3D)
 	{
-		double scale = 50;
+		double scale = 1;
 		std::cout << "# Starting Visualizer...\n";
 		vis::Visualizer v = vis::Visualizer();
 		vector<Visible3DPoint> pvector = dinosaurModel.visible3DPoint;
@@ -151,7 +152,8 @@ int main()
 			imageCoordinate = it->observerPair.front().point2D.p1;
 
 			Mat image = imageList.at(camer1ID);
-			Mat patch = image(Rect(imageCoordinate.x,imageCoordinate.y,2,2));
+			//Mat patch = image(Rect(imageCoordinate.x,imageCoordinate.y,2,2));
+			Mat patch = image(Rect(315,240,2,2));
 
 			cv::Vec3f coordinate = Vec3f(whatIsThePoint->x*scale, whatIsThePoint->y*scale, whatIsThePoint->z*scale);
 			v.addPoint(coordinate,patch);

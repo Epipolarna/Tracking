@@ -219,18 +219,18 @@ namespace NonLinear
 			
 			//setDataRange(p,data->rotations[i].ptr<double>(),i*6,i*6+3);
 			//setDataRange(p,data->translations[i].ptr<double>(),i*6+3,(i+1)*6);
-			cout << "rVec: " << data->rotations[i] << endl;
+			//cout << "rVec: " << data->rotations[i] << endl;
 			//cout << "tVec: " << data->translations[i] << endl;
 			
 			Rodrigues(data->rotations[i].clone(), data->R);
-			cout << "R: " << data->R << endl;
-			hconcat(cv::Mat::eye(3,3,CV_64FC1), -1*data->translations[i].clone(), data->C);
-			cout <<"C matrix " << data->C << endl;
-			data->C = data->R.t()*data->C;
-			cout << "C: " << data->C << endl;
-			cout << "K: " << data->K << endl;
+			//cout << "R: " << data->R << endl;
+			hconcat(cv::Mat::eye(3,3,CV_64FC1), data->translations[i].clone(), data->C);
+			//cout <<"C matrix " << data->C << endl;
+			data->C = data->R * data->C;
+			//cout << "C: " << data->C << endl;
+			//cout << "K: " << data->K << endl;
 			data->P = data->K * data->C;
-			cout << "P: " << data->P << endl;
+			//cout << "P: " << data->P << endl;
 			// for all visible 3D points, calculate the reprojection error
 			for(int j = 0; j < data->points3D[i].size(); j++)
 			{
@@ -370,6 +370,7 @@ namespace NonLinear
 			cv::Mat R = (*it)->R.clone();
 			cout << "first R: \n" << R << endl << endl;
 			cout << "det(R): \n" << determinant(R) << endl << endl;
+			/*
 			if(determinant(R) < 0)
 			{
 				cout << "!det == -1, fixin'\n";
@@ -377,7 +378,7 @@ namespace NonLinear
 				cout << "now: det(R): \n" << determinant(R) << endl << endl;
 			}
 			cout << "R*R': \n" << R*R.t() << endl << endl;
-			
+			*/
 			/*
 			if(norm(rVec) > 3.14159265)
 			{
@@ -385,13 +386,14 @@ namespace NonLinear
 			}
 			Rodrigues(rVec, data.R);
 			cout << "New Rod R: " << data.R << endl;
-			*/
+			
 			Quaternion q(R);
 			cv::Mat Qr = q.toMat();
 			cv::Mat QR = q.toR();
 			cout << "Q.R: \n" << QR << "\n\n";
 			cout << "Q.r: \n" << Qr << "\n\n";
 			cout << "First rVec: " << rVec << endl;
+			*/
 			data.rotations.push_back(rVec.clone());
 			data.translations.push_back((*it)->t.clone());
 			data.imagePoints.push_back(&((*it)->imagePoints));
@@ -444,8 +446,8 @@ namespace NonLinear
 		double info[LM_INFO_SZ];
 		int ret;
 		
-		//ret = dlevmar_dif(BAResiduals, paramArray, error.data(), (int)params.size(),residualTerms,10000,NULL,info,NULL,NULL,&data);
-		//printf("Levenberg-Marquardt returned in %g iter, reason %g, output error %g with an initial error of [%g]\n", info[5], info[6], info[1], info[0]);
+		ret = dlevmar_dif(BAResiduals, paramArray, error.data(), (int)params.size(),residualTerms,10000,NULL,info,NULL,NULL,&data);
+		printf("Levenberg-Marquardt returned in %g iter, reason %g, output error %g with an initial error of [%g]\n", info[5], info[6], info[1], info[0]);
 	
 		//Rebuild
 		itTrans = data.translations.begin();
@@ -455,6 +457,7 @@ namespace NonLinear
 			cout << "final translation: " << (*itTrans) << endl;
 			cout << "final rotation: " << (*itRot) << endl;
 			Rodrigues((*itRot),(*it)->R);
+			cout << "final rotation: \n" << (*it)->R << endl << endl;
 			//vconcat(*itTrans,data.one,(*it)->t); NO U HOMOGENEOUS!
 			hconcat((*it)->R,(*itTrans),(*it)->C);
 			(*it)->P = this->K *  (*it)->C;

@@ -19,7 +19,11 @@ t1 = [0 0 0]';
 R1 = eye(3);
 t2 = -[1 0 0]';
 R2 = Rx(0.25)
-K = eye(3);
+%K = eye(3);
+
+K = [3217.328669180762, -78.606641008226180, 289.8672403229193,
+     0,					2292.424143977958,  -1070.516234777778,
+     0,					0,					1]
 
 C1 = K*[eye(3) zeros(3,1)]
 C2 = K*[R2 t2]
@@ -133,7 +137,7 @@ t = V(:,3);
 
 %% Save to file
 
-fid = fopen('data_test3.alx','wt');
+fid = fopen('data_test_1.alx','wt');
 fprintf(fid,'# Correspondances for each imagepair in sequnce\n');
 fprintf(fid,'# Imagepair 1\n');
 for n = 1:length(imagePair1)

@@ -54,7 +54,7 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	cv::Mat RGold = GO.P2.rowRange(cv::Range(0,3)).colRange(cv::Range(0,3));
 	cv::Mat tGold = GO.P2.rowRange(cv::Range(0,3)).colRange(cv::Range(3,4));
 
-	std::cout << "GoldF: " << F << "\n";
+	std::cout << "\nGoldF: \n" << F << "\n";
 
 	// Convert to camNormalized points
 	cv::vector<cv::Point2d> p1Cnorm, p2Cnorm;
@@ -381,7 +381,7 @@ cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2
 void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f p2)
 {
 	using namespace std;
-	cv::Mat U, S, V, Vt, W, R1, R2, C1, C21, C22, C23, C24, x1, x2, x3, x4, x21, x22, x23, x24, y11, y21, y22, y23, y24;
+	cv::Mat U, S, V, Vt, W, R1, R2, C1, C21, C22, C23, C24, t1, t2, x1, x2, x3, x4, x21, x22, x23, x24, y11, y21, y22, y23, y24;
 
 	
 
@@ -390,8 +390,8 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f 
 	V = Vt.t();
 
 	// Translation is found as third column of V
-	t = V.col(2);
-	cv::normalize(t, t);
+	t1 = V.col(2);
+	cv::normalize(t1, t1);
 
 	// Define W. Will be used to find R
 	double Wdata[] = {0, 1, 0,
@@ -403,17 +403,35 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f 
 	R1 = V*W.t()*U.t();
 	R2 = V*W*U.t();
 
+	R1 = R1.t();
+	R2 = R2.t();
+
+	// Same initial, only sign should differ
+	t2 = t1;
+	
 	// No mirroring please
-	R1 = cv::determinant(R1)*R1;
-	R2 = cv::determinant(R2)*R2;
+	
+	if(cv::determinant(R1) < 0)
+	{
+		std::cout << "\n! DETERMINANT of R1 == " << cv::determinant(R1) << "\n\n";
+		t1 = cv::determinant(R1)*t1;
+		R1 = cv::determinant(R1)*R1;
+	}
+	if(cv::determinant(R2) < 0)
+	{
+		std::cout << "\n! DETERMINANT of R2 == " << cv::determinant(R2) << "\n\n";
+		t2 = cv::determinant(R2)*t2;
+		R2 = cv::determinant(R2)*R2;
+	}
+
 
 	C1 = cv::Mat::eye(3,4,CV_64FC1);
 
 	// Create the 4 possible cameras
-	cv::hconcat(R1, t, C21);
-	cv::hconcat(R1,-t, C22);
-	cv::hconcat(R2, t, C23);
-	cv::hconcat(R2,-t, C24);
+	cv::hconcat(R1, t1, C21);
+	cv::hconcat(R1,-t1, C22);
+	cv::hconcat(R2, t2, C23);
+	cv::hconcat(R2,-t2, C24);
 
 	// Triangulate the 4 possible 3D-points
 	cv::triangulatePoints(C1, C21, cv::Mat(p1), cv::Mat(p2), x1);
@@ -432,11 +450,10 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f 
 	x4 = x4.rowRange(cv::Range(0,3)).clone()/x4.at<double>(3,0);
 	
 	// Calculate position of 3D point relative the four posible cameras
-	x21 = R1*x1 + t;
-	x22 = R1*x2 - t;
-	x23 = R2*x3 + t;
-	x24 = R2*x4 - t;
-
+	x21 = R1*x1 + t1;
+	x22 = R1*x2 - t1;
+	x23 = R2*x3 + t2;
+	x24 = R2*x4 - t2;
 	
 	cout << "x1: " << x1 << endl;
 	cout << "x21: " << x21 << endl;
@@ -451,123 +468,34 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f 
 	{
 		cout << "Configuration 1" << endl;
 		R = R1;
-		t = t;
+		t = t1;
 	}
 	else if ( x22.at<double>(2,0) > 0 && x2.at<double>(2,0) > 0 )
 	{
 		cout << "Configuration 2" << endl;
 		R = R1;
-		t = -t;
+		t = -t1;
 	}
 	else if ( x23.at<double>(2,0) > 0 && x3.at<double>(2,0) > 0 )
 	{
 		cout << "Configuration 3" << endl;
 		R = R2;
-		t = t;
+		t = t2;
 	}
 	else if ( x24.at<double>(2,0) > 0 && x4.at<double>(2,0) > 0 )
 	{
 		cout << "Configuration 4" << endl;
 		R = R2;
-		t = -t;
+		t = -t2;
 	}
 	else
 	{
-		std::cout << "!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n - - - HELP, no R & t found?! - - -\n!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n";
+		std::cout << "!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n - - - ERROR: no R & t found?! - - -\n!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 	}
 	
-	return;
-
-
-
-
-	double smallestDiff, diff[4], sign[4];
-	int cameraConfiguration = 0;
-	diff[0] = cv::norm(x1-x21);
-	diff[1] = cv::norm(x1-x22);
-	diff[2] = cv::norm(x1-x23);
-	diff[3] = cv::norm(x1-x24);
-	smallestDiff = diff[0];
-	sign[0] = *x21.row(2).col(0).ptr<double>();
-	sign[1] = *x22.row(2).col(0).ptr<double>();
-	sign[2] = *x23.row(2).col(0).ptr<double>();
-	sign[3] = *x24.row(2).col(0).ptr<double>();
-
-	for (int i = 1; i < 4; i++)
-	{
-		if ((diff[i] < smallestDiff) && (sign[i] > 0))
-		{
-			smallestDiff = diff[i];
-			cameraConfiguration = i;
-		}
-	}
-
-	cout << "Diff: " << smallestDiff << endl;
-
-	switch (cameraConfiguration)
-	{
-		case 0:
-			cout << "Configuration 1" << endl;
-			R = R1.t();
-			t = t;
-			break;
-
-		case 1:
-			cout << "Configuration 2" << endl;
-			R = R1.t();
-			t = -t;
-			break;
-
-		case 2:
-			cout << "Configuration 3" << endl;
-			R = R2.t();
-			t = t;
-			break;
-
-		case 3:
-			cout << "Configuration 4" << endl;
-			R = R2.t();
-			t = -t;
-			break;
-	}
-	
-	//cout << "R1: " << R1 << endl;
-	//cout << "R2: " << R2 << endl;
-	//cout << "t :" << t << endl;
-	//cout << cv::determinant(R) << endl;
-	/*
-	if ( *x21.row(2).col(0).ptr<double>() > 0)
-	{
-		cout << "Configuration 1" << endl;
-		R = R1;
-		t = t;
-	}
-	else if ( *x22.row(2).col(0).ptr<double>() > 0)
-	{
-		cout << "Configuration 2" << endl;
-		R = R1;
-		t = -t;
-	}
-	else if ( *x23.row(2).col(0).ptr<double>() > 0)
-	{
-		cout << "Configuration 3" << endl;
-		R = R2;
-		t = t;
-	}
-	else if ( *x24.row(2).col(0).ptr<double>() > 0)
-	{
-		cout << "Configuration 4" << endl;
-		R = R2;
-		t = -t;
-	}
-	else
-	{
-		std::cout << "!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n - - - HELP, no R & t found?! - - -\n!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n";
-	}
-	*/
-	//cout << R << endl;
-	//cout << t << endl;
-	
+	std::cout << "Chosen t: \n" << t << "\n";
+	std::cout << "Chosen R: \n" << R << "\n";
+		
 }
 
 

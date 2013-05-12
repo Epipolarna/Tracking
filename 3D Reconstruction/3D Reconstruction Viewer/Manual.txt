@@ -10,3 +10,4 @@ Navigation:
 					* addition-key on keyboard
 	Dec. scale:  	* Mouse xbutton2 click
 					* subtraction-key on keyboard
+	Reload file:	* F5

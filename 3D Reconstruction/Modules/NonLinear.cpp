@@ -367,7 +367,16 @@ namespace NonLinear
 		for(std::list<Camera*>::iterator it = views.begin(); it != views.end(); it++)
 		{
 			Rodrigues((*it)->R.clone(), rVec);
-			cout << "first R: " << (*it)->R.clone() << endl;
+			cv::Mat R = (*it)->R.clone();
+			cout << "first R: \n" << R << endl << endl;
+			cout << "det(R): \n" << determinant(R) << endl << endl;
+			if(determinant(R) < 0)
+			{
+				cout << "!det == -1, fixin'\n";
+				R.col(2) *= -1;
+				cout << "now: det(R): \n" << determinant(R) << endl << endl;
+			}
+			cout << "R*R': \n" << R*R.t() << endl << endl;
 			
 			/*
 			if(norm(rVec) > 3.14159265)
@@ -377,12 +386,11 @@ namespace NonLinear
 			Rodrigues(rVec, data.R);
 			cout << "New Rod R: " << data.R << endl;
 			*/
-			Quaternion q((*it)->R.clone());
-			cv::Mat r = q.toMat();
-			cv::Mat R = q.toR();
-			cout << "Q.R: " << R << "\n";
-			cout << "Q.r: " << r << "\n";
-			
+			Quaternion q(R);
+			cv::Mat Qr = q.toMat();
+			cv::Mat QR = q.toR();
+			cout << "Q.R: \n" << QR << "\n\n";
+			cout << "Q.r: \n" << Qr << "\n\n";
 			cout << "First rVec: " << rVec << endl;
 			data.rotations.push_back(rVec.clone());
 			data.translations.push_back((*it)->t.clone());
@@ -494,6 +502,122 @@ cv::Mat Quaternion::toMat()
 
 Quaternion::Quaternion(cv::Mat R)
 {
+	double * mat = &R.ptr<double>()[0];
+	double & W = q[0];
+	double & X = q[1];
+	double & Y = q[2];
+	double & Z = q[3];
+	double S;
+
+	double T = mat[0] + mat[4] + mat[8];	// Trace of R
+
+	if ( T > 0.00000001 ) // To avoid large distortions!
+	{
+		S = std::sqrt(T+1)*2;
+		W = 0.25*S;
+		X = (mat[7] - mat[5]) / S;
+		Y = (mat[2] - mat[6]) / S;
+		Z = (mat[3] - mat[1]) / S;
+	}
+	else // T == 0
+	{
+		cout << "\n !! T = " << T << "\n\n";
+		/* 
+		If the trace of the matrix is equal to zero then identify
+		which major diagonal element has the greatest value.
+		Depending on this, calculate the following:
+		*/
+		if ( mat[0] > mat[4] && mat[0] > mat[8] )  {	// Column 0: 
+			S  = sqrt( 1 + mat[0] - mat[4] - mat[8] ) * 2;
+			X = 0.25 * S;
+			Y = (mat[3] + mat[1] ) / S;
+			Z = (mat[2] + mat[6] ) / S;
+			W = (mat[7] - mat[5] ) / S;
+		} else if ( mat[4] > mat[8] ) {					// Column 1: 
+			S  = sqrt( 1 + mat[4] - mat[0] - mat[8] ) * 2;
+			X = (mat[3] + mat[1] ) / S;
+			Y = 0.25 * S;
+			Z = (mat[7] + mat[5] ) / S;
+			W = (mat[2] - mat[6] ) / S;
+		} else {										// Column 2:
+			S  = sqrt( 1 + mat[8] - mat[0] - mat[4] ) * 2;
+			X = (mat[2] + mat[6] ) / S;
+			Y = (mat[7] + mat[5] ) / S;
+			Z = 0.25 * S;
+			W = (mat[3] - mat[1] ) / S;
+		}
+	}
+	//normalize();
+}
+
+
+/*
+Quaternion::Quaternion(cv::Mat R)
+{
+	double * m = &R.ptr<double>()[0];
+	double & W = q[0];
+	double & X = q[1];
+	double & Y = q[2];
+	double & Z = q[3];
+
+	const double diag = m[0] + m[4] + m[8] + 1;
+
+	if( diag > 0.0f )
+	{
+		const double scale = sqrtf(diag) * 2.0f; // get scale from diagonal
+
+		// TODO: speed this up
+		X = (m[5] - m[7]) / scale;
+		Y = (m[6] - m[2]) / scale;
+		Z = (m[1] - m[3]) / scale;
+		W = 0.25f * scale;
+	}
+	else
+	{
+		if (m[0]>m[4] && m[0]>m[8])
+		{
+			// 1st element of diag is greatest value
+			// find scale according to 1st element, and double it
+			const double scale = sqrtf(1.0f + m[0] - m[4] - m[8]) * 2.0f;
+
+			// TODO: speed this up
+			X = 0.25f * scale;
+			Y = (m[3] + m[1]) / scale;
+			Z = (m[2] + m[6]) / scale;
+			W = (m[5] - m[7]) / scale;
+		}
+		else if (m[4]>m[8])
+		{
+			// 2nd element of diag is greatest value
+			// find scale according to 2nd element, and double it
+			const double scale = sqrtf(1.0f + m[4] - m[0] - m[8]) * 2.0f;
+
+			// TODO: speed this up
+			X = (m[3] + m[1]) / scale;
+			Y = 0.25f * scale;
+			Z = (m[7] + m[5]) / scale;
+			W = (m[6] - m[2]) / scale;
+		}
+		else
+		{
+			// 3rd element of diag is greatest value
+			// find scale according to 3rd element, and double it
+			const double scale = sqrtf(1.0f + m[8] - m[0] - m[4]) * 2.0f;
+
+			// TODO: speed this up
+			X = (m[6] + m[2]) / scale;
+			Y = (m[7] + m[5]) / scale;
+			Z = 0.25f * scale;
+			W = (m[1] - m[3]) / scale;
+		}
+	}
+	normalize();
+}
+*/
+
+/*
+Quaternion::Quaternion(cv::Mat R)
+{
 	const float trace = 1.0f + R.ptr<double>()[0] + R.ptr<double>()[4] + R.ptr<double>()[8];
 
 	if (trace > 0.00001f)
@@ -534,7 +658,7 @@ Quaternion::Quaternion(cv::Mat R)
 	}
 	normalize();
 }
-
+*/
 /*
 
 double ReciprocalSqrt( double x ) {
@@ -601,6 +725,63 @@ void Quaternion::normalize()
 	q[3] /= norm();
 }
 
+
+cv::Mat Quaternion::toR()
+{
+	cv::Mat rtrn(3,3,CV_64FC1);
+	normalize();
+
+	double * dest = &rtrn.ptr<double>()[0];
+	double W = q[0];
+	double X = q[1];
+	double Y = q[2];
+	double Z = q[3];
+
+	dest[0] = 1.0 - 2.0*(Y*Y + Z*Z);
+	dest[1] = 2.0*(X*Y - Z*W);
+	dest[2] = 2.0*(X*Z + Y*W);
+
+	dest[3] = 2.0*(X*Y + Z*W);
+	dest[4] = 1.0 - 2.0*(X*X + Z*Z);
+	dest[5] = 2.0*(Z*Y - X*W);
+
+	dest[6] = 2.0*(X*Z - Y*W);
+	dest[7] = 2.0*(Z*Y + X*W);
+	dest[8] = 1.0f - 2.0*(X*X + Y*Y);
+
+	return rtrn.clone();
+}
+
+/*
+
+cv::Mat Quaternion::toR()
+{
+	cv::Mat rtrn(3,3,CV_64FC1);
+	normalize();
+
+	double * dest = &rtrn.ptr<double>()[0];
+	double W = q[0];
+	double X = q[1];
+	double Y = q[2];
+	double Z = q[3];
+
+	dest[0] = 1.0f - 2.0f*Y*Y - 2.0f*Z*Z;
+	dest[1] = 2.0f*X*Y + 2.0f*Z*W;
+	dest[2] = 2.0f*X*Z - 2.0f*Y*W;
+
+	dest[3] = 2.0f*X*Y - 2.0f*Z*W;
+	dest[4] = 1.0f - 2.0f*X*X - 2.0f*Z*Z;
+	dest[5] = 2.0f*Z*Y + 2.0f*X*W;
+
+	dest[6] = 2.0f*X*Z + 2.0f*Y*W;
+	dest[7] = 2.0f*Z*Y - 2.0f*X*W;
+	dest[8] = 1.0f - 2.0f*X*X - 2.0f*Y*Y;
+
+	return rtrn.clone();
+}
+*/
+
+/*
 cv::Mat Quaternion::toR()
 {
 	cv::Mat rtrn(3,3,CV_64FC1);
@@ -625,8 +806,9 @@ cv::Mat Quaternion::toR()
 	rtrn.ptr<double>()[6] = 2*(q[1]*q[3] - q[0]*q[2]);
 	rtrn.ptr<double>()[7] = 2*(q[2]*q[3] + q[0]*q[1]);
 	rtrn.ptr<double>()[8] = q[0]*q[0] - q[1]*q[1] - q[2]*q[2] + q[3]*q[3];*/
-	return rtrn.clone();
-}
+//	return rtrn.clone();
+//}
+
 
 double Quaternion::norm()
 {

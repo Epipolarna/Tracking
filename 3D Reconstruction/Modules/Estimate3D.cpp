@@ -403,6 +403,10 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f 
 	R1 = V*W.t()*U.t();
 	R2 = V*W*U.t();
 
+	// No mirroring please
+	R1 = cv::determinant(R1)*R1;
+	R2 = cv::determinant(R2)*R2;
+
 	C1 = cv::Mat::eye(3,4,CV_64FC1);
 
 	// Create the 4 possible cameras

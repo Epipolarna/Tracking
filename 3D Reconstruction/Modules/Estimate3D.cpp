@@ -145,6 +145,7 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 	cam2->id = cam1->id + 1;
 	cam2->K = K;
 
+	// Find cam2 pose relative cam1
 	estimateRt(E, cam2->R, cam2->t, p1Cnorm.front(), p2Cnorm.front());
 	
 	std::cout << "The World According to Master Klas: " << std::endl;
@@ -155,12 +156,19 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 	std::cout << "RGold: " << std::endl << RGold << std::endl;
 	std::cout << "tGold: " << std::endl << tGold << std::endl;
 
-	cv::hconcat(cam2->R, cam2->t, cam2->C);	
+	cv::hconcat(cam2->R*cam1->R, cam2->t + cam1->t, cam2->C);	
 	cam2->P = K*cam2->C;
 
 	cameraPair.push_back(CameraPair(cam1,cam2));
 	cameraPair.back().F = F;
 	cameraPair.back().E = E;
+
+	std::cout << "cam1->R " << std::endl << cam1->R << std::endl;
+	std::cout << "cam2->R " << std::endl << cam2->R << std::endl;
+	std::cout << "cam1->t " << std::endl << cam1->t << std::endl;
+	std::cout << "cam2->t " << std::endl << cam2->t << std::endl;
+	std::cout << "cam1->C " << std::endl << cam1->C << std::endl;
+	std::cout << "cam2->C " << std::endl << cam2->C << std::endl;
 
 	//triangulate like a BAWS
 	cv:: Mat HomPoints3D;
@@ -177,7 +185,8 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 		p3d = new cv::Point3d(HomPoints3D.at<double>(0,n)/HomPoints3D.at<double>(3,n),
 							  HomPoints3D.at<double>(1,n)/HomPoints3D.at<double>(3,n),
 							  HomPoints3D.at<double>(2,n)/HomPoints3D.at<double>(3,n));
-		if(isUnique3DPoint(&p3d))
+		//if(isUnique3DPoint(&p3d))
+		if(1)
 		{
 			visible3DPoint.push_back(Visible3DPoint(p3d, ObserverPair(cam1, cam2, pointPair(GO.inlier1[n],GO.inlier2[n]))));
 
@@ -188,10 +197,10 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 			cam2->visible3DPoints.push_back(p3d);
 			cameraPair.back().pointPairs.push_back(pointPair(GO.inlier1[n], GO.inlier2[n]));
 			cameraPair.back().point3Ds.push_back(p3d);
-			/*a = cv::Mat(*p3d);
+
+			a = cv::Mat(*p3d);
 			c = cam1->R*a + cam1->t;	// Change coordinate system to the global coordinate system(the one of the initial first camera)
 			*p3d = cv::Point3d(c);
-			*/
 		}
 		else
 		{
@@ -421,6 +430,8 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f 
 		R2 = cv::determinant(R2)*R2;
 	}
 
+	R1 = R1.t();
+	R2 = R2.t();
 
 	C1 = cv::Mat::eye(3,4,CV_64FC1);
 
@@ -489,10 +500,10 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f 
 	{
 		std::cout << "!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n - - - ERROR: no R & t found?! - - -\n!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 	}
-	//R = R.t();
 	
 	std::cout << "Chosen t: \n" << t << "\n";
 	std::cout << "Chosen R: \n" << R << "\n";
+	std::cout << " \n" << "\n";
 		
 }
 

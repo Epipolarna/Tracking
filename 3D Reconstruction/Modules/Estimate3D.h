@@ -55,6 +55,7 @@ public:
 	std::vector<CameraPair> cameraPair;
 	cv::Mat K;	//Internal Camera parameters
 	std::vector<View> views;
+	std::vector<int> numberOfNew3DPoints;
 
 private:
 	Parser parser;

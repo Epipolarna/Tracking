@@ -21,12 +21,14 @@ using namespace std;
 #define mElapsedTime(t) ((float)(clock() - t))/CLOCKS_PER_SEC
 
 NonLinear::NonLinear nonlin;
+void loadFromFile(vis::Visualizer & v, std::string & filename, Estimate3D & dinosaurModel, CorrespondanceExtractor & corrEx, double scale);
 
 enum ePROGRAM_STATE
 {
 	CALCULATE_CORRESPONDANCES,
 	ESTIMATE3D,
-	LOADFROMFILE
+	LOADFROMFILE,
+	STAND_ALONE_VIEWER
 } programState;
 
 
@@ -49,17 +51,18 @@ int main()
 	std::string fileName;
 	
 	// Dinosaur K
-	/*
+	
 	double Kdata[9] = {		3217.328669180762, -78.606641008226180, 289.8672403229193,
 							0,					2292.424143977958,  -1070.516234777778,
 							0,					0,					1};
 	
-	*/
+	
 
+	/*
 	double Kdata[9] = { 666.2647,   -1.9125,    399.0122,
 						0,			672.7446,	265.9638,
 						0,          0,			1.0000};
-	
+	*/
 	cv::Mat K = cv::Mat(3,3,CV_64FC1,Kdata);
 	//cv::Mat K = cv::Mat::eye(3,3,CV_64FC1);
 	
@@ -69,6 +72,7 @@ int main()
 	vector<vector<pointPair>> matchesVector;
 
 	// Select program state
+	//programState = ePROGRAM_STATE::STAND_ALONE_VIEWER;
 	//programState = ePROGRAM_STATE::CALCULATE_CORRESPONDANCES;
 	programState = ePROGRAM_STATE::ESTIMATE3D;
 	//programState = ePROGRAM_STATE::LOADFROMFILE;
@@ -94,7 +98,8 @@ int main()
 	{
 		// Load matches
 
-		corrEx.loadMatches("modelHouse.alx");
+		corrEx.loadMatches("dinosaur.alx");
+		//corrEx.loadMatches("dinosaur.alx");
 
 		vector<Point2d> imagePoints1;
 		vector<Point2d> imagePoints2;
@@ -140,9 +145,11 @@ int main()
 		}
 	}
 
+
+	if(1); else  // No more viewing here, use the Stand alone "3D reconstruction viewer"
 	if(programState == LOADFROMFILE || programState == ESTIMATE3D)
 	{
-		double scale = 1;
+		double scale = 10.01;
 		std::cout << "# Starting Visualizer...\n";
 		vis::Visualizer v = vis::Visualizer();
 		vector<Visible3DPoint> pvector = dinosaurModel.visible3DPoint;
@@ -200,9 +207,295 @@ int main()
 		v.mainLoop();
 
 	}
+	else
+	if(programState == ePROGRAM_STATE::STAND_ALONE_VIEWER)
+	{
+		double scale = 1;
+		int iteration = 1;
+		int version = 2;
+		std::string name;
+		std::ifstream file; 
+		std::cout << "# Starting...\n";
+		corrEx.readImages("data/dinosaur/im (", 37, ").ppm");
+		vis::Visualizer v = vis::Visualizer();
+		vector<Visible3DPoint> pvector;
+
+		std::cout << "\n# Welcome to the stand alone viewer 1.0\n################################\n\n";
+		std::cout << "Enter filename (xxx#.#.alx, only the xxx are needed)> ";
+		std::getline(cin, name);
+		fileName = name + "1.2.alx";
+		std::cout << "Enter starting scale> ";
+		std::cin >> scale;
+		std::cout << "# Loading file \"" << fileName << "\"..\n";
+		dinosaurModel.loadFromFile(fileName);
+		std::cout << "# File loaded!\n";
+		std::cout << "# Starting Visualization mode...\n";
+		loadFromFile(v,fileName,dinosaurModel,corrEx, scale);		
+
+			// Main loop
+			bool running = true;
+			int dx, dy; 
+			dx = dy = 0;
+			bool lockMouse = false;
+			bool mouseHasBeenPressed = false;
+
+			while(running)
+			{
+				sf::Event event;
+
+				while(v.displayWindow->pollEvent(event)){
+					if(event.type == sf::Event::Closed){
+						running = false;
+					}else if(event.type == sf::Event::Resized){
+						glViewport(0,0,event.size.width, event.size.height);
+					}else if(event.type == sf::Event::MouseMoved){
+				
+					}else if(event.type == sf::Event::MouseButtonPressed) {
+						if(sf::Mouse::isButtonPressed(sf::Mouse::Right) && !mouseHasBeenPressed)
+						{
+							mouseHasBeenPressed = true;
+							if(version == 2)
+							{
+								version = 1;
+								iteration++;
+							}
+							else
+								version = 2;
+							std::string fName = name + std::to_string(iteration) + "." + std::to_string(version) + ".alx";
+							file.open(fName);
+							if(!file)
+							{
+								std::cout << "\"" + fName + "\" do not exist!\n";
+								if(version == 1)
+								{
+									version = 2;
+									iteration--;
+								}
+								else
+									version = 1;
+							}
+							else
+							{
+								file.close();
+								fileName = fName;
+								dinosaurModel.clear();
+								std::cout << "# Loading file \"" << fileName << "\"..\n";
+								dinosaurModel.loadFromFile(fileName);
+								std::cout << "# File loaded!\n";
+								loadFromFile(v,fileName,dinosaurModel,corrEx,scale);		
+							}
+							cout << "\n#  Current file: " << fileName;
+							cout << "\n#  Current scale: " << scale << "\n ----------------- \n\n";
+						}else
+						if(sf::Mouse::isButtonPressed(sf::Mouse::Left) && !mouseHasBeenPressed)
+						{
+							mouseHasBeenPressed = true;
+							if(version == 1)
+							{
+								version = 2;
+								iteration--;
+							}
+							else
+								version = 1;
+							std::string fName = name + std::to_string(iteration) + "." + std::to_string(version) + ".alx";
+							file.open(fName);
+							if(!file)
+							{
+								std::cout << "\"" + fName + "\" do not exist!\n";
+								iteration = 1;
+								version = 1;
+							}
+							else
+							{
+								file.close();
+								fileName = fName;
+								dinosaurModel.clear();
+								std::cout << "# Loading file \"" << fileName << "\"..\n";
+								dinosaurModel.loadFromFile(fileName);
+								std::cout << "# File loaded!\n";
+								loadFromFile(v,fileName,dinosaurModel,corrEx,scale);		
+							}
+							cout << "\n#  Current file: " << fileName;
+							cout << "\n#  Current scale: " << scale << "\n ----------------- \n\n";
+						}else
+						if(sf::Mouse::isButtonPressed(sf::Mouse::XButton1) && !mouseHasBeenPressed)
+						{
+							mouseHasBeenPressed = true;
+							scale *= 2;
+							loadFromFile(v,fileName,dinosaurModel,corrEx,scale);	
+							cout << "\n#  Current file: " << fileName;
+							cout << "\n#  Current scale: " << scale << "\n ----------------- \n\n";
+						}else
+						if(sf::Mouse::isButtonPressed(sf::Mouse::XButton2) && !mouseHasBeenPressed)
+						{
+							mouseHasBeenPressed = true;
+							scale /= 2;
+							loadFromFile(v,fileName,dinosaurModel,corrEx,scale);	
+							cout << "\n#  Current file: " << fileName;
+							cout << "\n#  Current scale: " << scale << "\n ----------------- \n\n";
+						}
+					}else
+						mouseHasBeenPressed = false;
+
+					if(event.type == sf::Event::KeyPressed){
+						if(event.key.code == sf::Keyboard::Escape)
+							running = false;
+
+						if(event.key.code == sf::Keyboard::F5)
+						{
+							dinosaurModel.clear();
+							std::cout << "# Loading file \"" << fileName << "\"..\n";
+							dinosaurModel.loadFromFile(fileName);
+							std::cout << "# File loaded!\n";
+							loadFromFile(v,fileName,dinosaurModel,corrEx, scale);	
+							cout << "\n#  Current file: " << fileName;
+							cout << "\n#  Current scale: " << scale << "\n ----------------- \n\n";
+						}
+
+						// Change iterations
+						if(event.key.code == sf::Keyboard::Right)
+						{
+							if(version == 2)
+							{
+								version = 1;
+								iteration++;
+							}
+							else
+								version = 2;
+							std::string fName = name + std::to_string(iteration) + "." + std::to_string(version) + ".alx";
+							file.open(fName);
+							if(!file)
+							{
+								std::cout << "\"" + fName + "\" do not exist!\n";
+								if(version == 1)
+								{
+									version = 2;
+									iteration--;
+								}
+								else
+									version = 1;
+							}
+							else
+							{
+								file.close();
+								fileName = fName;
+								dinosaurModel.clear();
+								std::cout << "# Loading file \"" << fileName << "\"..\n";
+								dinosaurModel.loadFromFile(fileName);
+								std::cout << "# File loaded!\n";
+								loadFromFile(v,fileName,dinosaurModel,corrEx,scale);		
+							}
+							cout << "\n#  Current file: " << fileName;
+							cout << "\n#  Current scale: " << scale << "\n ----------------- \n\n";
+						}
+						if(event.key.code == sf::Keyboard::Left)
+						{
+							if(version == 1)
+							{
+								version = 2;
+								iteration--;
+							}
+							else
+								version = 1;
+							std::string fName = name + std::to_string(iteration) + "." + std::to_string(version) + ".alx";
+							file.open(fName);
+							if(!file)
+							{
+								std::cout << "\"" + fName + "\" do not exist!\n";
+								iteration = 1;
+								version = 1;
+							}
+							else
+							{
+								file.close();
+								fileName = fName;
+								dinosaurModel.clear();
+								std::cout << "# Loading file \"" << fileName << "\"..\n";
+								dinosaurModel.loadFromFile(fileName);
+								std::cout << "# File loaded!\n";
+								loadFromFile(v,fileName,dinosaurModel,corrEx,scale);		
+							}
+							cout << "\n#  Current file: " << fileName;
+							cout << "\n#  Current scale: " << scale << "\n ----------------- \n\n";
+						}
+
+						// Change scale
+						if(event.key.code == sf::Keyboard::Add)
+						{
+							scale *= 2;
+							loadFromFile(v,fileName,dinosaurModel,corrEx,scale);	
+							cout << "\n#  Current file: " << fileName;
+							cout << "\n#  Current scale: " << scale << "\n ----------------- \n\n";
+						}
+						if(event.key.code == sf::Keyboard::Subtract)
+						{
+							scale /= 2;
+							loadFromFile(v,fileName,dinosaurModel,corrEx,scale);	
+							cout << "\n#  Current file: " << fileName;
+							cout << "\n#  Current scale: " << scale << "\n ----------------- \n\n";
+						}
+
+					}else if(event.type == sf::Event::GainedFocus)
+						lockMouse = true;
+					else if(event.type == sf::Event::LostFocus)
+						lockMouse = false;
+				}
+				if(lockMouse)
+				{
+					dx = sf::Mouse::getPosition(*v.displayWindow).x - v.displayWindow->getSize().x / 2;
+					dy = sf::Mouse::getPosition(*v.displayWindow).y - v.displayWindow->getSize().y / 2;
+					dy = -dy;
+					sf::Mouse::setPosition(sf::Vector2i(v.displayWindow->getSize().x / 2, v.displayWindow->getSize().y / 2),  *v.displayWindow);
+					v.cam.updatePosition(dx, dy);
+				}
+				dx = dy = 0;
+				glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+				v.redraw();
+
+				// Draw SFML 2D-stuff
+				//v.displayWindow->pushGLStates();
+				//v.displayWindow->resetGLStates();
+				//v.displayWindow->popGLStates();
+
+				// Restore state
+				v.displayWindow->display();
+			}
+	}
 
 	waitKey(0);
 	return 0;
+}
+
+
+void loadFromFile(vis::Visualizer & v, std::string & filename, Estimate3D & dinosaurModel, CorrespondanceExtractor & corrEx, double scale)
+{
+	v.plottedPoints.clear();
+
+	for(std::list<Camera*>::iterator i = dinosaurModel.cameras.begin(); i != dinosaurModel.cameras.end(); i++)
+		v.addCamera((*i)->C);
+
+	for(vector<Visible3DPoint>::iterator it = dinosaurModel.visible3DPoint.begin(); it != dinosaurModel.visible3DPoint.end(); ++it){
+		cv::Point3d* whatIsThePoint = it->point3D;
+		int camer1ID = it->observerPair.front().camera1->id;
+		Point2d imageCoordinate;
+		imageCoordinate = it->observerPair.front().point2D.p1;
+
+		Mat image = corrEx.imageList.at(camer1ID);
+		Mat patch = image(Rect(315,240,2,2));
+
+		cv::Vec3f coordinate = Vec3f(whatIsThePoint->x*scale, whatIsThePoint->y*scale, whatIsThePoint->z*scale);
+		v.addPoint(coordinate,patch);
+	}
+	
+	Mat image = corrEx.imageList.back();
+	Mat patch = image(Rect(0,0,2,2));
+	v.addPoint(cv::Vec3f(10,0,0), patch);
+	v.addPoint(cv::Vec3f(0,10,0), patch);
+	v.addPoint(cv::Vec3f(0,0,10), patch);
+	v.addPoint(cv::Vec3f(5,0,0), patch);
+	v.addPoint(cv::Vec3f(0,5,0), patch);
+	v.addPoint(cv::Vec3f(0,0,5), patch);		
+	std::cout << "# Visualizer finished loading, lets see some balls!\n";
 }
 
 

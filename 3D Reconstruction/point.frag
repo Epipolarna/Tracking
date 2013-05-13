@@ -1,11 +1,11 @@
 #version 150
 
-in vec2 texCoordFrag;
+//in vec2 texCoordFrag;
 in vec3 exNormal;
 
 out vec4 outColor;
 
-uniform sampler2D tex;
+//uniform sampler2D tex;
 
 void main(void){
 
@@ -18,6 +18,7 @@ void main(void){
 	float diffuseComponent = dot(normalize(exNormal),normalize(light));
 
 	
-	vec4 color = normalize(texture(tex,texCoordFrag));
-	outColor = (ambientCoeff + diffuseCoeff*diffuseComponent) * color;
+	//vec4 color = normalize(texture(tex,texCoordFrag));
+	vec4 color = vec4(1, 0, 1, 1);
+	outColor = (ambientCoeff + diffuseCoeff*diffuseComponent) * color + 0.2;
 }

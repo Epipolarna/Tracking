@@ -52,9 +52,9 @@ void Visualizer::addCamera(Mat externalParameters){
 	Mat R = externalParameters.rowRange(Range(0,3)).colRange(Range(0,3));
 	Mat t = externalParameters.rowRange(Range(0,3)).colRange(Range(3,4));
 
-	cout << "C " << endl << externalParameters << endl;
-	cout << "R " << endl << R << endl;
-	cout << "t " << endl << t << endl;
+	//cout << "C " << endl << externalParameters << endl;
+	//cout << "R " << endl << R << endl;
+	//cout << "t " << endl << t << endl;
 
 	Mat camCenter = -R.t()*t;
 
@@ -72,9 +72,6 @@ void Visualizer::addCamera(Mat externalParameters){
 
 	Mat(R.t()).copyTo(R4x4(Rect(0,0,3,3)));
 	newCamera.totalRot = Mat(R4x4).clone();
-
-	cout << "Rot: " << R4x4 << endl;
-	cout << "R.t()" << R.t() << endl;
 	
 	cameras.push_back(newCamera);
 }

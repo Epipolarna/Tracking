@@ -183,7 +183,8 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 									   HomPoints3D.at<double>(2,n)/HomPoints3D.at<double>(3,n)));
 	
 	std::vector<int> inlierMask;
-	//NonLinear::PnPSolver(*cam2, GO.inlier2, point3D, inlierMask);
+	//NonLinear::PnPSolver(*cam2);
+	//NonLinear::PnPSolverOCV(*cam2, GO.inlier2, point3D, inlierMask);
 	for(int n = 0; n < point3D.size(); n++)
 		inlierMask.push_back(n);
 

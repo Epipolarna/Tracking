@@ -498,10 +498,10 @@ namespace NonLinear
 		}
 	}
 
-	void NonLinear::PnPSolver(Camera& cam) // minimize reprojecton error over R and t
+	void PnPSolver(Camera& cam) // minimize reprojecton error over R and t
 	{
 		PnPData data;
-		data.K = this->K;
+		data.K = cam.K;
 		data.rVec = cv::Mat(3,1, CV_64FC1);
 		data.tVec = cv::Mat(3,1, CV_64FC1);
 		data.temp2DPoint = cv::Mat(3,1, CV_64FC1);
@@ -525,7 +525,7 @@ namespace NonLinear
 		double* paramArray = params.data();
 		double info[LM_INFO_SZ];
 		int ret;
-		ret = dlevmar_dif(geometricPnPError, paramArray, NULL, 6,(int)data.imagePoints->size(),10000,NULL,info,NULL,NULL,&data);
+		ret = dlevmar_dif(geometricPnPError, paramArray, NULL, 6,(int)2*data.imagePoints->size(),10000,NULL,info,NULL,NULL,&data);
 		printf("Levenberg-Marquardt returned in %g iter, reason %g, output error %g with an initial error of [%g]\n", info[5], info[6], info[1], info[0]);
 		
 		Rodrigues(data.rVec, cam.R);

@@ -13,7 +13,7 @@ public:
 	cv::Mat K;	 // Internal camera parameters
 	cv::Mat C;	 // External camera parameters (C = [R t])
 	cv::Mat R;	 // Rotation
-	cv::Mat t; // Translation
+	cv::Mat t;	 // Translation
 	std::vector<cv::Point2d> imagePoints;
 	std::vector<cv::Point3d*> visible3DPoints;
 public:

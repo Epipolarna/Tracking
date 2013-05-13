@@ -83,7 +83,7 @@ namespace NonLinear
 		void goldStandardRefine(cv::Mat F, std::vector<cv::Point2d> points1, std::vector<cv::Point2d> points2);
 		cv::Mat goldNonLin(cv::Mat F, cv::Mat C1, cv::Mat C2, cv::Mat point3D, std::vector<cv::Point2d> points1, std::vector<cv::Point2d> points2);
 		void BundleAdjust(std::list<Camera*>& views, std::vector<Visible3DPoint>* all3DPoints);
-		void PnPSolver();
+		void PnPSolver(Camera& cam);
 	public:
 		// Hard-coded in constructor
 		cv::Mat K;
@@ -91,7 +91,7 @@ namespace NonLinear
 		
 	};
 
-	void PnPSolver(Camera & cam, std::vector<cv::Point2d> & point2d, std::vector<cv::Point3d> & point3d, std::vector<int> & inlierIndices);
+	void PnPSolverOCV(Camera & cam, std::vector<cv::Point2d> & point2d, std::vector<cv::Point3d> & point3d, std::vector<int> & inlierIndices);
 }
 
 

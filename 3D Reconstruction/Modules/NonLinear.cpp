@@ -459,7 +459,84 @@ namespace NonLinear
 	}
 
 	
-	void PnPSolver(Camera & cam, std::vector<cv::Point2d> & point2d, std::vector<cv::Point3d> & point3d, std::vector<int> & inlierIndices)
+	struct PnPData
+	{
+		cv::Mat rVec, tVec, temp2DPoint, temp3DPoint;
+		cv::Mat R,C,P,K;
+		std::vector<Point3d*>* worldPoints;
+		std::vector<Point2d>* imagePoints;
+
+	};
+
+	void geometricPnPError(double* p, double* error, int m, int n, void* dataPointer)
+	{
+		PnPData* data = static_cast<PnPData*>(dataPointer);
+		data->rVec.ptr<double>()[0] = p[0];
+		data->rVec.ptr<double>()[1] = p[1];
+		data->rVec.ptr<double>()[2] = p[2];
+		data->tVec.ptr<double>()[0] = p[3];
+		data->tVec.ptr<double>()[1] = p[4];
+		data->tVec.ptr<double>()[2] = p[5];
+
+		Rodrigues(data->rVec, data->R);
+		hconcat(data->R, data->tVec, data->C);
+		data->P = data->K * data->C;
+		
+		int errorIdx = 0;
+		for (int i = 0; i < data->imagePoints->size(); i++)
+		{
+			data->temp3DPoint.ptr<double>()[0] = (*data->worldPoints)[i]->x;
+			data->temp3DPoint.ptr<double>()[1] = (*data->worldPoints)[i]->y;
+			data->temp3DPoint.ptr<double>()[2] = (*data->worldPoints)[i]->z;
+			data->temp3DPoint.ptr<double>()[3] = 1;
+
+			data->temp2DPoint = data->P * data->temp3DPoint;
+
+			error[errorIdx] = (*data->imagePoints)[i].x - data->temp2DPoint.ptr<double>()[0] / data->temp2DPoint.ptr<double>()[2];
+			error[errorIdx + 1] = (*data->imagePoints)[i].x - data->temp2DPoint.ptr<double>()[1] / data->temp2DPoint.ptr<double>()[2];
+			errorIdx += 2;		
+		}
+	}
+
+	void NonLinear::PnPSolver(Camera& cam) // minimize reprojecton error over R and t
+	{
+		PnPData data;
+		data.K = this->K;
+		data.rVec = cv::Mat(3,1, CV_64FC1);
+		data.tVec = cv::Mat(3,1, CV_64FC1);
+		data.temp2DPoint = cv::Mat(3,1, CV_64FC1);
+		data.temp3DPoint = cv::Mat(4,1, CV_64FC1);
+		data.R = cv::Mat(3,3,CV_64FC1);
+		data.C = cv::Mat(3,4, CV_64FC1);
+		data.P = cv::Mat(3,4, CV_64FC1);
+		data.worldPoints = &cam.visible3DPoints;
+		data.imagePoints = &cam.imagePoints;
+		Rodrigues(cam.R, data.rVec);
+		data.tVec = cam.t.clone();
+
+		std::vector<double> params;
+		params.push_back(data.rVec.ptr<double>()[0]);
+		params.push_back(data.rVec.ptr<double>()[1]);
+		params.push_back(data.rVec.ptr<double>()[2]);
+		params.push_back(data.tVec.ptr<double>()[0]);
+		params.push_back(data.tVec.ptr<double>()[1]);
+		params.push_back(data.tVec.ptr<double>()[2]);
+
+		double* paramArray = params.data();
+		double info[LM_INFO_SZ];
+		int ret;
+		ret = dlevmar_dif(geometricPnPError, paramArray, NULL, 6,(int)data.imagePoints->size(),10000,NULL,info,NULL,NULL,&data);
+		printf("Levenberg-Marquardt returned in %g iter, reason %g, output error %g with an initial error of [%g]\n", info[5], info[6], info[1], info[0]);
+		
+		Rodrigues(data.rVec, cam.R);
+		cam.t = data.tVec.clone();
+		cam.C = data.C.clone();
+		cam.P = data.P.clone();
+
+	}
+
+	
+	void PnPSolverOCV(Camera & cam, std::vector<cv::Point2d> & point2d, std::vector<cv::Point3d> & point3d, std::vector<int> & inlierIndices)
 	{
 		std::vector<cv::Point2d> CnormPd;
 		std::vector<cv::Point2f> CnormPf;

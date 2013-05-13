@@ -31,7 +31,6 @@ enum ePROGRAM_STATE
 	STAND_ALONE_VIEWER
 } programState;
 
-
 //Utility function used in preprocessing for the goldstandard stuff
 void keyPoints2Points(vector<KeyPoint>& src, vector<Point>& dst )
 {
@@ -78,12 +77,11 @@ int main()
 	if(!logFile)
 		std::cout << "Error to open \"log.txt\"!!\n";
 // Select program state
-	//programState = ePROGRAM_STATE::STAND_ALONE_VIEWER;
+	programState = ePROGRAM_STATE::STAND_ALONE_VIEWER;
 	//programState = ePROGRAM_STATE::CALCULATE_CORRESPONDANCES;
-	programState = ePROGRAM_STATE::ESTIMATE3D;
+	//programState = ePROGRAM_STATE::ESTIMATE3D;
 	//programState = ePROGRAM_STATE::LOADFROMFILE;
 	
-	fileName = "iteration1.2.alx";
 
 // The main program and it's 3 states
 //-----------------------------------
@@ -96,7 +94,7 @@ int main()
 	if(programState == ePROGRAM_STATE::LOADFROMFILE)
 	{
 		std::cout << "# Loading file \"" << fileName << "\"..\n";
-		dinosaurModel.loadFromFile(fileName);
+		dinosaurModel.loadFromFile("iteration2.2.alx");
 		std::cout << "# File loaded!\n";
 	}
 	else
@@ -104,7 +102,7 @@ int main()
 	{
 		// Load matches
 
-		corrEx.loadMatches("data_test_3.alx");
+		corrEx.loadMatches("dinosaur.alx");
 		//corrEx.loadMatches("dinosaur.alx");
 
 		vector<Point2d> imagePoints1;
@@ -182,7 +180,7 @@ int main()
 	logFile.close();
 
 
-	if(1); else  // No more viewing here, use the Stand alone "3D reconstruction viewer"
+	//if(1); else  // No more viewing here, use the Stand alone "3D reconstruction viewer"
 	if(programState == LOADFROMFILE || programState == ESTIMATE3D)
 	{
 		double scale = 10.01;
@@ -216,36 +214,16 @@ int main()
 	
 		Mat image = imageList.back();
 		Mat patch = image(Rect(0,0,2,2));
-		/*
-		cout << "Patch: " << patch << endl;
-		char colorR[3] = {1,0,0};
-		char colorG[3] = {0,1,0};
-		char colorB[3] = {0,0,1};
-							
-		cv::Mat red = cv::imread("red.jpg", CV_LOAD_IMAGE_ANYCOLOR);
-		cv::Mat green = cv::imread("green.jpg", CV_LOAD_IMAGE_ANYCOLOR);
-		cv::Mat blue = cv::imread("blue.jpg", CV_LOAD_IMAGE_ANYCOLOR);
-							
-		//cv::Mat c1 = cv::Mat(1,1, , colorR);
-		cv::Mat c2 = cv::Mat(1,1, patch.type(), colorG);
-		cv::Mat c3 = cv::Mat(1,1, patch.type(), colorB);
-
-		//cout << "c1: " << c1 << endl;
-		cout << "c2: " << c2 << endl;
-		cout << "c3: " << c3 << endl;
-		*/
+		
 		v.addPoint(cv::Vec3f(10,0,0), patch);
 		v.addPoint(cv::Vec3f(0,10,0), patch);
 		v.addPoint(cv::Vec3f(0,0,10), patch);
 		v.addPoint(cv::Vec3f(5,0,0), patch);
 		v.addPoint(cv::Vec3f(0,5,0), patch);
 		v.addPoint(cv::Vec3f(0,0,5), patch);
-		
-
 
 		std::cout << "# Visualizer finished, lets see some balls!\n";
 		v.mainLoop();
-
 	}
 
 	if(programState == ePROGRAM_STATE::STAND_ALONE_VIEWER)
@@ -271,7 +249,7 @@ int main()
 		std::cout << "# File loaded!\n";
 		std::cout << "# Starting Visualization mode...\n";
 		loadFromFile(v,fileName,dinosaurModel,corrEx, scale);		
-
+		
 			// Main loop
 			bool running = true;
 			int dx, dy; 
@@ -460,20 +438,21 @@ int main()
 						}
 
 						// Change scale
-						if(event.key.code == sf::Keyboard::Add)
+						if(event.key.code == sf::Keyboard::Add || event.key.code == sf::Keyboard::Up)
 						{
-							scale *= 2;
+							scale = scale * 2;
 							loadFromFile(v,fileName,dinosaurModel,corrEx,scale);	
 							cout << "\n#  Current file: " << fileName;
 							cout << "\n#  Current scale: " << scale << "\n ----------------- \n\n";
 						}
-						if(event.key.code == sf::Keyboard::Subtract)
+						if(event.key.code == sf::Keyboard::Subtract || event.key.code == sf::Keyboard::Down)
 						{
-							scale /= 2;
+							scale = scale / 2;
 							loadFromFile(v,fileName,dinosaurModel,corrEx,scale);	
 							cout << "\n#  Current file: " << fileName;
 							cout << "\n#  Current scale: " << scale << "\n ----------------- \n\n";
 						}
+
 
 					}else if(event.type == sf::Event::GainedFocus)
 						lockMouse = true;

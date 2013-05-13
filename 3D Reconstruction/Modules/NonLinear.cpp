@@ -493,7 +493,7 @@ namespace NonLinear
 			data->temp2DPoint = data->P * data->temp3DPoint;
 
 			error[errorIdx] = (*data->imagePoints)[i].x - data->temp2DPoint.ptr<double>()[0] / data->temp2DPoint.ptr<double>()[2];
-			error[errorIdx + 1] = (*data->imagePoints)[i].x - data->temp2DPoint.ptr<double>()[1] / data->temp2DPoint.ptr<double>()[2];
+			error[errorIdx + 1] = (*data->imagePoints)[i].y - data->temp2DPoint.ptr<double>()[1] / data->temp2DPoint.ptr<double>()[2];
 			errorIdx += 2;		
 		}
 	}

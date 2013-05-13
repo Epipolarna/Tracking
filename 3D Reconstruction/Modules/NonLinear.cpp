@@ -90,11 +90,6 @@ namespace NonLinear
 			error[4*i+2] = adata->points2[i].x - temppoint2.ptr<double>()[0]/temppoint2.ptr<double>()[2];
 			error[4*i+3] = adata->points2[i].y - temppoint2.ptr<double>()[1]/temppoint2.ptr<double>()[2];
 
-			//error[4*i] = adata->points1[i].x - temppoint1.ptr<double>()[0]/temppoint1.ptr<double>()[2];
-			//error[4*i+1] = adata->points1[i].y - temppoint1.ptr<double>()[1]/temppoint1.ptr<double>()[2];
-			//error[4*i+2] = adata->points2[i].x - temppoint2.ptr<double>()[0]/temppoint2.ptr<double>()[2];
-			//error[4*i+3] = adata->points2[i].y - temppoint2.ptr<double>()[1]/temppoint2.ptr<double>()[2];
-			
 		}
 	}
 
@@ -191,16 +186,8 @@ namespace NonLinear
 		int paramIdx = 0;
 		int pointIdx = 0;
 		BAData* data = static_cast<BAData*>(derp);
+		
 		//Rebuild 3Dpoints (sigh)
-		//data->all3DPoints = Mat(3,data->n3DPoints,CV_64FC1,&p[data->nViews*6]);
-		/*
-		for(int i = 0; i < data->n3DPoints; i++)
-		{
-			(*data)->all3DPoints[i] = p[data->nViews*6 + 3*i];
-			(*data->all3DPoints)[i]->y = p[data->nViews*6 + 3*i + 1];
-			(*data->all3DPoints)[i]->z = p[data->nViews*6 + 3*i + 2];
-		}*/
-
 
 		for(std::vector<Visible3DPoint>::iterator it = data->all3DPoints->begin(); it != data->all3DPoints->end(); it++)
 		{
@@ -214,19 +201,12 @@ namespace NonLinear
 		for (int i = 0; i < data->rotations.size(); i++)
 		{
 			//Extract rotation and translation vectors
-			//setDataRange(p,data->rVec.ptr<double>(),i*6,i*6+3);
-			//setDataRange(p,data->t.ptr<double>(),i*6+3,(i+1)*6);
 			if (i != 0)
 			{
 				setDataRange(p,data->rotations[i].ptr<double>(),(i-1)*6,(i-1)*6+3);
 				setDataRange(p,data->translations[i].ptr<double>(),(i-1)*6+3,(i+0)*6);
 			}
 			
-			
-			//setDataRange(p,data->rotations[i].ptr<double>(),i*6,i*6+3);
-			//setDataRange(p,data->translations[i].ptr<double>(),i*6+3,(i+1)*6);
-			//cout << "rVec: " << data->rotations[i] << endl;
-			//cout << "tVec: " << data->translations[i] << endl;
 			
 			Rodrigues(data->rotations[i].clone(), data->R);
 			//cout << "R: " << data->R << endl;
@@ -245,17 +225,12 @@ namespace NonLinear
 				data->point3D.ptr<double>()[1] = data->points3D[i][j]->y;
 				data->point3D.ptr<double>()[2] = data->points3D[i][j]->z;
 				data->point3D.ptr<double>()[3] = 1;
-				//cout << "3D point: " << data->point3D << endl;
 				
 				// Project onto image plane
 				data->point2D = data->P * data->point3D;
-				//cout << data->point2D.ptr<double>()[0] / data->point2D.ptr<double>()[2] << endl;
-				//cout << data->point2D.ptr<double>()[1] / data->point2D.ptr<double>()[2] << endl;
-				//Calculate residuals.
 				error[errorIdx] = (*data->imagePoints[i])[j].x - data->point2D.ptr<double>()[0] / data->point2D.ptr<double>()[2];
 				error[errorIdx+1] = (*data->imagePoints[i])[j].y - data->point2D.ptr<double>()[1] / data->point2D.ptr<double>()[2];
 				errorIdx += 2;
-				//cout << "errors: " << error[errorIdx] << " " << error[errorIdx + 1] << endl;
 			}
 		}
 	}
@@ -342,9 +317,7 @@ namespace NonLinear
 	void NonLinear::BundleAdjust(std::list<Camera*>& views, std::vector<Visible3DPoint>* _all3DPoints)
 	{
 		int nPoints = 0;
-		//I want this :/
-		//cv::Mat ALL3DPOINTS(3,1337,CV_64FC1);
-		//data.n3DPoints = ALL3DPOINTS.size().width;
+		
 		
 		BAData data;
 		cv::Mat rVec;
@@ -397,14 +370,9 @@ namespace NonLinear
 			params.push_back(itTrans->ptr<double>()[1]);
 			params.push_back(itTrans->ptr<double>()[2]);
 			itTrans++;
-			// 3D points
 		}
 		//All 3D points
-		/*
-		for(MatIterator_<double> matIt = ALL3DPOINTS.begin<double>(); matIt != ALL3DPOINTS.end<double>(); ++matIt)
-		{
-			params.push_back(*matIt);
-		}*/
+		
 		for(std::vector<Visible3DPoint>::iterator it = data.all3DPoints->begin(); it != data.all3DPoints->end(); it++)
 		{
 			params.push_back(it->point3D->x);
@@ -444,18 +412,26 @@ namespace NonLinear
 		std::vector<cv::Mat>::iterator itRot = data.rotations.begin();
 		for(std::list<Camera*>::iterator it = views.begin(); it != views.end(); it++)
 		{
-			cout << "final translation: " << (*itTrans) << endl;
-			cout << "final rotation: " << (*itRot) << endl;
+			cout << "final translation: \n" << (*itTrans) << endl;
+			cout << "final rotation: \n" << (*itRot) << endl;
 			Rodrigues((*itRot).clone(),(*it)->R);
 			cout << "final rotation: \n" << (*it)->R << endl << endl;
 			//vconcat(*itTrans,data.one,(*it)->t); NO U HOMOGENEOUS!
-			*itTrans = (*it)->t.clone();
+			(*it)->t = (*itTrans).clone();
 			hconcat((*it)->R,(*itTrans),(*it)->C);
 			(*it)->P = this->K *  (*it)->C;
 			itTrans++;
 			itRot++;
-		} 
-	
+			
+			/* //Debug
+			if ( it != views.begin())
+			{
+				PnPSolver(*(*it));
+				std::cout << "Rotation according to PnPSolvah: \n" << (*it)->R << std::endl;
+				std::cout << "Translation according to PnPSolvah: \n" << (*it)->t << std::endl;
+			}
+			*/
+		}
 	}
 
 	

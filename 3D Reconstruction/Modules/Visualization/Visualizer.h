@@ -45,7 +45,7 @@ public:
 	GLuint* imageToTexture(Mat texture);
 
 	//variables
-	Shader shader;
+	Shader shader, colorShader;
 	sf::RenderWindow * displayWindow;
 	vector<Object> plottedPoints;
 	vector<Object> cameras;
@@ -54,6 +54,7 @@ public:
 
 	Model* sphereModel;
 	Model* boxModel;
+	Model* cameraModel;
 
 };
 

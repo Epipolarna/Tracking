@@ -21,7 +21,8 @@ namespace vis{
 class Model
 {
 public:
-
+	
+	Model::Model();
 	Model(enum model_type parameter);
 
 	void generate_sphere(void);
@@ -33,6 +34,7 @@ public:
 	GLuint VAO,VBO,NBO,TBO,IBO,CBO;
 	GLuint texture0;
 	int numberOfIndices;
+	int numberOfVertices;
 	
 	std::vector<cv::Vec3f> vertexArray, normalArray;
 	std::vector<cv::Vec2f> texCoordArray;

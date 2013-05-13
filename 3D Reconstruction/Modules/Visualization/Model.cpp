@@ -2,9 +2,16 @@
 
 namespace vis{
 
+	Model::Model(){
+		texture0 = 0;
+		numberOfIndices = 0;
+		numberOfVertices = 0;
+	}
+
 	Model::Model(enum model_type parameter){
 		texture0 = 0;
 		numberOfIndices = 0;
+		numberOfVertices = 0;
 		
 		switch(parameter){
 		case sphere:

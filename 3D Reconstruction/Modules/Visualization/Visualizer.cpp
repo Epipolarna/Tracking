@@ -1,4 +1,5 @@
 #include "Visualizer.h"
+#include "myLoadObj.h"
 
 namespace vis{
 
@@ -15,6 +16,7 @@ Visualizer::Visualizer(void){
 	cam.turningRadius = 10.0;
 
 	shader = Shader(pointV,pointF);
+	colorShader = Shader("colorShader.vert", "colorShader.frag");
 
 	GLfloat mdlA[16] = {1.0, 0.0, 0.0, 0.0,
 						0.0, 1.0, 0.0, 0.0,
@@ -24,6 +26,9 @@ Visualizer::Visualizer(void){
 	
 	sphereModel = new Model(sphere);
 	boxModel = new Model(cube);
+	cameraModel = new Model();
+	myLoadObj("Modules/Visualization/camera.obj", cameraModel);
+	cameraModel->upload();
 
 	//copy modulating matrix to the dynamically allocated one
 	//there is probably a better way to do this...
@@ -53,16 +58,24 @@ void Visualizer::addCamera(Mat externalParameters){
 
 	Mat camCenter = -R.t()*t;
 
-	float x = camCenter.at<double>(0,3);
-	float y = camCenter.at<double>(1,3);
-	float z = camCenter.at<double>(2,3);
+	float x = camCenter.at<double>(0,0);
+	float y = camCenter.at<double>(1,0);
+	float z = camCenter.at<double>(2,0);
 
-	Object newCamera = Object(shader.programRef,boxModel,x,y,z);
+	//Object newCamera = Object(shader.programRef,boxModel,x,y,z);
+	Object newCamera = Object(colorShader.programRef, cameraModel, x,y,z);
 
-	newCamera.scale = Vec3f(2,1,1);
+	newCamera.scale = Vec3f(1,1,1);
 	//newCamera.totalRot = externalParameters(Rect(0,0,2,2));
-	newCamera.totalRot = R.t();
 
+	Mat R4x4 = Mat::eye(4, 4, CV_32FC1);
+
+	Mat(R.t()).copyTo(R4x4(Rect(0,0,3,3)));
+	newCamera.totalRot = Mat(R4x4).clone();
+
+	cout << "Rot: " << R4x4 << endl;
+	cout << "R.t()" << R.t() << endl;
+	
 	cameras.push_back(newCamera);
 }
 
@@ -147,13 +160,23 @@ GLfloat frustumMatrix[] = {		2.0f*nearFrustum/(right-left), 0.0f,					(right+lef
 		it->draw();
 	}
 
+	glUseProgram(colorShader.programRef);
+
+	//cout << "shader program ref is: " << shader.programRef << endl;
+	//cout << "uniform location " << glGetUniformLocation(shader->programRef, "mdlMatrix") << endl;
+
+	glUniformMatrix4fv(glGetUniformLocation(colorShader.programRef,"mdlMatrix"), 1, GL_TRUE, mdl);
+	glUniformMatrix4fv(glGetUniformLocation(colorShader.programRef,"projMatrix"), 1, GL_TRUE, frustumMatrix);
+	cam.lookAtUpdate(1.0);
+	cam.lookAtUpload(colorShader.programRef);
+
 	for(vector<Object>::iterator it = cameras.begin(); it != cameras.end(); ++it){
 		it->draw();
 	}
 	
 	int error = glGetError();
 	if(error != 0 || error != lastError){
-		cout << "opengl error is: 0x" << hex << error << endl;
+		//cout << "opengl error is: 0x" << hex << error << endl;
 		lastError = error;
 	}
 }

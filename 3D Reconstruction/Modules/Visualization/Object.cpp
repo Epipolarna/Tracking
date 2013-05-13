@@ -8,6 +8,7 @@ Object::Object(GLuint p, Model* nm, float nx, float ny, float nz){
 	position = Vec3f(nx,ny,nz);
 	scale = Vec3f(0.5,0.5,0.5);
 	rotAngles = Vec3f(0,0,0);
+	totalRot = Mat::eye(4, 4, CV_32FC1);
 	m = nm;
 	tex = NULL;
 }
@@ -59,7 +60,6 @@ void Object::updateMatrices(){
 							0.0f,		0.0f,		0.0f, 1.0f }; 
 	rotZ = cv::Mat(4, 4, CV_32FC1, rotZData).clone();
 
-
-	totalRot = rotX*rotY*rotZ;
+	//totalRot = rotX*rotY*rotZ;
 }
 }

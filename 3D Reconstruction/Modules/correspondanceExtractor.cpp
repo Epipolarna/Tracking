@@ -34,6 +34,12 @@ void CorrespondanceExtractor::readImages(string prefix, int numberOfImages, stri
 	int step = 1;
 	int fileNo = 1;
 	
+
+	int numberToRead = numberOfImages;
+	//numberToRead = 5;
+
+	//for(int counter = 1; counter <= numberToRead ; counter++)
+
 	for(int counter = 1; counter <= numberOfImages ; counter++)
 	{    
 		if (fileNo > numberOfImages)
@@ -82,7 +88,7 @@ void CorrespondanceExtractor::readImages(string prefix, int numberOfImages, stri
 void CorrespondanceExtractor::findMatches()
 {
 	// FEATURES
-
+	/*
 	// ---------- HARRIS detector -----------
 	int		maxNumberOfFeatures =	200;		// Maximum number of features to return
 	double	qualityLevel =			0.01;		// Remove features with worse than 99 % of the best eigenvalue,			0.01
@@ -91,7 +97,18 @@ void CorrespondanceExtractor::findMatches()
 	bool	useHarris =				true;		// Use Harris or die,													false
 	double	k =						0.04;		// Parameter for Harris detector: Har(x,y) = det - k * trace^2,			0.04
 	GoodFeaturesToTrackDetector featureDetector(maxNumberOfFeatures, qualityLevel, minDistance, blockSize, useHarris, k);
-		
+	*/
+
+	// ---------- HARRIS detector -----------
+	int		maxNumberOfFeatures =	200;		// Maximum number of features to return
+	double	qualityLevel =			0.01;		// Remove features with worse than 99 % of the best eigenvalue,			0.01
+	double	minDistance =			15;			// Minimal Euclidiean distance between features,						3
+	int		blockSize =				3;			// Size of averaging mask when calculating neighbourhood covariance,	3
+	bool	useHarris =				false;		// Use Harris or die,													false
+	double	k =						0.04;		// Parameter for Harris detector: Har(x,y) = det - k * trace^2,			0.04
+	GoodFeaturesToTrackDetector featureDetector(maxNumberOfFeatures, qualityLevel, minDistance, blockSize, useHarris, k);
+
+
 	/*
 	// ---------- SIFT detector -----------
 	double siftThreshold =		0.04;

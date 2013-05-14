@@ -210,9 +210,11 @@ namespace NonLinear
 			
 			Rodrigues(data->rotations[i].clone(), data->R);
 			//cout << "R: " << data->R << endl;
-			hconcat(cv::Mat::eye(3,3,CV_64FC1), data->translations[i].clone(), data->C);
+			//hconcat(cv::Mat::eye(3,3,CV_64FC1), data->translations[i].clone(), data->C);
+			//data->C = data->R * data->C;
+			hconcat(data->R.clone(), data->translations[i].clone(), data->C);
 			//cout <<"C matrix " << data->C << endl;
-			data->C = data->R * data->C;
+			
 			//cout << "C: " << data->C << endl;
 			//cout << "K: " << data->K << endl;
 			data->P = data->K * data->C;

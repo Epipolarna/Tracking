@@ -2,12 +2,8 @@
 
 #include "NonLinear.h"
 
-
-
 using namespace cv;
 using namespace std;
-
-
 
 std::ofstream logFile;
 std::ofstream errorFile;
@@ -18,7 +14,6 @@ namespace NonLinear
 	{
 		this->K = _K.clone();
 	};
-
 
 	Mat crossop(cv::Mat vector)
 	{
@@ -73,9 +68,7 @@ namespace NonLinear
 		Mat one(1,1,CV_64FC1,oneData);
 		Mat tempPoints3D, F, temppoint1, temppoint2, tempPoint3D;
 
-		//tempPoints3D = Mat(3,adata->nPoints3D,CV_64FC1,&p[12]);
 		adata->points3D = Mat(3,adata->nPoints3D,CV_64FC1,&p[12]);
-		//adata->F = Mat(3,3,CV_64FC1,p);
 		
 		setDataRange(p,adata->C2.ptr<double>(),0,12);
 
@@ -236,85 +229,6 @@ namespace NonLinear
 			}
 		}
 	}
-
-	void BAResiduals2(double* p, double* error, int m, int n, void* derp)
-	{
-		int errorIdx = 0;
-		int paramIdx = 0;
-		int pointIdx = 0;
-		BAData* data = static_cast<BAData*>(derp);
-
-		for(std::vector<Visible3DPoint>::iterator it = data->all3DPoints->begin(); it != data->all3DPoints->end(); it++)
-		{
-			it->point3D->x = p[(data->nViews-1)*6 + 3*pointIdx];
-			it->point3D->y = p[(data->nViews-1)*6 + 3*pointIdx + 1];
-			it->point3D->z = p[(data->nViews-1)*6 + 3*pointIdx + 2];
-			pointIdx++;
-		}
-
-		// For all cameras
-		for (int i = 0; i < data->rotations.size(); i++)
-		{
-			//Extract rotation and translation vectors
-			//setDataRange(p,data->rVec.ptr<double>(),i*6,i*6+3);
-			//setDataRange(p,data->t.ptr<double>(),i*6+3,(i+1)*6);
-			//cout << "R: " << data->rotations[i] << endl;
-			//cout << "t: " << data->translations[i] << endl;
-			//for(int k = 0; k < 6; k++)
-			//{
-				//cout << "the fucking params: " <<  p[6*i + k] << std::endl;
-			//}
-			if (i != 0)
-			{
-				setDataRange(p,data->rotations[i].ptr<double>(),(i-1)*6,(i-1)*6+3);
-				setDataRange(p,data->translations[i].ptr<double>(),(i-1)*6+3,(i+0)*6);
-			}
-				//cout << "rVec: " << data->rVec << endl;
-			//cout << "tVec: " << data->t << endl;
-			//cout << data->rotations[i] << endl;
-			//cout << data->translations[i] << endl;
-			Rodrigues(data->rotations[i], data->R);
-			//cout << "R: " << data->rotations[i] << endl;
-			//cout << "R: " << data->translations[i] << endl;
-			hconcat(data->R, data->translations[i], data->C);
-			//cout << "C: " << data->C << endl;
-			//cout << "K: " << data->K << endl;
-			//data->P = data->K * data->C;
-			//cout << "P: " << data->P << endl;
-			// for all visible 3D points, calculate the reprojection error
-			std::vector<double> derp; 
-			std::vector<Point2f> some2dVec;
-			cv::Point3f temp3Dp;
-			data->float3DPs.resize(data->points3D[i].size());
-			some2dVec.resize(data->points3D[i].size());
-			//data->float2DPs.resize(data->points3D[i].size());
-			for(int j = 0; j < data->points3D[i].size(); j++)
-			{
-				// Get the 3D point in hom. coords
-				temp3Dp = Point3f(*(data->points3D[i][j]));
-				//cout << temp3Dp << "  " << *(data->points3D[i][j]) << endl;
-				data->float3DPs[j] = temp3Dp;
-			}
-			projectPoints(data->float3DPs,data->rotations[i],data->translations[i],data->K, derp, some2dVec);
-			for(int j = 0; j < data->points3D[i].size(); j++)
-			{
-				//cout << "3D point: " << data->point3D << endl;
-				//cout << some2dVec[j] << endl;
-				// Project onto image plane
-				//data->point2D = data->P * data->point3D;
-				//cout << data->point2D.ptr<double>()[0] / data->point2D.ptr<double>()[2] << endl;
-				//cout << data->point2D.ptr<double>()[1] / data->point2D.ptr<double>()[2] << endl;
-				//Calculate residuals.
-				error[errorIdx] = (float)(*data->imagePoints[i])[j].x - some2dVec[j].x;
-				error[errorIdx+1] = (float)(*data->imagePoints[i])[j].y - some2dVec[j].y;
-				errorIdx += 2;
-				//cout << "errors: " << error[errorIdx] << " " << error[errorIdx + 1] << endl;
-			}
-			some2dVec.clear();
-		}
-	}
-
-
 
 	void NonLinear::BundleAdjust(std::list<Camera*>& views, std::vector<Visible3DPoint>* _all3DPoints)
 	{

@@ -21,6 +21,15 @@ struct pointPair
 	pointPair(cv::Point2d p1, cv::Point2d p2): p1(p1),p2(p2) {}
 };
 
+
+// Chain generation
+struct ChainNode
+{
+	cv::Point2d point;
+	ChainNode(cv::Point2d point):point(point){}
+};
+
+
 class CorrespondanceExtractor
 {
 public:
@@ -39,6 +48,10 @@ public:
 	cv::Mat K;
 	std::vector<cv::Mat> imageList;
 	std::vector< std::vector<pointPair> > matchesVector;
+
+	// Chain generation
+	std::vector<std::vector<ChainNode>> chain;
+	std::vector<int> startOnImage;
 	
 
 };

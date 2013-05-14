@@ -320,3 +320,64 @@ void CorrespondanceExtractor::generateChains()
 		}
 	}
 }*/
+
+bool ChainGreaterThan(const std::vector<ChainNode> & left, const std::vector<ChainNode> & right) { return left.size() > right.size(); }
+
+void CorrespondanceExtractor::generateChains()
+{
+	std::vector<std::map<cv::Point2d,int>> lookUp; 
+	std::map<cv::Point2d,int>::iterator finder;
+
+	// Add the points for the first image
+	for(int c = 0; c < matchesVector[0].size(); c++)
+	{
+		chain.push_back(std::vector<ChainNode>());
+		chain.back().push_back(ChainNode(matchesVector[0][c].p1));
+		lookUp.push_back(std::map<cv::Point2d,int>());
+		lookUp.back()[matchesVector[0][c].p2] = c;
+		startOnImage.push_back(0);
+	}
+
+	int chainNumber = 0;
+	for(int i = 1; i < matchesVector.size()-1; i++)	//For each two images with correspondances
+	{
+		lookUp.push_back(std::map<cv::Point2d,int>());
+		for(int c = 0; c < matchesVector[i].size(); c++)
+		{
+			finder = lookUp[i-1].find(matchesVector[i][c].p1);
+			if(finder != lookUp[i-1].end())
+			{
+				chainNumber = finder->second;
+				chain[chainNumber].push_back(ChainNode(matchesVector[i][c].p1));
+			}
+			else
+			{
+				chainNumber = chain.size()-1;
+				chain.push_back(std::vector<ChainNode>());
+				chain.back().push_back(ChainNode(matchesVector[i][c].p1));
+				startOnImage.push_back(i);
+			}
+			lookUp.back()[matchesVector[i][c].p2] = chainNumber;
+		}
+	}
+
+	// Add the points for the last image
+	int i = matchesVector.size()-2;
+	for(int c = 0; c < matchesVector[i].size(); c++)
+	{
+		finder = lookUp[i-1].find(matchesVector[i][c].p1);
+		if(finder != lookUp[i-1].end())
+		{
+			chainNumber = finder->second;
+			chain[chainNumber].push_back(ChainNode(matchesVector[i][c].p2));
+		}
+		else
+		{
+			// Big error
+			std::cout << "!!!!!!!!!!!!!!!! W T F (chain generator...) !!!!!!!!!!!!!!!!!! \n";
+		}
+	}
+
+	// Sort on how long the chains are (might be faster if using lists, but then the map must contain list iterators to chain (or similar) for fast access)
+	std::sort(chain.begin(), chain.end(), ChainGreaterThan);
+}

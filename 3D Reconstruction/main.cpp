@@ -44,7 +44,7 @@ int main()
 {
 	// Variables
 	//--------------
-	int cameraAmount = 6;
+	int cameraAmount = 29;
 	int version = 1;
 	clock_t t_BA, t_mainLoop;
 	std::string fileName;
@@ -77,12 +77,11 @@ int main()
 	if(!logFile)
 		std::cout << "Error to open \"log.txt\"!!\n";
 // Select program state
-	programState = ePROGRAM_STATE::STAND_ALONE_VIEWER;
+	//programState = ePROGRAM_STATE::STAND_ALONE_VIEWER;
 	//programState = ePROGRAM_STATE::CALCULATE_CORRESPONDANCES;
-	//programState = ePROGRAM_STATE::ESTIMATE3D;
+	programState = ePROGRAM_STATE::ESTIMATE3D;
 	//programState = ePROGRAM_STATE::LOADFROMFILE;
 	
-
 // The main program and it's 3 states
 //-----------------------------------
 	if(programState == ePROGRAM_STATE::CALCULATE_CORRESPONDANCES)
@@ -102,8 +101,8 @@ int main()
 	{
 		// Load matches
 
+		//corrEx.loadMatches("dinoGT.alx");
 		corrEx.loadMatches("dinosaur.alx");
-		//corrEx.loadMatches("dinosaur.alx");
 
 		vector<Point2d> imagePoints1;
 		vector<Point2d> imagePoints2;

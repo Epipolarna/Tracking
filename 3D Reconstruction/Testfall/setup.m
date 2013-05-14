@@ -137,7 +137,7 @@ t = V(:,3);
 
 %% Save to file
 
-fid = fopen('data_test_1.alx','wt');
+fid = fopen('data_test_2(withK).alx','wt');
 fprintf(fid,'# Correspondances for each imagepair in sequnce\n');
 fprintf(fid,'# Imagepair 1\n');
 for n = 1:length(imagePair1)
@@ -152,16 +152,124 @@ fclose(fid);
 %% --------------------------------------
 
 %% Definitions
+c = [0 0 5]';
+
 t1 = [0 0 0]';
+t2 = [5 0 0]';
+t3 = [5 0 5]';
+t4 = [5 0 10]';
+t5 = [0 0 10]';
+t6 = [-5 0 10]';
+t7 = [-5 0 5]';
+t8 = [-5 0 0]';
+
 R1 = eye(3);
+R2 = Ry(pi/4)';
+R3 = Ry(pi/2)';
+R4 = Ry(3*pi/4)';
+R5 = Ry(pi)';
+R6 = Ry(5*pi/4)';
+R7 = Ry(3*pi/2)';
+R8 = Ry(7*pi/4)';
 
-t2 = -[1 0 0]';
-R2 = Rx(0.1);
+K = [3217.328669180762, -78.606641008226180, 289.8672403229193,
+     0,					2292.424143977958,  -1070.516234777778,
+     0,					0,					1]
 
-t2 = -[1 1 0]';
-R2 = Rx(0.2);
+C1 = K*[eye(3) zeros(3,1)];
+C2 = K*[R2' -R2'*t2];
+C3 = K*[R3' -R3'*t3];
+C4 = K*[R4' -R4'*t4];
+C5 = K*[R5' -R5'*t5];
+C6 = K*[R6' -R6'*t6];
+C7 = K*[R7' -R7'*t7];
+C8 = K*[R8' -R8'*t8];
 
-K = eye(3);
+%% 3D points
 
-C1 = K*[eye(3) zeros(3,1)]
-C2 = K*[R2 t2]       
+% circle
+x = 0:0.1:(2*pi)
+p3D = [cos(x)' (1*sin(3*(x)))' sin(x)'+5 ];
+p3DHom = [p3D ones(length(p3D),1)];
+
+
+%% Image plane coordinates
+
+homImagePoints = {};
+homImagePoints{1} = (C1*p3DHom')';
+homImagePoints{2} = (C2*p3DHom')';
+homImagePoints{3} = (C3*p3DHom')';
+homImagePoints{4} = (C4*p3DHom')';
+homImagePoints{5} = (C5*p3DHom')';
+homImagePoints{6} = (C6*p3DHom')';
+homImagePoints{7} = (C7*p3DHom')';
+homImagePoints{8} = (C8*p3DHom')';
+
+p1 = [homImagePoints{1}(:,1) homImagePoints{1}(:,2)]./[homImagePoints{1}(:,3) homImagePoints{1}(:,3)];
+p2 = [homImagePoints{2}(:,1) homImagePoints{2}(:,2)]./[homImagePoints{2}(:,3) homImagePoints{2}(:,3)];
+p3 = [homImagePoints{3}(:,1) homImagePoints{3}(:,2)]./[homImagePoints{3}(:,3) homImagePoints{3}(:,3)];
+p4 = [homImagePoints{4}(:,1) homImagePoints{4}(:,2)]./[homImagePoints{4}(:,3) homImagePoints{4}(:,3)];
+p5 = [homImagePoints{5}(:,1) homImagePoints{5}(:,2)]./[homImagePoints{5}(:,3) homImagePoints{5}(:,3)];
+p6 = [homImagePoints{6}(:,1) homImagePoints{6}(:,2)]./[homImagePoints{6}(:,3) homImagePoints{6}(:,3)];
+p7 = [homImagePoints{7}(:,1) homImagePoints{7}(:,2)]./[homImagePoints{7}(:,3) homImagePoints{7}(:,3)];
+p8 = [homImagePoints{8}(:,1) homImagePoints{8}(:,2)]./[homImagePoints{8}(:,3) homImagePoints{8}(:,3)];
+
+v = t2 + R2*[0 0 1]';
+
+figure(1); clf; hold on;
+plot3(p3D(:,1), p3D(:,2), p3D(:,3), 'x');
+plot3(t1(1), t1(2), t1(3), 'or');
+plot3(v(1), v(2), v(3), 'xg');
+plot3(t2(1), t2(2), t2(3), 'or');
+plot3(t3(1), t3(2), t3(3), 'or');
+plot3(t4(1), t4(2), t4(3), 'or');
+plot3(t5(1), t5(2), t5(3), 'or');
+plot3(t6(1), t6(2), t6(3), 'or');
+plot3(t7(1), t7(2), t7(3), 'or');
+plot3(t8(1), t8(2), t8(3), 'or');
+
+imagePair1 = [p1 p2];    % p1,p2 are image coordinate pairs
+imagePair2 = [p2 p3];    % p1,p2 are image coordinate pairs
+imagePair3 = [p3 p4];    % p1,p2 are image coordinate pairs
+imagePair4 = [p4 p5];    % p1,p2 are image coordinate pairs
+imagePair5 = [p5 p6];    % p1,p2 are image coordinate pairs
+imagePair6 = [p6 p7];    % p1,p2 are image coordinate pairs
+imagePair7 = [p7 p8];    % p1,p2 are image coordinate pairs
+
+%% Adjust image planes to World 
+
+p1Hom = (C1*p3DHom')'
+%p1 = [p1Hom(:,1) p1Hom(:,2) p1Hom(:,3)]./[p1Hom(:,3) p1Hom(:,3) p1Hom(:,3)]
+p1Camera = [p1 ones(length(p1), 2)]
+C1tw = [R1 t1; 0 0 0 1];
+
+p2Hom = (C2*p3DHom')'
+%p2 = [p2Hom(:,1) p2Hom(:,2) p2Hom(:,3)]./[p2Hom(:,3) p2Hom(:,3) p2Hom(:,3)]
+p2Camera = [p2 ones(length(p2), 2)]
+C2tw = [R2 t2; 0 0 0 1];
+
+p2World = C2tw*p2Camera'
+p1World = C1tw*p1Camera'
+
+figure(2); clf; hold on;
+plot3(p3D(:,1), p3D(:,2), p3D(:,3), 'x');
+plot3(p1World(1,:), p1World(2,:), p1World(3,:), 'xr');
+plot3(p2World(1,:), p2World(2,:), p2World(3,:), 'dg');
+plot3(t1(1), t1(2), t1(3), 'om');
+plot3(t2(1), t2(2), t2(3), 'oc');
+
+
+%% Save files
+
+ip = {imagePair1, imagePair2, imagePair3, imagePair4, imagePair5, imagePair6, imagePair7}; 
+
+fid = fopen('data_test_3.alx','wt');
+fprintf(fid,'# Correspondances for each imagepair in sequnce\n');
+for j = 1:8
+    fprintf(fid,['# Imagepair ' num2str(j) '\n']);
+    for n = 1:length(ip{j})
+       fprintf(fid,'p %0.4f %0.4f %0.4f %0.4f\n',ip{j}(n,1),ip{j}(n,2),ip{j}(n,3),ip{j}(n,4)); 
+    end
+    fprintf(fid,'# Partly Done\n\n');
+end
+fclose(fid);

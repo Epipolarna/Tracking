@@ -69,7 +69,7 @@ public:
 	void saveToFile(std::string path);
 	void loadFromFile(std::string path);
 
-	
+	bool isNonUnique2DPoint(cv::Point3d ** p3D, Camera * c, cv::Point2d & p2D);
 	bool isUnique3DPoint(cv::Point3d ** p3D, Camera * c, cv::Point2d & p2D);
 
 	void clear();
@@ -88,12 +88,6 @@ cv::Mat crossop(cv::Mat vector);
  */
 cv::Mat cameraFromFundamentalMatrix(cv::Mat & F);
 
-/* Apply the cross operator on a vector X or a matrix X
- *	X - 1x3 or 3x1 -> 3x3
- *  X - 3x3		   -> 1x3
- */
-cv::Mat crossOperator(cv::Mat X);
-
 struct GoldStandardOutput
 {
 	cv::Mat P1,P2;
@@ -101,7 +95,7 @@ struct GoldStandardOutput
 	cv::Mat point3D;	// 3xN
 };
 
-cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2d>& points2, cv::Mat K_, GoldStandardOutput * Gout = 0, int RANSAC_threshold = 3);
+cv::Mat getGoldStandardF(cv::vector<cv::Point2d>& points1, cv::vector<cv::Point2d>& points2, cv::Mat K_, GoldStandardOutput * Gout = 0, int RANSAC_threshold = 2);
 
 cv::Mat normalizedCamera();
 

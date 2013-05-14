@@ -1,10 +1,8 @@
 #include "Estimate3D.h"
 
-
 Estimate3D::Estimate3D(void)
 {
 }
-
 
 Estimate3D::~Estimate3D(void)
 {
@@ -138,15 +136,15 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 
 void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2)
 {
-	GoldStandardOutput GO;
+	int reprojectionThreshold = 15;	// Used to remove outliers after PnP
 
+	GoldStandardOutput GO;
 	cv::Mat F = getGoldStandardF(p1,p2, K, &GO);
 	cv::Mat E = K.t()*F*K;
 
 	cv::Mat RGold = GO.P2.rowRange(cv::Range(0,3)).colRange(cv::Range(0,3));
 	cv::Mat tGold = GO.P2.rowRange(cv::Range(0,3)).colRange(cv::Range(3,4));
 
-	//std::cout << "GoldF: " << F << "\n";
 
 	// Convert to camNormalized points
 	cv::vector<cv::Point2d> p1Cnorm, p2Cnorm;
@@ -156,132 +154,136 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 	Camera * cam1 = cameras.back();
 	Camera * cam2 = new Camera();
 	cameras.push_back(cam2);
+	cameraPair.push_back(CameraPair(cam1,cam2));
+	cameraPair.back().F = F;
+	cameraPair.back().E = E;
 
 	cam2->id = cam1->id + 1;
 	cam2->K = K;
 
+	// Estimate a initial guess for the camera pose (R and t)
 	estimateRt(E, cam2->R, cam2->t, p1Cnorm.front(), p2Cnorm.front());
 	
-	/*
-	std::cout << "The World According to Master Klas: " << std::endl;
-	std::cout << "K: " << std::endl << K << std::endl;
-	std::cout << "R: " << std::endl << cam2->R << std::endl;
-	std::cout << "t: " << std::endl << cam2->t << std::endl;
-	std::cout << "The World According to Master GoldStandard: " << std::endl;
-	std::cout << "RGold: " << std::endl << RGold << std::endl;
-	std::cout << "tGold: " << std::endl << tGold << std::endl;
-	*/
-	
-	 cam2->t = cam2->R*cam1->t + cam2->t;
-	 cam2->R = cam2->R*cam1->R;
-
-	 cv::hconcat(cam2->R, cam2->t, cam2->C); 
-	 cam2->P = K*cam2->C;
-
-	 cameraPair.push_back(CameraPair(cam1,cam2));
-	 cameraPair.back().F = F;
-	 cameraPair.back().E = E;
-
-	std::cout << "Camera Properties " << std::endl << std::endl;
-	std::cout << "cam1->R " << std::endl << cam1->R << std::endl;
-	std::cout << "cam1->t " << std::endl << cam1->t << std::endl;
-	std::cout << "cam1->C " << std::endl << cam1->C << std::endl << std::endl;
-
-	std::cout << "cam1 world pose: " << std::endl << -cam1->R.t()*cam1->t << std::endl;
-	std::cout << "cam2->R " << std::endl << cam2->R << std::endl;
-	std::cout << "cam2->t " << std::endl << cam2->t << std::endl;
-	std::cout << "cam2->C " << std::endl << cam2->C << std::endl;
-	std::cout << "cam2 world pose: " << std::endl << -cam2->R.t()*cam2->t << std::endl;
-
-	//triangulate like a BAWS
-	cv:: Mat HomPoints3D;
-	std::vector<cv::Point3d> point3D;
-	cv::triangulatePoints(cam1->P, cam2->P, GO.inlier1, GO.inlier2, HomPoints3D);
-	HomPoints3D.convertTo(HomPoints3D, CV_64FC1);
-	for(int n = 0; n < HomPoints3D.size().width; n++)
-		point3D.push_back(cv::Point3d( HomPoints3D.at<double>(0,n)/HomPoints3D.at<double>(3,n),
-									   HomPoints3D.at<double>(1,n)/HomPoints3D.at<double>(3,n),
-									   HomPoints3D.at<double>(2,n)/HomPoints3D.at<double>(3,n)));
-	
-	std::vector<int> inlierMask;
-	//NonLinear::PnPSolver(*cam2);
-	//NonLinear::PnPSolverOCV(*cam2, GO.inlier2, point3D, inlierMask);
-	for(int n = 0; n < point3D.size(); n++)
-		inlierMask.push_back(n);
-
-	/*
-	std::cout << "inlierMask.size(): " << inlierMask.size() << "\n";
-	std::cout << "point3D.size(): " << point3D.size() << "\n";
-	std::cout << "cam2->R " << std::endl << cam2->R << std::endl;
-	std::cout << "cam2->t " << std::endl << cam2->t << std::endl;
-	std::cout << "cam2->C " << std::endl << cam2->C << std::endl;
-	*/
-
+	cam2->t = cam2->R*cam1->t + cam2->t;
+	cam2->R = cam2->R*cam1->R;
+		
+	// Separate Unique points from those already discovered
 	cv::Point3d * p3d;
-	cv::Mat a,c,r;
-	int m = 1;
-	int nonUniqueAmount = 0;
-	// Fill up the data hierarchy (visibility etc)
-	int n;
-	for(int i = 0; i < inlierMask.size(); i++)
+	std::vector<cv::Point2d> uniqueInliers1, uniqueInliers2;
+	for(int n = 0; n < GO.inlier1.size(); n++)
 	{
-		n = inlierMask[i];
-		p3d = new cv::Point3d(point3D[n]);
-		if(isUnique3DPoint(&p3d, cam1, GO.inlier1[n]))
+		if(isNonUnique2DPoint(&p3d, cam1, GO.inlier1[n]))
 		{
-			visible3DPoint.push_back(Visible3DPoint(p3d, ObserverPair(cam1, cam2, pointPair(GO.inlier1[n],GO.inlier2[n]))));
-
-			cam1->imagePoints.push_back(GO.inlier1[n]);
 			cam2->imagePoints.push_back(GO.inlier2[n]);
+			cam2->visible3DPoints.push_back(p3d);
+		}
+		else
+		{
+			uniqueInliers1.push_back(GO.inlier1[n]);
+			uniqueInliers2.push_back(GO.inlier2[n]);
+		}
+	}
+
+	// Estimate a better camera pose using PnP on all known 3D-points
+	if(cam2->imagePoints.size() > 3)
+	{
+		NonLinear::PnPSolver(*cam2);
+	}
+	else
+	{
+		//P and C is not set by PnP
+		cv::hconcat(cam2->R, cam2->t, cam2->C);
+		cam2->P = K*cam2->C;
+	}
+	errorFile << "Non-unique points found: " << cam2->imagePoints.size() << "\n\n";
+
+	// Triangulate the unique points
+	cv:: Mat HomPoints3D;
+	cv::triangulatePoints(cam1->P, cam2->P, uniqueInliers1, uniqueInliers2, HomPoints3D);
+
+	// Convert to 3D coordinates from homogeneous coordinates 
+	// Remove outliers after PnP triangulation
+	std::vector<cv::Point3d> point3D;
+	std::vector<int> pointMask;
+	HomPoints3D.convertTo(HomPoints3D, CV_64FC1);
+	cv::Mat reprojectedPoint(3,1,CV_64FC1);
+	for(int n = 0; n < HomPoints3D.size().width; n++)
+	{
+		// Remove obvious outliers
+		if(cam2->imagePoints.size() > 3) // Only if PnP was run
+		{
+			reprojectedPoint = cam2->P * HomPoints3D.col(n);
+			if(cv::norm(cv::Mat(uniqueInliers2[n]) - reprojectedPoint.rowRange(cv::Range(0,1))/reprojectedPoint.ptr<double>()[2]) < reprojectionThreshold)
+			{
+				point3D.push_back(cv::Point3d( HomPoints3D.at<double>(0,n)/HomPoints3D.at<double>(3,n),
+											   HomPoints3D.at<double>(1,n)/HomPoints3D.at<double>(3,n),
+									           HomPoints3D.at<double>(2,n)/HomPoints3D.at<double>(3,n) ));
+				pointMask.push_back(n);
+			}
+		}
+		else
+		{
+			point3D.push_back(cv::Point3d( HomPoints3D.at<double>(0,n)/HomPoints3D.at<double>(3,n),
+										   HomPoints3D.at<double>(1,n)/HomPoints3D.at<double>(3,n),
+										   HomPoints3D.at<double>(2,n)/HomPoints3D.at<double>(3,n) ));
+			pointMask.push_back(n);
+			errorFile << "PnP was not run!\n";
+		}
+	}	
+	
+
+	// Fill up the data hierarchy (visibility etc)	
+	int nonUniqueAmount = 0;
+	for(int i = 0; i < pointMask.size(); i++)
+	{
+		int n = pointMask[i];
+		p3d = new cv::Point3d(point3D[i]);
+		if(isUnique3DPoint(&p3d, cam1, uniqueInliers1[n]))	// Checks if any other prevíous 3D-point have already been found
+		{
+			visible3DPoint.push_back(Visible3DPoint(p3d, ObserverPair(cam1, cam2, pointPair(uniqueInliers1[n],uniqueInliers2[n]))));
+
+			cam1->imagePoints.push_back(uniqueInliers1[n]);
+			cam2->imagePoints.push_back(uniqueInliers2[n]);
 
 			cam1->visible3DPoints.push_back(p3d);
 			cam2->visible3DPoints.push_back(p3d);
-			cameraPair.back().pointPairs.push_back(pointPair(GO.inlier1[n], GO.inlier2[n]));
+			cameraPair.back().pointPairs.push_back(pointPair(uniqueInliers1[n], uniqueInliers2[n]));
 			cameraPair.back().point3Ds.push_back(p3d);
-			/*a = cv::Mat(*p3d);
-			c = cam1->R*a + cam1->t;	// Change coordinate system to the global coordinate system(the one of the initial first camera)
-			*p3d = cv::Point3d(c);
-			*/
 		}
 		else
 		{
 			nonUniqueAmount++;
-			// TODO: Only add the 3D points to the new camera, and add the pairs.. (etc..)
-			cam2->imagePoints.push_back(GO.inlier2[n]);
+			cam2->imagePoints.push_back(uniqueInliers2[n]);
 			cam2->visible3DPoints.push_back(p3d);
-			cameraPair.back().pointPairs.push_back(pointPair(GO.inlier1[n], GO.inlier2[n]));
+			cameraPair.back().pointPairs.push_back(pointPair(uniqueInliers1[n], uniqueInliers2[n]));
 			cameraPair.back().point3Ds.push_back(p3d);
-			//std::cout << m << ") Unique point found!";
-			m++;
 		}
 	}
-	std::cout << "\n\n" << nonUniqueAmount << " non unique found!! :D\n\n";
 	errorFile << "Number of connections (nonUnique): " << nonUniqueAmount << "\n";
-	logFile << "Number of connections (nonUnique): " << nonUniqueAmount << "\n";
 }
 
 
 bool LessThanVisible3DPoint(Visible3DPoint & left, Visible3DPoint & right) { return point3dLessThan()(*left.point3D, *right.point3D); }
 
-bool Estimate3D::isUnique3DPoint(cv::Point3d ** p3D, Camera * c, cv::Point2d & p2D)
+bool Estimate3D::isNonUnique2DPoint(cv::Point3d ** p3D, Camera * c, cv::Point2d & p2D)
 {
 	for(int n = 0; n < c->imagePoints.size(); n++)
 	{
 		if(cv::norm(c->imagePoints[n] - p2D) < 10)
 		{
-			delete *p3D;
 			*p3D = c->visible3DPoints[n];
-			return false;
+			return true;
 		}
 	}
+	*p3D = 0;
+	return false;
+}
 
-	
+bool Estimate3D::isUnique3DPoint(cv::Point3d ** p3D, Camera * c, cv::Point2d & p2D)
+{	
 	double margin = 0.05;
 	cv::Point3d * closestMatch = 0;
 	double minError = 1000000000;
-	int e;
-
-	//std::sort(visible3DPoint.begin(), visible3DPoint.end(), LessThanVisible3DPoint);
 
 	for(std::vector<Visible3DPoint>::iterator i = visible3DPoint.begin(); i != visible3DPoint.end(); i++)
 	{
@@ -298,9 +300,7 @@ bool Estimate3D::isUnique3DPoint(cv::Point3d ** p3D, Camera * c, cv::Point2d & p
 		*p3D = closestMatch;
 		return false;
 	}
-
 	
-
 	return true;
 }
 
@@ -318,37 +318,16 @@ cv::Mat cameraFromFundamentalMatrix(cv::Mat & F)
 
 cv::Mat crossop(cv::Mat vector)
 {
-	cv::Mat derp = cv::Mat::zeros(3,3,CV_64FC1);
-	derp.at<double>(0,1) = -vector.at<double>(2,0);
-	derp.at<double>(0,2) = vector.at<double>(1,0);
-	derp.at<double>(1,0) = vector.at<double>(2,0);
-	derp.at<double>(1,2) = -vector.at<double>(0,0);
-	derp.at<double>(2,0) = -vector.at<double>(1,0);
-	derp.at<double>(2,1) = vector.at<double>(0,0);
-	return derp;
+	cv::Mat X = cv::Mat::zeros(3,3,CV_64FC1);
+	X.at<double>(0,1) = -vector.at<double>(2,0);
+	X.at<double>(0,2)  =  vector.at<double>(1,0);
+	X.at<double>(1,0)  =  vector.at<double>(2,0);
+	X.at<double>(1,2)  = -vector.at<double>(0,0);
+	X.at<double>(2,0)  = -vector.at<double>(1,0);
+	X.at<double>(2,1)  =  vector.at<double>(0,0);
+	return X;
 }
 
-cv::Mat crossOperator(cv::Mat X)
-{
-	if(X.size().height * X.size().width == 3)
-	{
-		float Ydata[] = {  0,		  -X.data[2],	 X.data[1],
-						   X.data[2],  0,			-X.data[0],
-						  -X.data[1],  X.data[0],    0			};
-		return cv::Mat(3,3,CV_64FC1,Ydata).clone();
-	}
-	else if(X.size().height == 3 && X.size().width == 3)
-	{
-		float Ydata[] = {  X.at<float>(1,2),	X.at<float>(2,0),  X.at<float>(0,1)  };
-		return cv::Mat(1,2,CV_64FC1,Ydata).clone();
-	}
-	else
-	{
-		std::cout << "!ERROR! crossOperator not defined for a matrix with size (width,height)=(" << X.size().width << "," << X.size().height << ")\n";
-		while(1);
-		return X;
-	}
-}
 
 cv::Mat normalizedCamera()
 {
@@ -402,29 +381,13 @@ cv::Mat getGoldStandardF(cv::vector<cv::Point2d> & points1, cv::vector<cv::Point
 	{
 		normalized3Dpoints.col(i) = normalized3Dpoints.col(i)/dinoHomPoints.at<double>(3,i);
 	}
-	
-	//std::cout << "Inlier percentage  " << (double)inliers1.size()/(double)points1.size()*100 << std::endl;
-	//std::cout << "Fundamental Matrix: " << F << std::endl;
-	//std::cout << "OpenCV F before GS: " << F.clone()/F.at<double>(2,2) << std::endl;
-	//nonlin.goldStandardRefine(F.clone()/F.at<double>(2,2), inliers1,inliers2);
-	
-	
+		
 	//Actual call to the nonlinear part of the goldstandard estimation
 	clock_t t;
 	t = clock();
 	F = nonlin.goldNonLin(F, P1, P2, normalized3Dpoints,inliers1,inliers2);
 	F = F/F.at<double>(2,2);	// Normalize
 	std::cout << "Gold standard nonlin time: " << ((float)(clock() - t))/CLOCKS_PER_SEC << std::endl;
-
-	//std::cout << "Refined Fundamental Matrix: " << F/F.at<double>(2,2) << std::endl;
-	//std::cout << "det(F): " << determinant(F) << std::endl;
-	//return F/F.at<double>(2,2);
-	//std::cout << "\n\n";
-	//std::cout << "OpenCV F AFTER GS: " << F.clone()/F.at<double>(2,2) << std::endl;
-	//nonlin.goldStandardRefine(F.clone(), inliers1,inliers2);
-
-	//std::cout << "Refined Fundamental Matrix: " << F << std::endl;
-	//std::cout << "det(F): " << determinant(F) << std::endl;
 
 
 	if(Gout != 0)
@@ -444,9 +407,7 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f 
 {
 	using namespace std;
 	cv::Mat U, S, V, Vt, W, R1, R2, C1, C21, C22, C23, C24, t1, t2, x1, x2, x3, x4, x21, x22, x23, x24, y11, y21, y22, y23, y24;
-
 	
-
 	// Decompose Essential matrix
 	cv::SVDecomp(E, S, U, Vt);
 	V = Vt.t();
@@ -555,7 +516,6 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f 
 		std::cout << "!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n - - - ERROR: no R & t found?! - - -\n!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 	}
 	R = R.t();
-	//t = -R.t()*t;
 	t = -t;
 	
 	//std::cout << "Chosen t: \n" << t << "\n";
@@ -767,69 +727,8 @@ void Estimate3D::clear()
 	views.clear();
 }
 
-
 bool point3dLessThan::operator()(const cv::Point3d & left, const cv::Point3d & right) const
 {
 	return left.x < right.x || (left.x == right.x && left.y < right.y) || (left.x == right.x && left.y == right.y && left.z < right.z);
 }
-
-/*
-	CameraPair cameraPair;
-	// correctMatches(F, bestPoints1, bestPoints2, optimizedBestPoints1, optimizedBestPoints2)
-	// decomposePorjectionMatrix(
-
-	double Kdata[9] = {	3217.328669180762, -78.606641008226180, 289.8672403229193,
-						0,					2292.424143977958,  -1070.516234777778,
-						0,					0,					1};
-	cv::Mat K(3,3,CV_64FC1,Kdata);
-	cv::Mat K_transposed;
-	transpose(K, K_transposed);
-	
-	cv::Mat E = K_transposed*F*K;
-
-	// Calculate R and t
-	SVD E_svd = SVD(E,SVD::FULL_UV);
-	double Wdata[9] = { 0, 0, 0,
-					   -1, 0, 0,
-						0, 0, 1};
-	cv::Mat W(3,3,CV_64FC1,Wdata);
-	cv::Mat R1, R2, V, U_transpose, W_transpose;
-	transpose(E_svd.u, U_transpose);
-	transpose(E_svd.vt, V);
-	transpose(W, W_transpose);
-
-	R1 = V*W*U_transpose;
-	R2 = V*W_transpose*U_transpose;
-		
-	double C1data[16] = { 1, 0, 0, 0,
-					      0, 1, 0, 0,
-						  0, 0, 1, 0,
-						  0, 0, 0, 1 };	
-	double C21data[16] = { R1.data[0], R1.data[1], R1.data[2], V.data[2],
-					       R1.data[3], R1.data[4], R1.data[5], V.data[5],
-						   R1.data[6], R1.data[7], R1.data[8], V.data[8],
-						   0		 , 0		 , 0		 , 1         };
-	double C22data[16] = { R1.data[0], R1.data[1], R1.data[2], -V.data[2],
-					       R1.data[3], R1.data[4], R1.data[5], -V.data[5],
-						   R1.data[6], R1.data[7], R1.data[8], -V.data[8],
-						   0		 , 0		 , 0		 , 1         };
-	double C23data[16] = { R2.data[0], R2.data[1], R2.data[2], V.data[2],
-					       R2.data[3], R2.data[4], R2.data[5], V.data[5],
-						   R2.data[6], R2.data[7], R2.data[8], V.data[8],
-						   0		 , 0		 , 0		 , 1         };
-	double C24data[16] = { R2.data[0], R2.data[1], R2.data[2], -V.data[2],
-					       R2.data[3], R2.data[4], R2.data[5], -V.data[5],
-						   R2.data[6], R2.data[7], R2.data[8], -V.data[8],
-						   0		 , 0		 , 0		 , 1         };	
-	cv::Mat C1(4,4,CV_64FC1,C1data),
-			C21(4,4,CV_64FC1,C21data),
-			C22(4,4,CV_64FC1,C22data),
-			C23(4,4,CV_64FC1,C23data),
-			C24(4,4,CV_64FC1,C24data);
-
-	cv::Mat point4D;
-	cv::vector<Point2d> point1; point1.push_back(bestPoints1.front());
-	cv::vector<Point2d> point2; point2.push_back(bestPoints2.front());
-	cv::triangulatePoints(C1, C21, point1, point2, point4D);
-	*/
 

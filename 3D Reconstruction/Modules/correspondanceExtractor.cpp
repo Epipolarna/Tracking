@@ -350,7 +350,7 @@ void CorrespondanceExtractor::generateChains()
 				chainNumber = finder->second;
 				chain[chainNumber].push_back(ChainNode(matchesVector[i][c].p1));
 			}
-			else
+			else  // Possible improvement, remove chains that wasn't extended last frame and which have length 1 or 2 or something!
 			{
 				chainNumber = chain.size()-1;
 				chain.push_back(std::vector<ChainNode>());

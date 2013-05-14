@@ -54,7 +54,7 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	cv::Mat RGold = GO.P2.rowRange(cv::Range(0,3)).colRange(cv::Range(0,3));
 	cv::Mat tGold = GO.P2.rowRange(cv::Range(0,3)).colRange(cv::Range(3,4));
 
-	std::cout << "\nGoldF: \n" << F << "\n";
+	//std::cout << "\nGoldF: \n" << F << "\n";
 
 	// Convert to camNormalized points
 	cv::vector<cv::Point2d> p1Cnorm, p2Cnorm;
@@ -73,6 +73,7 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 
 	estimateRt(E, cam2->R, cam2->t, p1Cnorm.front(), p2Cnorm.front());
 		
+	/*
 	std::cout << "The World According to Master Klas: " << std::endl;
 	std::cout << "K: " << std::endl << K << std::endl;
 	std::cout << "R: " << std::endl << cam2->R << std::endl;
@@ -80,6 +81,7 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	std::cout << "The World According to Master GoldStandard: " << std::endl;
 	std::cout << "RGold: " << std::endl << RGold << std::endl;
 	std::cout << "tGold: " << std::endl << tGold << std::endl;
+	*/
 
 	cam1->R = cv::Mat::eye(3, 3, CV_64FC1);
 	cam1->t = cv::Mat::zeros(3, 1, CV_64FC1);
@@ -92,6 +94,19 @@ void Estimate3D::init(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> & p2
 	cameraPair.push_back(CameraPair(cam1,cam2));
 	cameraPair.back().F = F;
 	cameraPair.back().E = E;
+
+	std::cout << "Camera Properties " << std::endl << std::endl;
+	std::cout << "cam1->R " << std::endl << cam1->R << std::endl;
+	std::cout << "cam1->t " << std::endl << cam1->t << std::endl;
+	std::cout << "cam1->C " << std::endl << cam1->C << std::endl << std::endl;
+
+	std::cout << "cam1 world pose: " << std::endl << -cam1->R.t()*cam1->t << std::endl;
+	std::cout << "cam2->R " << std::endl << cam2->R << std::endl;
+	std::cout << "cam2->t " << std::endl << cam2->t << std::endl;
+	std::cout << "cam2->C " << std::endl << cam2->C << std::endl;
+	std::cout << "cam2 world pose: " << std::endl << -cam2->R.t()*cam2->t << std::endl;
+
+
 
 	//triangulate like a BAWS
 	cv:: Mat HomPoints3D;
@@ -131,7 +146,7 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 	cv::Mat RGold = GO.P2.rowRange(cv::Range(0,3)).colRange(cv::Range(0,3));
 	cv::Mat tGold = GO.P2.rowRange(cv::Range(0,3)).colRange(cv::Range(3,4));
 
-	std::cout << "GoldF: " << F << "\n";
+	//std::cout << "GoldF: " << F << "\n";
 
 	// Convert to camNormalized points
 	cv::vector<cv::Point2d> p1Cnorm, p2Cnorm;
@@ -147,6 +162,7 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 
 	estimateRt(E, cam2->R, cam2->t, p1Cnorm.front(), p2Cnorm.front());
 	
+	/*
 	std::cout << "The World According to Master Klas: " << std::endl;
 	std::cout << "K: " << std::endl << K << std::endl;
 	std::cout << "R: " << std::endl << cam2->R << std::endl;
@@ -154,6 +170,7 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 	std::cout << "The World According to Master GoldStandard: " << std::endl;
 	std::cout << "RGold: " << std::endl << RGold << std::endl;
 	std::cout << "tGold: " << std::endl << tGold << std::endl;
+	*/
 	
 	 cam2->t = cam2->R*cam1->t + cam2->t;
 	 cam2->R = cam2->R*cam1->R;
@@ -165,12 +182,16 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 	 cameraPair.back().F = F;
 	 cameraPair.back().E = E;
 
-	 std::cout << "cam1->R " << std::endl << cam1->R << std::endl;
-	 std::cout << "cam1->t " << std::endl << cam1->t << std::endl;
-	 std::cout << "cam1->C " << std::endl << cam1->C << std::endl;
-	 std::cout << "cam2->R " << std::endl << cam2->R << std::endl;
-	 std::cout << "cam2->t " << std::endl << cam2->t << std::endl;
-	 std::cout << "cam2->C " << std::endl << cam2->C << std::endl;
+	std::cout << "Camera Properties " << std::endl << std::endl;
+	std::cout << "cam1->R " << std::endl << cam1->R << std::endl;
+	std::cout << "cam1->t " << std::endl << cam1->t << std::endl;
+	std::cout << "cam1->C " << std::endl << cam1->C << std::endl << std::endl;
+
+	std::cout << "cam1 world pose: " << std::endl << -cam1->R.t()*cam1->t << std::endl;
+	std::cout << "cam2->R " << std::endl << cam2->R << std::endl;
+	std::cout << "cam2->t " << std::endl << cam2->t << std::endl;
+	std::cout << "cam2->C " << std::endl << cam2->C << std::endl;
+	std::cout << "cam2 world pose: " << std::endl << -cam2->R.t()*cam2->t << std::endl;
 
 	//triangulate like a BAWS
 	cv:: Mat HomPoints3D;
@@ -188,11 +209,14 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 	for(int n = 0; n < point3D.size(); n++)
 		inlierMask.push_back(n);
 
+	/*
 	std::cout << "inlierMask.size(): " << inlierMask.size() << "\n";
 	std::cout << "point3D.size(): " << point3D.size() << "\n";
 	std::cout << "cam2->R " << std::endl << cam2->R << std::endl;
 	std::cout << "cam2->t " << std::endl << cam2->t << std::endl;
 	std::cout << "cam2->C " << std::endl << cam2->C << std::endl;
+	*/
+
 	cv::Point3d * p3d;
 	cv::Mat a,c,r;
 	int m = 1;
@@ -227,7 +251,7 @@ void Estimate3D::addView(cv::vector<cv::Point2d> & p1, cv::vector<cv::Point2d> &
 			cam2->visible3DPoints.push_back(p3d);
 			cameraPair.back().pointPairs.push_back(pointPair(GO.inlier1[n], GO.inlier2[n]));
 			cameraPair.back().point3Ds.push_back(p3d);
-			std::cout << m << ") Unique point found!";
+			//std::cout << m << ") Unique point found!";
 			m++;
 		}
 	}
@@ -381,8 +405,8 @@ cv::Mat getGoldStandardF(cv::vector<cv::Point2d> & points1, cv::vector<cv::Point
 	
 	//std::cout << "Inlier percentage  " << (double)inliers1.size()/(double)points1.size()*100 << std::endl;
 	//std::cout << "Fundamental Matrix: " << F << std::endl;
-	std::cout << "OpenCV F before GS: " << F.clone()/F.at<double>(2,2) << std::endl;
-	nonlin.goldStandardRefine(F.clone()/F.at<double>(2,2), inliers1,inliers2);
+	//std::cout << "OpenCV F before GS: " << F.clone()/F.at<double>(2,2) << std::endl;
+	//nonlin.goldStandardRefine(F.clone()/F.at<double>(2,2), inliers1,inliers2);
 	
 	
 	//Actual call to the nonlinear part of the goldstandard estimation
@@ -392,12 +416,12 @@ cv::Mat getGoldStandardF(cv::vector<cv::Point2d> & points1, cv::vector<cv::Point
 	F = F/F.at<double>(2,2);	// Normalize
 	std::cout << "Gold standard nonlin time: " << ((float)(clock() - t))/CLOCKS_PER_SEC << std::endl;
 
-	std::cout << "Refined Fundamental Matrix: " << F/F.at<double>(2,2) << std::endl;
+	//std::cout << "Refined Fundamental Matrix: " << F/F.at<double>(2,2) << std::endl;
 	//std::cout << "det(F): " << determinant(F) << std::endl;
 	//return F/F.at<double>(2,2);
 	//std::cout << "\n\n";
-	std::cout << "OpenCV F AFTER GS: " << F.clone()/F.at<double>(2,2) << std::endl;
-	nonlin.goldStandardRefine(F.clone(), inliers1,inliers2);
+	//std::cout << "OpenCV F AFTER GS: " << F.clone()/F.at<double>(2,2) << std::endl;
+	//nonlin.goldStandardRefine(F.clone(), inliers1,inliers2);
 
 	//std::cout << "Refined Fundamental Matrix: " << F << std::endl;
 	//std::cout << "det(F): " << determinant(F) << std::endl;
@@ -533,8 +557,8 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f 
 	R = R.t();
 	t = -R.t()*t;
 	
-	std::cout << "Chosen t: \n" << t << "\n";
-	std::cout << "Chosen R: \n" << R << "\n";
+	//std::cout << "Chosen t: \n" << t << "\n";
+	//std::cout << "Chosen R: \n" << R << "\n";
 		
 }
 

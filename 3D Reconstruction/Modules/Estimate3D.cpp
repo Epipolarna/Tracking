@@ -555,7 +555,8 @@ void estimateRt(cv::Mat& E, cv::Mat& R, cv::Mat& t, cv::Point2f p1, cv::Point2f 
 		std::cout << "!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n - - - ERROR: no R & t found?! - - -\n!!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!!!!!!!\n";
 	}
 	R = R.t();
-	t = -R.t()*t;
+	//t = -R.t()*t;
+	t = -t;
 	
 	//std::cout << "Chosen t: \n" << t << "\n";
 	//std::cout << "Chosen R: \n" << R << "\n";

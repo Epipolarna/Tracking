@@ -17,11 +17,11 @@ A =  \begin{bmatrix}
 	  , \hspace{1cm} I = image
 \end{equation}
 
-\subsubsection{Descriptor Exstractor}
+\subsubsection{Descriptor Extractor}
 For all of the detected feature points a descriptor is calculated. This is done to be able to compare the features in different images. In this project the SIFT (Scale Invariant Feature Transform) descriptor is used. It is very effective in reducing unwanted effects of changes in illumination, scale and rotation. The way the descriptor work is that it calculates a series of histograms from magnitude and orientation values from a small region around the feature point. The histograms are stored in a high dimensional vector, that once it has been normalized is the finished SIFT descriptor.
 
 \subsubsection{Matching}
-Finally, to find the correspondences between feature points in different images, the SIFT descriptors are compare between all feature points in the images. The descriptors that are most alike are chosen as a pair. There is also a check done to see that the found match is the closest possible match. This is done to remove potential outliers. A final check to get rid of matches that still slip through the first to test are done i a euclidean distance shareholding. Points are not allowed to match on a to great distance.
+Finally, to find the correspondences between feature points in different images, the SIFT descriptors are compared between all feature points in the images. The descriptors that are most alike are chosen as a pair. There is also a check done to see that the found match is the closest possible match. This is done to remove potential outliers. A final check to get rid of matches that still slip through the first test is done in a euclidean distance shareholding. Points are not allowed to match on a to great distance.
 
 Later in the pipeline a RANSAC (Random Sampling Consensus) algorithm is used to remove outliers while estimating the fundamental matrix, $F$, between images. The fundamental matrix defines a necessary but not sufficient constraint for corresponding feature points called the epipolar constraint, \ref{eq:EpipolarConstraint}. If a point pair diverge to far from zero it is discarded.
 
@@ -29,6 +29,3 @@ Later in the pipeline a RANSAC (Random Sampling Consensus) algorithm is used to 
 \label{eq:EpipolarConstraint}
 y_1^T \boldsymbol{F} y_2 = 0
 \end{equation} 
-
-
-

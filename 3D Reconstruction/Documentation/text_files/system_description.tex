@@ -1,13 +1,5 @@
 The system implementation is divided into four main modules, Feature extraction, Pose estimation, Non-linear optimization and 3D visualization.
 
-
-\begin{figure}[htb]
-	\centering
-	\includegraphics[width=120mm]{images/data_flow.png}
-	\caption{\textit{Data flow between modules.}}
-	\label{fig:block_overview_fig}  %Skapar referens till figuren
-\end{figure}
-
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=110mm]{images/system_modules.png}
@@ -15,11 +7,17 @@ The system implementation is divided into four main modules, Feature extraction,
 	\label{fig:block_overview2_fig}  %Skapar referens till figuren
 \end{figure}
 
+First feature extraction using SWIFT.... (preprocessing)
 
-First the background model adapts to the new image and estimate which pixels belong to the background and which that do not. Multiple hypothesis of what the background actually looks like are kept using a mixture of Gaussians model.
+Then initial camera pose estimation + PnP and initial 3D-point triangulation of new unique 3D-points...
 
-After the background model has been updated, the foreground processing module is called upon to perform some noise removal and to detect all the interesting regions in the image (the regions considered to be foreground by the background model)
+Then optimization over both camera poses and 3D-points (BA)...
 
-Once all the interesting regions are localized, the identification module takes all the created objects in the current frame and associates them with the proper ID. This is done by comparison with the objects in the previous frame.
+When all camera poses and estimated 3D-points have been iteratively added and optimized the result is rendered using OpenGL.
 
-To help in the labelling process we use a Kalman predictor, that predicts the position of the each object in the next frame. The Prediction module is called upon after the identification is done.
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=120mm]{images/data_flow.png}
+	\caption{\textit{Data flow between modules.}}
+	\label{fig:block_overview_fig}  %Skapar referens till figuren
+\end{figure}

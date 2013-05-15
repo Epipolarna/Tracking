@@ -1,21 +1,43 @@
-This module is where the nonlinear optimization is performed, using the levmar API \cite{levmar}. Levmar uses the Levenberg-Marquardt non-linear optimization algorithm to optimize a specified residual function, in this case re-projection errors of 3D points int othe camera matrices. the reprojection error is the distance between the 3D point and the corresponding point in the image plane. There are, in the implemented 3D-reconstruction pipeline, two instances where these highly non-linear functions are optimized over up to one thousand parameters. With the Levmar API only accepting a residual function that take double arrays as both in and outputs, considerable preprocessing of the data is required.
+There are three occations within the pipeline where nonlinear optimization is performed. In all three cases the optimization is performed using the levmar API \cite{levmar}. Levmar uses the Levenberg-Marquardt non-linear optimization algorithm to optimize a specified residual function, in this case re-projection errors of 3D points. The reprojection error is the distance, in pixels, between the projected 3D point and the corresponding point in the image plane. There are, in the implemented 3D-reconstruction pipeline, three instances where these highly non-linear functions are optimized over up to one thousand parameters. With the Levmar API only accepting a residual function that take double arrays as both in and outputs, considerable preprocessing of the data is required.
+
+\subsection{Rotation Parametrization}
+In order to make it possible to find the optimal camera poses, the rotation matrices have to be parametrized. In this application they are parametrized using OpenCVs built-in Rodrigues' function, both in the PnP pose estimation and the bundle adjustment. This is a vector-angle representation with the rotation angle described by the norm of the vector. The singularity in the representation for an angle of zero is handled in the implementation, and the other problems are handled by providing good initial guesses for the pose estimation.
 
 \subsection{Gold Standard estimation of F}
-The function computing the gold standard refinement step is implemented as described in alg. 11.3, step (iii) in \cite{HZ}. The function takes, as an input, an initial guess of the F matrix, two projection matrices and vectors containing 2D and 3D correspondences. All input data is then preprocessed and re-arranged to fit the optimization API. The cost function is optimized over the twelve parameters of the projection matrix as well as the 3D-point coordinates. For more in for on how the rest of the steps in the gold standard algorithm are implemented, see section \ref{sec:pose_estimator}.
+The function computing the gold standard refinement step is implemented as described in alg. 11.3, step (iii) in \cite{HZ}. The function takes, as an input, an initial guess of the F matrix, two projection matrices and vectors containing 2D and 3D correspondences. All input data is then preprocessed and re-arranged to fit the optimization API. The cost function described in equation \eqref{eq:GS} below is optimized over the twelve parameters of the projection matrix $P_2$ as well as the 3D-point coordinates, $p^{3D}$. 
+
+\begin{equation}
+\label{eq:GS}
+\varepsilon^2 = \sum_{n=1}^{N} (p_{1,n}^{2D} - \textbf{P}_1p_{n}^{3D})^2 + (p_{2,n}^{2D} - \textbf{P}_2p_{n}^{3D})^2, \hspace{1cm} \textbf{P}_1 = [\bf{I} | \bf{0}]
+\end{equation} 
+
+For more in for on how the rest of the steps in the gold standard algorithm are implemented, see section \ref{sec:pose_estimator}.
+\newpage
+
+\subsection{Solving the PnP}
+In the PnP the camera pose (rotation and translation) is estimated by minimizing the re-projection error of the visible 3D points.
+
+In order for the data to fit the levmar interface and minimize the number of parameters the rotation matrices of each view is parametrized, as mentioned above, using the OpenCV Rodrigues' parametrization. Rotations and translations for each view are then stacked in a vector, along with all currently available 3D points. The second step is to make sure the residual function has access to all needed data, for example the visibility function and point correspondences.
+
+The resulting cost function, to be minimized over \textbf{R} and \textbf{t} is
+
+\begin{equation}
+\label{eq:PnP}
+\varepsilon^2 = \sum_{n=1}^{N} (p_n^{2D} - \textbf{KC}p_{n}^{3D})^2, \hspace{1cm} \textbf{C} = [\bf{R} | \bf{t}]
+\end{equation} 
 
 \subsection{Bundle Adjustment}
-The most important use of the non-linear optimizing module is in the bundle adjustment step of the 3D-reconstruction pipeline. The bundle adjustment function refines the estimates of both camera poses (rotation + translation) and location of 3D points for all views. 
+Th largest and most time-consuming use of the non-linear optimizing module is in the bundle adjustment step of the 3D-reconstruction pipeline. The bundle adjustment function refines the estimates of both camera poses (rotation + translation) and location of 3D points for all views. 
 
-In order for the data to fit the levmar interface and minimize the number of parameters the rotation matrices of each view is parametrized  using Rodrigues' formula. Rotations and translations for each view are then stacked in a vector, along with all currently available 3D points. the second step is to make sure the residual function has access to all needed data, for example the visibility function and point correspondences.
-
-The residual function simply, for each view, calculates the re-projection error of all 3D points visible in that view, i.e the pixel distance of the reprojected 3D points to the actual image points used in the triangulation. In the equation below, $V$ denotes the number of views, $N_v$ the number of points visible in each view, and i $I_{v,n}$ the corresponding image points.
+The residual function simply, for each view, calculates the re-projection error of all 3D points visible in that view, i.e the pixel distance of the reprojected 3D points to the actual image points used in the triangulation. In the equation below, $V$ denotes the number of views, $N_v$ the number of points visible in each view, and $p_{v,n}$ the corresponding image points. This expression is then minimized over all $p^{3D}$ as well as all rotations and translations. 
 
 \begin{equation}
 \label{eq:BA}
-\varepsilon^2 = \sum_{v=1}^{V}\sum_{n=1}^{N_v} (I_{v,n} - KC_vP_{v,n})^2, \hspace{1cm} C_v = [R_v | t_v]
+\varepsilon^2 = \sum_{v=1}^{P}\sum_{n=1}^{N_v} (p_{v,n}^{2D} - \textbf{KC}_vp_{v,n}^{3D})^2, \hspace{1cm} \textbf{C}_v = [\textbf{R}_v | \textbf{t}_v]
 \end{equation} 
 
-The number of outputs from the residual function scales rapidly with the number of views, as each view gives an additional $ 6 + 2n_v $ observations, where $ n_v $ is the number of 2D inliers in view $v$.
+
+The number of outputs from the residual function scales rapidly with the number of views, as each view gives an additional $ 6 + 2N_v $ observations, where $ N_v $ is the number of 2D inliers in view $v$.
 
 
 

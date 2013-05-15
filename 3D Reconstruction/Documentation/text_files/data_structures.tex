@@ -1,4 +1,4 @@
-In order to keep a good structure on the program and a logical separation of functionalities, several different data structures have been created. The main thought when implementing the data structures was to enable easy access to all needed data, since some data, e.g. the 3D points has to be able to both access and modify in several different steps of the pipeline.
+In order to keep a good structure on the program and a logical separation of functionalities, several different data structures have been created. The main thought when designing the data structures was to enable easy access to all needed data for each stage in the pipeline each with different requirements and needs. The interfaces from Estimate3D provide such access to different arrangement of the same data, such as the 3D points, which have to be possible to both access and modify in several different steps of the pipeline.
 
 \begin{figure}[htb]
 	\centering
@@ -6,8 +6,6 @@ In order to keep a good structure on the program and a logical separation of fun
 	\caption{\textit{UML diagram of the main data structures. ... ... ...}}
 	\label{fig:UML_fig} %Skapar referens till figuren
 \end{figure}
-
-
 
 \subsubsection{PointPair, ObserverPair}
 The point pair structure simply consists of two point pairs (cv::Point2d) from two different images that correspond to the same 3D point and the ObserverPair class contains one PointPair as well as pointers to the specific Cameras (see below) from which the PointPair originates. 

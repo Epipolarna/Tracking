@@ -1,7 +1,9 @@
 To get this machinery going it is necessary to find points in the images that are interesting to look at and follow through out the sequence. It is the correspondences between points in different images that will provide the information needed to reproduce the sequence in 3D. 
 
 \subsubsection{Feature Extractor}
-The feature extraction was carried out using Harris feature detector. This method uses the local structure tensor to sort out interesting parts of the image according to \eqref{eq:Harris}. This will generate a function where the value in each point is the level if interest in that local region. To select points one can threshold this at an appropriate level and morphologically shrink it to points. Besides the level of threshold one mat also be interested in the closest distance between feature points. To be able to estimate the fundamental matrix of an image pair it is important to have known points all over the images. It is however not necessary to have more than eight corresponding points to calculate minimal estimate the fundamental matrix, also the calculation complexity will be reduced with fewer points. This motivates the interest of finding rather few, properly spread out feature points. 
+The feature extraction was carried out using Harris feature detector. This method uses the local structure tensor to sort out interesting parts of the image according to \eqref{eq:Harris}. This will generate a function where the value in each point is the level if interest in that local region. To select points one can threshold this at an appropriate level and morphologically shrink it to points. Besides the level of threshold one may also be interested in the closest distance between feature points. 
+
+To be able to estimate the fundamental matrix of an image pair it is important to have known points all over the images. It is however not necessary to have more than eight corresponding points to calculate minimal estimate the fundamental matrix, also the calculation complexity will be reduced with fewer points. This motivates the finding few, properly spread out feature points. 
 
 \begin{equation}
 \label{eq:Harris}

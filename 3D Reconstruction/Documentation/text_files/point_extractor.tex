@@ -19,6 +19,13 @@ A =  \begin{bmatrix}
 	  , \hspace{1cm} I = image
 \end{equation}
 
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=110mm]{images/FeatureDetection.png}
+	\caption{\textit{Feature points indicated with small circles. Notice the even distribution on the dinosaur body.}}
+	\label{fig:FeaturePoints} %Skapar referens till figuren
+\end{figure}
+
 \subsubsection{Descriptor Extractor}
 For all of the detected feature points a descriptor is calculated. This is done to be able to compare the features in different images. In this project the SIFT (Scale Invariant Feature Transform) descriptor is used. It is very effective in reducing unwanted effects of changes in illumination, scale and rotation. The way the descriptor work is that it calculates a series of histograms from magnitude and orientation values from a small region around the feature point. The histograms are stored in a high dimensional vector, that once it has been normalized is the finished SIFT descriptor.
 
@@ -31,3 +38,10 @@ Later in the pipeline a RANSAC (Random Sampling Consensus) algorithm is used to 
 \label{eq:EpipolarConstraint}
 y_1^T \boldsymbol{F} y_2 = 0
 \end{equation} 
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=\textwidth] {images/CorrespondenceDetection.png}
+	\caption{\textit{Correspondences indicated with lines. Circles without a line attached lack correspondence.}}
+	\label{fig:Correspondences} %Skapar referens till figuren
+\end{figure}

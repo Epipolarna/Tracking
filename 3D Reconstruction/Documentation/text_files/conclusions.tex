@@ -12,6 +12,7 @@ The pose estimator is really sensitive to the quality of the correspondences. It
 \subsubsection{Possible improvements}
 If something about the camera trajectory is known one could possibly constrain the pose estimation and make it more robust.
 Another possible improvement would be to find chains of corresponding points though out the image sequence which then should correspond to the same 3D-point. Using as long chains as possible while still always have at least a minimum of image points in each image they could be cross-validated for each image and the worst points removed from the chains, splitting these, and resulting in possibly very high-quality estimates of trajectories of 3D-points captured in the image sequence. These chains could then be used in the pipeline resulting in a very sparse 3D-model with possibly very high camera pose estimation accuracy. The next step would then be to triangulate most other image points using these "known" cameras and building up a dense 3D-model. Additional verifications, validations and re-estimations of the camera-poses might be done in order to ensure that the estimated cameras poses are indeed very accurate. The speed up from this process could be very large, as well as the quality of the model perhaps!
+\newpage
 
 \subsection{Non-linear Optimizer}
 The non-linear optimization implementation performs well and no significant problems related to neither the pose representation, nor the representation of points or the visibility function were struck. The hardest part was to figure out how to convert all the data to fit the API, but once that was figured out, the implementation was very straight-forward, and the bundle adjustment part was not much harder to implement than the Gold Standard or PnP parts.
@@ -19,9 +20,7 @@ The non-linear optimization implementation performs well and no significant prob
 \subsubsection{Possible improvements}
 The improvement that would yield the largest performance increase in the bundle adjustment would be making use of the lack of independence between views and drastically lower the computational load. The original thought was to use the sparseLM API \cite{sparseLM}. Unfortunately, due to lack of time, this was never implemented as it would require the representation of the visibility function to be remade completely. 
 
-A second significant improvement would be to make use of the LAPACK API, that was highly recommended for use in combination with levmar, and said to speed things up significantly. It was, however, rather complicated to set up, which is the reason it is not used in this implementation.
-
-the third possible improvement lies in more effective data representations. For example storing 3D points in matrices instead of vectors.
+A second significant improvement would be to make use of the LAPACK API, that was highly recommended for use in combination with levmar, and said to speed things up significantly. It was, however, rather complicated and time consuming to set up, and these are the reasons it is not used in this implementation.
 
 \subsection{3D Visualization}
 Implementing this part of the system in OpenGL was perhaps not the wisest decision, as the amount of work and difficulty to debug OpenGL calls made progress rather slow.

@@ -1,9 +1,5 @@
 A necessity for a system like this one to work in practice is for it to be robust against outliers. The difficulty in finding and removing these outliers have been the most challenging part of this implementation.
 
-\subsection{Parameters}
-INSERT TABLES AND STUFF SOMEONE PLEASE
-By tweaking the parameters for the two thresholds performance could probably be improved even further.
-
 \subsection{Robustness}
 After applying outlier removal both in the gold standard estimation, where outliers are removed by thresholding on the epipolar line distance, and before the bundle adjustment where known 3D point correspondences from the previous frame are used as a consensus set, the implementation became robust against outliers and manages to handle most data sets with good enough point correspondences. 
 

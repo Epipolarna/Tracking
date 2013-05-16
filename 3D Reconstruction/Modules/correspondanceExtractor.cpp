@@ -292,48 +292,25 @@ void CorrespondanceExtractor::getBAPoints(int imagePair, vector<Point2d>& BAPoin
 	}
 }
 
-struct chainNode
-{
-	int startImage;
-	int currentIdx;
-	int prevIdx; // -1 if first in chain
-	int nextIdx; // -1 if last in chain
-};
-/*
-struct NextPoint
-{
-	cv::Point2d newP1;
-	chainNode * c;
-	NextPoint(cv::Point2d p, chainNode * c) : newP1(p),c(c) {}
-};
 
-void CorrespondanceExtractor::generateChains()
-{
-	std::list<chainNode*> chain;
-	std::vector<NextPoint> nextPoints;
-	for(int i = 0; i < matchesVector.size(); i++)	//For each two images with correspondances
-	{
-		for(int c = 0; c < matchesVector[i].size(); c++)
-		{
-			matchesVector[i][c];
-			nextPoints.push_back(NextPoint(matchesVector[i][c].p2, 
-		}
-	}
-}*/
 
 bool ChainGreaterThan(const std::vector<ChainNode> & left, const std::vector<ChainNode> & right) { return left.size() > right.size(); }
 
+struct Point2dLessThan {
+	bool operator() (const cv::Point2d & left, const cv::Point2d & right) { return left.x < left.y || (left.x == right.x && left.y < right.y); }
+};
+
 void CorrespondanceExtractor::generateChains()
 {
-	std::vector<std::map<cv::Point2d,int>> lookUp; 
-	std::map<cv::Point2d,int>::iterator finder;
+	std::vector<std::map<cv::Point2d,int,Point2dLessThan>> lookUp; 
+	lookUp.resize(matchesVector.size(),std::map<cv::Point2d,int,Point2dLessThan>());	// Pre-allocate
+	std::map<cv::Point2d,int,Point2dLessThan>::iterator finder;
 
 	// Add the points for the first image
 	for(int c = 0; c < matchesVector[0].size(); c++)
 	{
 		chain.push_back(std::vector<ChainNode>());
 		chain.back().push_back(ChainNode(matchesVector[0][c].p1));
-		lookUp.push_back(std::map<cv::Point2d,int>());
 		lookUp.back()[matchesVector[0][c].p2] = c;
 		startOnImage.push_back(0);
 	}
@@ -341,7 +318,6 @@ void CorrespondanceExtractor::generateChains()
 	int chainNumber = 0;
 	for(int i = 1; i < matchesVector.size()-1; i++)	//For each two images with correspondances
 	{
-		lookUp.push_back(std::map<cv::Point2d,int>());
 		for(int c = 0; c < matchesVector[i].size(); c++)
 		{
 			finder = lookUp[i-1].find(matchesVector[i][c].p1);

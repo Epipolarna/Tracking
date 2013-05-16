@@ -86,6 +86,7 @@ void Visualizer::addPoint(Vec3f pos, Mat texture){
 	Texture *tex = new Texture();
 	tex->dataFromMatrix(texture);
 	newPoint.tex = tex;
+	newPoint.scale = cv::Vec3f(0.1, 0.1, 0.1);
 	plottedPoints.push_back(newPoint);
 }
 

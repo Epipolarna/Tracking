@@ -41,5 +41,14 @@ Using more cameras will make the resulting point cloud become more dense, as the
 	\label{fig:CANHASDUALIMAGE}  %Skapar referens till figuren
 \end{figure}
 
+Points located on the table rather than on the dinousar will be correctly triangulated to lie in a plane, at the same level as dinosaur.
+
+\begin{figure}[htb]
+	\centering
+	\includegraphics[width=110mm]{images/inAplane.png}
+	\caption{\textit{Some points on the plane the dinosaur is located on will also be triangulated.}}
+	\label{fig:pointsOnAPlane}  %Skapar referens till figuren
+\end{figure}
+
 \subsubsection{File managing}
 Each iteration of the reconstruction pipeline produces two files, one with the reconstruction state before the bunle adjustment and one after. The files contain all detected 2D correspondances, the calculated fundamental matrix, and the known 3D points. The data is saved as text, to make inspection easier.

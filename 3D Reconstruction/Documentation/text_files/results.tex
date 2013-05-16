@@ -1,3 +1,7 @@
 To many outliers in the 2D-data
 
 Slow reconstruction, especially the nonlinear part.
+
+
+\subsection{Non-linear Optimizer}
+The non-linear optimization implementation perfroms well in the gold standard F-matrix estimation and the pose estimation, however, after around ten frames the bundle adjustment speed slows down significantly due to a number of reasons. The dinosaur set for example, (36 images) with the SIFT extractor tuned to generate around 50 points per image, iteration speed slows down significantly after around ten iterations, and the whole set takes several hours to complete. Besides the slow speed there is nothing wrong with the non-linear model and it works perfectly fine on all the data sets tried out so far.

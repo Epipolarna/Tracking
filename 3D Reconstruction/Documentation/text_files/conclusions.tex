@@ -1,3 +1,4 @@
+kjgjkhj
 
 \subsection{Point Extractor}
 
@@ -12,14 +13,17 @@
 
 
 \subsection{Non-linear Optimizer}
-
+The non-linear optimization implementation performs well and no significant problems related to neither the pose representation, nor the representation of points or the visibility function were struck. The hardest part was to figure out how to convert all the data to fit the API, but once that was figured out, the implementation was very straight-forward, and the bundle adjustment part was not much harder to implement than the Gold Standard or PnP parts.
 
 \subsubsection{Possible improvements}
+The improvement that would yield the largest performance increase in the bundle adjustment would be making use of the lack of independence between views and drastically lower the computational load. The original thought was to use the sparseLM API \cite{sparseLM}. Unfortunately, due to lack of time, this was never implemented as it would require the representation of the visibility function to be remade completely. 
 
+A second significant improvement would be to make use of the LAPACK API, that was highly recommended for use in combination with levmar, and said to speed things up significantly. It was, however, rather complicated to set up, which is the reason it is not used in this implementation.
 
-\pagebreak
+the third possible improvement lies in more effective data representations. For example storing 3D points in matrices instead of vectors.
+
 \subsection{3D Visualization}
-Implementing this part of the system in opengl was perhaps not the wisest decision, as the ammount of work and difficilty to debug opengl calls made progress rather slow.
+Implementing this part of the system in OpenGL was perhaps not the wisest decision, as the amount of work and difficulty to debug OpenGL calls made progress rather slow.
 
 It did however make it easy to implement project-specific functions into the visualizer without having to learn yet another API.
 

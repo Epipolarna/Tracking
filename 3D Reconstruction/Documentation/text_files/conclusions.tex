@@ -1,16 +1,16 @@
 kjgjkhj
 
-\subsection{Point Extractor}
-
+\subsection{Correspondence Extractor}
+It is fairly important to do the correspondence extraction well. There are a couple of parameters that need to be tuned properly for every sequence. The features need be evenly distributed in the image the get enough information. It is for instance not good to have all features in a plane or many feature close to each other. This is solved with a minimum distance allowed between features. It is also important to look for features of the right size. This depends on resolution and image structure. To keep the number of features low and the quality high helps the program run faster. 
 
 \subsubsection{Possible improvements}
-
+Automatic parameter detection based on image analysis some how would make the program more user friendly. At the moment it requires an experienced user. 
 
 \subsection{Pose Estimator}
-
+The pose estimator is really sensitive to the quality of the correspondences. It does not like outliers, nor points laying in a plane. This corrupts the estimation completely, but as long as the outliers are removed and the points are spread out in more than two dimensions it works well.
 
 \subsubsection{Possible improvements}
-
+If something about the camera trajectory is known one could possibly constrain the pose estimation and make it more robust. 
 
 \subsection{Non-linear Optimizer}
 The non-linear optimization implementation performs well and no significant problems related to neither the pose representation, nor the representation of points or the visibility function were struck. The hardest part was to figure out how to convert all the data to fit the API, but once that was figured out, the implementation was very straight-forward, and the bundle adjustment part was not much harder to implement than the Gold Standard or PnP parts.

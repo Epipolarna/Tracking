@@ -4,26 +4,28 @@ It can be run as a stand alone program, or as a last step in the 3D-reconstructi
 
 It is also possible to alter the scale of the points and cameras, as there is no automatic scaling in place and the points are drawn as colored spheres.
 
-%massa bilder här, nån får ta och "fota" dem.
-
 \subsubsection{Visualization}
-The estimated 3D-points are plotted as textured/colored spheres, using the color from the image where the corresponding interest point was first detected, or a region surrounding the point. (this looks rather bad however)
+The estimated 3D-points are plotted as textured/colored spheres, using the color from the image where the corresponding interest point was first detected, or a region surrounding the point. (this looks rather poor however)
 
 Cameras are plotted as cones pointing toward the point cloud.
 
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=110mm]{images/camRingLots.png}
-	\caption{\textit{some cameras}}
+	\caption{\textit{Camera positions}}
 	\label{fig:camRingLots}  %Skapar referens till figuren
 \end{figure}
+
+Using only a few cameras results in very poor depth accuarcy for the plotted points, as seen in \rec{camRingFew} 
 
 \begin{figure}[htb]
 	\centering
 	\includegraphics[width=110mm]{images/pointCloudFewCam.png}
 	\caption{\textit{The dinosoaur with only a few cameras, very poor depth accuracy}}
-	\label{fig:camRingLots}  %Skapar referens till figuren
+	\label{fig:camRingFew}  %Skapar referens till figuren
 \end{figure}
+
+Using more cameras will make the resulting point cloud become more dense, as the depth accuracy improves.
 
 \subsubsection{File managing}
 Each iteration of the reconstruction pipeline produces two files, one with the reconstruction state before the bunle adjustment and one after. The files contain all detected 2D correspondances, the calculated fundamental matrix, and the known 3D points. The data is saved as text, to make inspection easier.

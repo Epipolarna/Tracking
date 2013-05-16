@@ -1,7 +1,7 @@
 A necessity for a system like this one to work in practice is for it to be robust against outliers. The difficulty in finding and removing these outliers have been the most challenging part of this implementation.
 
 \subsection{Robustness}
-After applying outlier removal both in the gold standard estimation, where outliers are removed by thresholding on the epipolar line distance, and before the bundle adjustment where known 3D point correspondences from the previous frame are used as a consensus set, the implementation became robust against outliers and manages to handle most data sets with good enough point correspondences. 
+After applying outlier removal both in the gold standard estimation, where outliers are removed by thresholding on the epipolar line distance, and before the bundle adjustment where known 3D point correspondences from the previous frame are used as a consensus set, the implementation became robust against outliers and manages to handle the data sets tested with good enough point correspondences. 
 
 \subsection{Computational load}
 The non-linear optimization implementation performs well in the gold standard F-matrix estimation and the pose estimation, however, after around ten frames the bundle adjustment speed slows down significantly for a number of reasons. The dinosaur set for example, (36 images) with the SIFT extractor tuned to generate around 50 points per image, iteration speed slows down significantly after around ten iterations, and the whole set takes several hours to complete. Besides the slow speed there is nothing wrong with the non-linear model and it works fine on all the data sets tried out so far.

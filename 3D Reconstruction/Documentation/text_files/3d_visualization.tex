@@ -5,8 +5,7 @@ It can be run as a stand alone program, or as a last step in the 3D-reconstructi
 It is also possible to alter the scale of the points and cameras, as there is no automatic scaling in place and the points are drawn as colored spheres.
 
 \subsubsection{Visualization}
-The estimated 3D-points are plotted as textured/colored spheres, using the color from the image where the corresponding interest point was first detected, or a region surrounding the point. (this looks rather poor however)
-
+The estimated 3D-points are plotted as textured/colored spheres, using the color from the image where the corresponding interest point was first detected, or a region surrounding the point. \\
 Cameras are plotted as cones pointing toward the point cloud.
 
 \begin{figure}[htb]
@@ -45,9 +44,19 @@ Points located on the table rather than on the dinousar will be correctly triang
 
 \begin{figure}[htb]
 	\centering
-	\includegraphics[width=110mm]{images/inAplane.png}
-	\caption{\textit{Some points on the plane the dinosaur is located on will also be triangulated.}}
-	\label{fig:pointsOnAPlane}  %Skapar referens till figuren
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[width=55mm]{images/dinosaur_alx_BACKSIDE.png}
+	\end{subfigure}
+	~ ~ ~
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[width=55mm]{images/dinosaur_alx_LEFTSIDE.png}
+	\end{subfigure}
+	~ ~ ~
+	\begin{subfigure}[b]{0.3\textwidth}
+		\includegraphics[width=55mm]{images/dinosaur_alx_FRONT.png}
+	\end{subfigure}
+		\caption{\textit{The ground plane can be seen clearly, points where the ground had marks utilised by the point extractor. In the back some of the cameras can be seen, slightly distorted by the frustum used in the visualization.}}
+	\label{fig:CANHASDUALIMAGE}  %Skapar referens till figuren
 \end{figure}
 
 \subsubsection{File managing}

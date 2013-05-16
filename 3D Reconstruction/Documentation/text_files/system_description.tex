@@ -7,7 +7,7 @@ The system implementation is divided into four main modules, Feature extraction,
 	\label{fig:block_overview2_fig}  %Skapar referens till figuren
 \end{figure}
 
-First feature extraction using Harris is performed as a preprocessing step on all images. These are used to calculate pairwise image point correspondences using SIFT.
+The first step is feature extraction using the Harris operator, the pairwise correspondences is then computed using SIFT.
 
 Then an iterative process is performed cycling though all camera-pairs, each consisting of two parts. The first part contains an initial camera pose estimation, of the new camera, using the essential matrix estimated from F using the Gold standard algorithm. The camera pose is then improved using PnP on all previously known 3D-points and over all cameras. An initial 3D-point triangulation is then calculated.
 The second part is a bundle adjustment over all current 3D points and cameras by the means of a non-linear optimization.

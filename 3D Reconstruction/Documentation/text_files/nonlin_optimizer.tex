@@ -1,7 +1,7 @@
-There are three occations within the pipeline where nonlinear optimization is performed. In all three cases the optimization is performed using the levmar API \cite{levmar}. Levmar uses the Levenberg-Marquardt non-linear optimization algorithm to optimize a specified residual function, in this case re-projection errors of 3D points. The reprojection error is the distance, in pixels, between the projected 3D point and the corresponding point in the image plane. There are, in the implemented 3D-reconstruction pipeline, three instances where these highly non-linear functions are optimized over up to one thousand parameters. With the Levmar API only accepting a residual function that take double arrays as both in and outputs, considerable preprocessing of the data is required.
+There are three points in the reconstruction pipeline where nonlinear optimization is performed. In all three cases the optimization is performed using the levmar API \cite{levmar}. Levmar uses the Levenberg-Marquardt non-linear optimization algorithm to optimize a specified residual function, in this case re-projection errors of 3D points. The reprojection error is the distance, in pixels, between the projected 3D point and the corresponding point in the image plane. There are, in the implemented 3D-reconstruction pipeline, three instances where these highly non-linear functions are optimized over up to one thousand variables. With the Levmar API only accepting a residual function that take double arrays as both in and outputs, considerable preprocessing of the data is required.
 
 \subsubsection{Rotation Parametrization}
-In order to make it possible to find the optimal camera poses, the rotation matrices have to be parametrized. In this application they are parametrized using OpenCVs built-in Rodrigues' function, both in the PnP pose estimation and the bundle adjustment. This is a vector representation with the rotation angle described by the norm of the vector. The only ambiguity is the modulo $2\pi$ on the vector norm (ch.10.8 in \cite{Klas}), and by providing good initial guesses for the pose estimation, this is hardly an issue at all.
+In order to make it possible to find the optimal camera poses, the rotation matrices have to be parametrized. In this application they are parametrized using OpenCVs built-in Rodrigues' function, both in the PnP pose estimation and the bundle adjustment. This is a vector representation with the rotation angle described by the norm of the vector. The only ambiguity is the modulo $2\pi$ on the vector norm (ch.10.8 in \cite{Klas}), and by providing good initial guesses for the pose estimation, this is not an issue.
 
 \subsubsection{Gold Standard estimation of F}
 The function computing the gold standard refinement step is implemented as described in alg. 11.3, step (iii) in \cite{HZ}. The function takes, as an input, an initial guess of the F matrix, two projection matrices and vectors containing 2D and 3D correspondences. All input data is then preprocessed and re-arranged to fit the optimization API. The cost function described in equation \eqref{eq:GS} below is optimized over the twelve parameters of the projection matrix $P_2$ as well as the 3D-point coordinates, $p^{3D}$. 
@@ -38,8 +38,3 @@ The residual function simply, for each view, calculates the re-projection error 
 
 
 The number of outputs from the residual function scales rapidly with the number of views, as each view gives an additional $ 6 + 2N_v $ observations, where $ N_v $ is the number of 2D inliers in view $v$.
-
-
-
-
-

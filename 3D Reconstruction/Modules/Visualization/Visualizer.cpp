@@ -18,9 +18,9 @@ Visualizer::Visualizer(void){
 	shader = Shader(pointV,pointF);
 	colorShader = Shader("colorShader.vert", "colorShader.frag");
 
-	GLfloat mdlA[16] = {1.0, 0.0, 0.0, 0.0,
-						0.0, 1.0, 0.0, 0.0,
-						0.0, 0.0, 1.0, 0.0,
+	GLfloat mdlA[16] = {5.0, 0.0, 0.0, 0.0,
+						0.0, 5.0, 0.0, 0.0,
+						0.0, 0.0, 5.0, 0.0,
 						0.0, 0.0, 0.0, 1.0};
 	mdl = new GLfloat[16];
 	
@@ -131,10 +131,11 @@ void Visualizer::mainLoop(){
 }
 
 void Visualizer::redraw(){
+#define ratio 16/9
 #define nearFrustum 1.0
 #define farFrustum 500.0
-#define right 1.0
-#define left -1.0
+#define right 1.0*ratio
+#define left -1.0*ratio
 #define top 1.0
 #define bottom -1.0
 GLfloat frustumMatrix[] = {		2.0f*nearFrustum/(right-left), 0.0f,					(right+left)/(right-left),	0.0f,
@@ -149,6 +150,7 @@ GLfloat frustumMatrix[] = {		2.0f*nearFrustum/(right-left), 0.0f,					(right+lef
 
 	glUniformMatrix4fv(glGetUniformLocation(shader.programRef,"mdlMatrix"), 1, GL_TRUE, mdl);
 	glUniformMatrix4fv(glGetUniformLocation(shader.programRef,"projMatrix"), 1, GL_TRUE, frustumMatrix);
+	glUniform3fv(glGetUniformLocation(shader.programRef, "cameraPosition"), 1, Mat(cam.position).ptr<GLfloat>());
 	cam.lookAtUpdate(1.0);
 	cam.lookAtUpload(shader.programRef);
 

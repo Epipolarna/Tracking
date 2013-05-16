@@ -4,11 +4,11 @@ VisualisationDisplayCameraClass::VisualisationDisplayCameraClass()
 {
 	position		= cv::Vec3f(15, 0, 15);
 	lookAtVector	= cv::Vec3f(0, 0, 0);
-	upVector		= cv::Vec3f(0, 1, 0);
+	upVector		= cv::Vec3f(0, -1, 0);
 
 	sensitivity = 0.025f;
 	arrowSensitivity = 0.4f;
-	movementSpeed = 10.0f;
+	movementSpeed = 5.0f;
 	
 	rotAngles = cv::Vec3f(0,0,0);
 	//set the rotation matrix for the camera

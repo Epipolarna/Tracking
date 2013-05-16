@@ -44,22 +44,25 @@ int main()
 {
 	// Variables
 	//--------------
-	int cameraAmount = 29;
+	//int cameraAmount = 36;
+	
 	int version = 1;
 	clock_t t_BA, t_mainLoop;
 	std::string fileName;
 	
 	// Dinosaur K	
-	double Kdata[9] = {		3217.328669180762, -78.606641008226180, 289.8672403229193,
-							0,					2292.424143977958,  -1070.516234777778,
-							0,					0,					1};
 	
-	/*
-	double Kdata[9] = { 666.2647,   -1.9125,    399.0122,
-						0,			672.7446,	265.9638,
-						0,          0,			1.0000};
-	*/
-	cv::Mat K = cv::Mat(3,3,CV_64FC1,Kdata);
+	double KDinosaur[9] = {		3217.328669180762, -78.606641008226180, 289.8672403229193,
+							    0,					2292.424143977958,  -1070.516234777778,
+							    0,					0,					1};
+	
+	
+	// ModelHouse 
+	double KModelHouse[9] = {   666.2647,   -1.9125,    399.0122,
+								0,			672.7446,	265.9638,
+								0,          0,			1.0000};
+	
+	cv::Mat K = cv::Mat(3,3,CV_64FC1,KDinosaur);
 	//cv::Mat K = cv::Mat::eye(3,3,CV_64FC1);
 	
 	NonLinear::NonLinear nonlin(K);
@@ -77,9 +80,9 @@ int main()
 	if(!logFile)
 		std::cout << "Error to open \"log.txt\"!!\n";
 // Select program state
-	//programState = ePROGRAM_STATE::STAND_ALONE_VIEWER;
+	programState = ePROGRAM_STATE::STAND_ALONE_VIEWER;
 	//programState = ePROGRAM_STATE::CALCULATE_CORRESPONDANCES;
-	programState = ePROGRAM_STATE::ESTIMATE3D;
+	//programState = ePROGRAM_STATE::ESTIMATE3D;
 	//programState = ePROGRAM_STATE::LOADFROMFILE;
 	
 // The main program and it's 3 states
@@ -88,6 +91,7 @@ int main()
 	{		
 		corrEx.init("dinosaur");
 		std::cout << "Correspondances are computed and saved to file!\n";
+		programState = ePROGRAM_STATE::ESTIMATE3D;
 	}
 	else
 	if(programState == ePROGRAM_STATE::LOADFROMFILE)
@@ -96,13 +100,21 @@ int main()
 		dinosaurModel.loadFromFile("iteration2.2.alx");
 		std::cout << "# File loaded!\n";
 	}
-	else
+	//else
 	if(programState == ePROGRAM_STATE::ESTIMATE3D)
 	{
 		// Load matches
 
 		//corrEx.loadMatches("dinoGT.alx");
-		corrEx.loadMatches("dinosaur.alx");
+		//corrEx.init();
+
+		//corrEx.loadMatches("modelHouse.alx");
+		corrEx.loadMatches("dino.alx");
+		//K = corrEx.KModelHouse;
+		//K = corrEx.KDinosaur.clone();
+
+		int cameraAmount = corrEx.matchesVector.size() + 1;
+		
 
 		vector<Point2d> imagePoints1;
 		vector<Point2d> imagePoints2;
@@ -505,7 +517,11 @@ void loadFromFile(vis::Visualizer & v, std::string & filename, Estimate3D & dino
 		imageCoordinate = it->observerPair.front().point2D.p1;
 
 		Mat image = corrEx.imageList.at(camer1ID);
-		Mat patch = image(Rect(315,240,2,2));
+		Mat patch = image(Rect(imageCoordinate.x,imageCoordinate.y,1,1));
+		//imshow("Test", patch);
+		//circle(image, imageCoordinate, 5, Scalar(255,255,255));
+		//imshow("Tes2", image);
+		//waitKey(1);
 
 		cv::Vec3f coordinate = Vec3f(whatIsThePoint->x*scale, whatIsThePoint->y*scale, whatIsThePoint->z*scale);
 		v.addPoint(coordinate,patch);

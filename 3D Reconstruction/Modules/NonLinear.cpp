@@ -263,8 +263,6 @@ namespace NonLinear
 		{
 			Rodrigues((*it)->R.clone(), rVec);
 			cv::Mat R = (*it)->R.clone();
-			cout << "first R: \n" << R << endl << endl;
-			cout << "det(R): \n" << determinant(R) << endl << endl;
 			
 			data.rotations.push_back(rVec.clone());
 			data.translations.push_back((*it)->t.clone());
@@ -313,7 +311,7 @@ namespace NonLinear
 			error[i] = 0;
 		}
 		errorFile << "\n";
-		cout << "INITIAL ERROR: " << accErr << endl;
+		cout << "Initial average error: " << sqrt(accErr/error.size()) << endl;
 		double info[LM_INFO_SZ];
 		int ret;
 		
@@ -328,10 +326,10 @@ namespace NonLinear
 		std::vector<cv::Mat>::iterator itRot = data.rotations.begin();
 		for(std::list<Camera*>::iterator it = views.begin(); it != views.end(); it++)
 		{
-			cout << "final translation: \n" << (*itTrans) << endl;
-			cout << "final rotation: \n" << (*itRot) << endl;
+			//cout << "final translation: \n" << (*itTrans) << endl;
+			//cout << "final rotation: \n" << (*itRot) << endl;
 			Rodrigues((*itRot).clone(),(*it)->R);
-			cout << "final rotation: \n" << (*it)->R << endl << endl;
+			//cout << "final rotation: \n" << (*it)->R << endl << endl;
 			//vconcat(*itTrans,data.one,(*it)->t); NO U HOMOGENEOUS!
 			(*it)->t = (*itTrans).clone();
 			hconcat((*it)->R,(*itTrans),(*it)->C);

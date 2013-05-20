@@ -9,6 +9,7 @@
 #include <libs/levmar/levmar.h> //<<<---- numera på sven.
 #include "Camera.h"
 #include "Estimate3D.h"
+#include <math.h>
 #include <fstream>
 
 extern std::ofstream errorFile;
@@ -49,6 +50,7 @@ namespace NonLinear
 		int n3DPoints;
 		
 		double oneData;
+		double stopThreshold;
 		cv::Mat one;
 		cv::Mat R;
 		cv::Mat rVec;
@@ -82,7 +84,7 @@ namespace NonLinear
 		void testFunc(double* params, double* residuals);
 		void goldStandardRefine(cv::Mat F, std::vector<cv::Point2d> points1, std::vector<cv::Point2d> points2);
 		cv::Mat goldNonLin(cv::Mat F, cv::Mat C1, cv::Mat C2, cv::Mat point3D, std::vector<cv::Point2d> points1, std::vector<cv::Point2d> points2);
-		void BundleAdjust(std::list<Camera*>& views, std::vector<Visible3DPoint>* all3DPoints);
+		void BundleAdjust(std::list<Camera*>& views, std::vector<Visible3DPoint>* all3DPoints, double stopThreshold = 0);
 		
 	public:
 		// Hard-coded in constructor

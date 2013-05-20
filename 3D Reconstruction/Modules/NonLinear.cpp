@@ -178,6 +178,8 @@ namespace NonLinear
 		int errorIdx = 0;
 		int paramIdx = 0;
 		int pointIdx = 0;
+		double accError = 0;
+		double maxError = 0;
 		BAData* data = static_cast<BAData*>(derp);
 		
 		//Rebuild 3Dpoints (sigh)
@@ -224,13 +226,30 @@ namespace NonLinear
 				// Project onto image plane
 				data->point2D = data->P * data->point3D;
 				error[errorIdx] = (*data->imagePoints[i])[j].x - data->point2D.ptr<double>()[0] / data->point2D.ptr<double>()[2];
+				maxError = max(maxError, abs(error[errorIdx]));
+				accError += pow(error[errorIdx],2);
+				
 				error[errorIdx+1] = (*data->imagePoints[i])[j].y - data->point2D.ptr<double>()[1] / data->point2D.ptr<double>()[2];
+				maxError = max(maxError, abs(error[errorIdx+1]));
+				accError += pow(error[errorIdx+1],2);
+				
 				errorIdx += 2;
+			}
+		}
+	// choose threshold
+	if (sqrt(accError/n) < data->stopThreshold)
+	//if (maxError < data->stopThreshold)	
+		{
+			// set all errors to zero and force levmar to quit
+			// Not sure if this is such a great idea
+			for(int i = 0; i < n; i++)
+			{
+				error[i] = 0;
 			}
 		}
 	}
 
-	void NonLinear::BundleAdjust(std::list<Camera*>& views, std::vector<Visible3DPoint>* _all3DPoints)
+	void NonLinear::BundleAdjust(std::list<Camera*>& views, std::vector<Visible3DPoint>* _all3DPoints, double stopThreshold)
 	{
 		int nPoints = 0;
 		
@@ -247,6 +266,7 @@ namespace NonLinear
 		//preallocate everything
 		double oneData[1] = {1};
 		data.one = cv::Mat(1,1,CV_64FC1,oneData);
+		data.stopThreshold = stopThreshold;
 		data.R = cv::Mat::eye(3,3,CV_64FC1);
 		data.rVec = cv::Mat(3,1,CV_64FC1);
 		data.t = cv::Mat(3,1,CV_64FC1);
@@ -315,6 +335,7 @@ namespace NonLinear
 		double info[LM_INFO_SZ];
 		int ret;
 		
+		cout << residualTerms << endl;
 		ret = dlevmar_dif(BAResiduals, paramArray, error.data(), (int)params.size(),residualTerms,10000,NULL,info,NULL,NULL,&data);
 		printf("Levenberg-Marquardt returned in %g iter, reason %g, output error %g with an initial error of [%g]\n", info[5], info[6], info[1], info[0]);
 

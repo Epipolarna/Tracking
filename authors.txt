@@ -1,0 +1,8 @@
+# Mapping from SVN to git accounts
+
+(no author) = void <void@void>
+alesj050 = Alexander Sjoholm <Alexander.Sjoholm@gmail.com>
+marsv106 = Martin Svensson <marsv106@student.liu.se>
+matti166 = Mattias Tiger <matti166@student.liu.se>
+gusha124 = Gustav Hager <hager.gustav@gmail.com>
+thomasj  = void <void@void>
